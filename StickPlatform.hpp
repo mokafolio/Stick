@@ -16,7 +16,7 @@
 #endif
 
 //UNIT TESTING
-#define SUITE(...) if(printf("------ " __VA_ARGS__),puts(""),true)
+#define SUITE(...) if(printf("\n------ " __VA_ARGS__),puts(""),true)
 #define TEST(...)  (++tst,err+=!(ok=!!(__VA_ARGS__))),printf("[%s] %d %s \n",ok?" OK ":"FAIL",__LINE__,#__VA_ARGS__)
 unsigned tst=0,err=0,ok=atexit([]{ SUITE("summary"){ printf("[%s] %d tests = %d passed + %d errors\n",err?"FAIL":" OK ",tst,tst-err,err); }});
 

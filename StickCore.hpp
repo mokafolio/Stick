@@ -47,9 +47,21 @@ namespace stick
         };
 
         template<class T>
-        typename RemoveReference<T>::Type && move(T && _arg)
+        inline typename RemoveReference<T>::Type && move(T && _arg)
         {
             return static_cast<typename RemoveReference<T>::Type&&>(_arg);
+        }
+
+        template<class T>
+        inline T min(const T & _a, const T & _b)
+        {
+            return _a < _b ? _a : _b;
+        }
+
+        template<class T>
+        inline T max(const T & _a, const T & _b)
+        {
+            return _a > _b ? _a : _b;
         }
 
         struct Block
@@ -199,6 +211,15 @@ namespace stick
         {
         public:
 
+            typedef char * Iter;
+
+            typedef const char * ConstIter;
+
+            typedef ReverseIterator<Iter> ReverseIter;
+
+            typedef ReverseIterator<ConstIter> ReverseConstIter;
+
+
             String() :
             m_cStr(nullptr),
             m_length(0),
@@ -277,22 +298,32 @@ namespace stick
                 return *this;
             }
 
-            inline bool operator == (const String & _b)
+            inline char operator [](Size _index) const
+            {
+                return *(begin() + _index);
+            }
+
+            inline char & operator [](Size _index)
+            {
+                return *(begin() + _index);
+            }
+
+            inline bool operator == (const String & _b) const
             {
                 return strcmp(m_cStr, _b.m_cStr) == 0;
             }
 
-            inline bool operator != (const String & _b)
+            inline bool operator != (const String & _b) const
             {
                 return !(*this == _b);
             }
 
-            inline bool operator == (const char * _str)
+            inline bool operator == (const char * _str) const
             {
                 return strcmp(m_cStr, _str) == 0;
             }
 
-            inline bool operator != (const char * _str)
+            inline bool operator != (const char * _str) const
             {
                 return !(*this == _str);
             }
@@ -302,14 +333,44 @@ namespace stick
                 return m_length;
             }
 
-            inline const char * begin() const
+            inline Iter begin()
             {
                 return m_cStr;
             }
 
-            inline const char * end() const
+            inline ConstIter begin() const
+            {
+                return m_cStr;
+            }
+
+            inline Iter end()
             {
                 return m_cStr + m_length;
+            }
+
+            inline ConstIter end() const
+            {
+                return m_cStr + m_length;
+            }
+
+            inline ReverseIter rbegin()
+            {
+                return ReverseIter(end() - 1);
+            }
+
+            inline ReverseConstIter rbegin() const
+            {
+                return ReverseConstIter(end() - 1);
+            }
+
+            inline ReverseIter rend()
+            {
+                return ReverseIter(begin());
+            }
+
+            inline ReverseConstIter rend() const
+            {
+                return ReverseConstIter(begin());
             }
 
         private:
@@ -354,10 +415,13 @@ namespace stick
             m_elementCount(_other.m_elementCount),
             m_allocator(_other.m_allocator)
             {
-                resize(m_elementCount);
-                for(Size i = 0; i < m_elementCount; ++i)
+                if(m_elementCount)
                 {
-                    *this[i] = _other[i];
+                    resize(m_elementCount);
+                    for(Size i = 0; i < m_elementCount; ++i)
+                    {
+                        *this[i] = _other[i];
+                    }
                 }
             }
 
@@ -399,7 +463,7 @@ namespace stick
             {
                 if(_s > capacity())
                 {
-                    /*auto blk = m_allocator->allocate(_s * sizeof(T));
+                    auto blk = m_allocator->allocate(_s * sizeof(T));
                     if(blk.ptr != m_data.ptr)
                     {
                         for(Size i = 0; i < m_elementCount; ++i)
@@ -408,8 +472,9 @@ namespace stick
                         }
                         m_allocator->deallocate(m_data);
                     }
-                    m_data = blk;*/
-                    m_data = m_allocator->reallocate(m_data, _s * sizeof(T));
+                    m_data = blk;
+                    //TODO: do this for POD types?
+                    //m_data = m_allocator->reallocate(m_data, _s * sizeof(T));
                 }
             }
 
@@ -417,9 +482,57 @@ namespace stick
             {
                 if(capacity() <= m_elementCount)
                 {
-                    reserve(m_elementCount * 2);
+                    reserve(max((Size)1, m_elementCount * 2));
                 }
                 (*this)[m_elementCount++] = _element;
+            }
+
+            template<class InputIter>
+            inline Iter insert(ConstIter _it, InputIter _first, InputIter _last)
+            {
+                Size idiff = _last - _first;
+                Size index = (_it - begin());
+                Size diff = m_elementCount - index;
+                
+                if(capacity() < m_elementCount + idiff)
+                {
+                    reserve(max(idiff, m_elementCount * 2));
+                }
+                
+                Size fidx = index + diff - 1;
+                Size iidx = fidx + idiff; 
+                for(Size i = 0; i < diff; ++i)
+                {
+                    (*this)[iidx - i] = (*this)[fidx - i];
+                }
+
+                for(Size i = 0; _first != _last; ++_first, ++i)
+                {
+                    (*this)[index + i] = *_first;
+                }
+
+                m_elementCount += idiff;
+                return begin() + index;
+            }
+
+            inline Iter insert(ConstIter _it, const T & _val)
+            {
+                return insert(_it, &_val, &_val + 1);
+            }
+
+            inline Iter erase(ConstIter _first, ConstIter _last)
+            {
+                Size diff = end() - _last;
+                Size idiff = _last - _first;
+                Size index = (_first - begin());
+                Size endIndex = m_elementCount - diff;
+
+                for(Size i=0; i < diff; ++i)
+                {
+                    (*this)[index + i] = (*this)[endIndex + i];
+                }
+                m_elementCount -= idiff;
+                return begin() + index;
             }
 
             inline void popBack()
@@ -554,6 +667,7 @@ namespace stick
             SecondType second;
         };
 
+        /*
         template<class K, class V>
         class Dict
         {
@@ -580,15 +694,20 @@ namespace stick
 
             inline Pair<Iter, bool> insert(const ValueType & _val)
             {
+                bool bFound = true;
+                auto it == lowerBound(_val);
                 m_array.pushBack(_val);
             }
 
+            Iter lowerBound(const KeyType & _key)
+            {
 
+            }
 
         private:
 
             ArrayType m_array;
-        };
+        };*/
 
 
         /*
@@ -806,6 +925,22 @@ int main(int _argc, const char * _args[])
         TEST(a != c);
         TEST(b != c);
 
+        char expectedResults[] = {'t', 'e', 's', 't'};
+
+        Int32 i = 0;
+        for(auto c : a)
+        {
+            TEST(c == expectedResults[i]);
+            i++;
+        }
+
+        i = 3;
+        for(auto it = a.rbegin(); it != a.rend(); it++)
+        {
+            TEST(*it == expectedResults[i]);
+            i--;
+        }
+
         String d;
         d = a;
         TEST(d == a);
@@ -813,12 +948,6 @@ int main(int _argc, const char * _args[])
 
         d = "another one";
         TEST(d == "another one");
-
-        for(auto c : d)
-        {
-            std::cout<<c<<std::endl;
-        }
-
 
         /*
         Adder a;
@@ -881,13 +1010,47 @@ int main(int _argc, const char * _args[])
         i = a.elementCount() - 1;
         for(auto it = a.rbegin(); it != a.rend(); ++it)
         {
-            std::cout<<*it<<" "<<expectedResults[i]<<std::endl;
             TEST(*it == expectedResults[i]);
             --i;
         }
 
         a.clear();
         TEST(a.elementCount() == 0);
+
+        
+        DynamicArray<Int32> b;
+        Int32 arr[] = {1, 2, 3, 4};
+        b.append(10);
+        b.append(11);
+        b.append(12);
+        b.append(13);
+        auto it = b.insert(b.end(), arr, arr + 4);
+        TEST(it == b.end() - 4);
+        TEST(it == b.begin() + 4);
+        TEST(*it == 1);
+        auto it2 = b.insert(b.begin() + 2, 99);
+        TEST(it2 == b.begin() + 2);
+        TEST(*it2 == 99);
+
+        Int32 expectedArr[] = {10, 11, 99, 12, 13, 1, 2, 3, 4};
+        i = 0;
+        for(auto v : b)
+        {
+            TEST(expectedArr[i] == v);
+            i++;
+        }
+        TEST(b.elementCount() == 9);
+
+        auto it3 = b.erase(b.begin() + 2, b.begin() + 6);
+        TEST(it3 == b.begin() + 2);
+        TEST(*it3 == 2);
+        Int32 expectedArr2[] = {10, 11, 2, 3, 4};
+        i=0;
+        for(auto v : b)
+        {
+            TEST(expectedArr2[i] == v);
+            i++;
+        }
     }
 }
 
