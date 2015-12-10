@@ -13,20 +13,6 @@ namespace stick
 {
     namespace core
     {
-        typedef uint8_t UInt8;
-        typedef uint16_t UInt16;
-        typedef uint32_t UInt32 ;
-        typedef uint64_t UInt64;
-        
-        // signed integers
-        typedef int8_t Int8;
-        typedef int16_t Int16;
-        typedef int32_t Int32;
-        typedef int64_t Int64;
-        typedef size_t Size;
-
-        typedef float Float32;
-        typedef double Float64;
 
         template<class T>
         struct RemoveReference
@@ -708,6 +694,246 @@ namespace stick
 
             ArrayType m_array;
         };*/
+
+        class ErrorCategory;
+
+        /**
+         * @brief An ErrorCode describes an error condition: http://en.wikipedia.org/wiki/Error_code
+         *
+         * This implementation holds an integer code that describes the error condition and a pointer to a
+         * ErrorCategory which is the group of errors that the ErrorCode is part of.
+         */
+        class ErrorCode
+        {
+        public:
+            
+            /**
+             * @brief Default Constructor.
+             *
+             * This will initialize the error category to NoErrorCategory and the code to 0,
+             * which is the default no error indicator.
+             */
+            ErrorCode();
+            
+            /**
+             * @brief Constructs an ErrorCode from a code and a category.
+             *
+             * You rarely use this constructor directly. Usually you would just provide the error code enum value,
+             * and let the magic behind the scenes deduce the ErrorCategory automatically.
+             *
+             * @see detail::isErrorCodeEnum
+             */
+            ErrorCode(Int32 _code, const ErrorCategory & _category);
+            
+            /**
+             * @brief Constructs an ErrorCode from an ErrorCodeEnum value.
+             *
+             * The error category is automatically deducted at compile time.
+             */
+            //template<class ErrorCodeEnum>
+            //ErrorCode(ErrorCodeEnum _code, typename std::enable_if<detail::isErrorCodeEnum<ErrorCodeEnum>::value>::type* = 0);
+            
+            /**
+             * @brief Assigns an ErrorCodeEnum value to this.
+             *
+             * The error category is automatically deducted at compile time.
+             */
+            /*template<class ErrorCodeEnum>
+            typename std::enable_if<detail::isErrorCodeEnum<ErrorCodeEnum>::value, ErrorCode>::type &
+            operator = (ErrorCodeEnum _code);*/
+            
+            /**
+             * @brief Implicit conversion to bool.
+             */
+            explicit operator bool() const;
+            
+            /**
+             * @brief Implicit conversion to bool.
+             */
+            bool operator!() const;
+            
+            /**
+             * @brief Returns true if the codes and categories of both ErrorCodes are equal.
+             */
+            bool operator == (const ErrorCode & _other) const;
+            
+            /**
+             * @brief Returns true if either the codes and/or categories of the ErrorCodes are not equal.
+             */
+            bool operator != (const ErrorCode & _other) const;
+            
+            /**
+             * @brief Returns a String describing the error condition of this code.
+             */
+            String description() const;
+            
+            /**
+             * @brief Returns the integer representation of the error condition.
+             */
+            Int32 code() const;
+            
+            /**
+             * @brief Returns the resolved, platform independent error code.
+             * @see ErrorCategory::resolveErrorCode
+             */
+            ErrorCode resolvedCode() const;
+            
+            /**
+             * @brief Returns the ErrorCategory that this ErrorCode belongs to.
+             */
+            const ErrorCategory & category() const;
+            
+            
+        protected:
+            
+            Int32 m_code;
+            const ErrorCategory * m_category;
+        };
+
+
+        /**
+         * @brief An ErrorCategory allows you to easily group error codes.
+         *
+         * This is essentially very similar to how std::error_code / std::error_condition (or the boost counterparts) works.
+         * Some additional functionality for debugging and exception emitting has been added in comparison to those implementations.
+         * Also, this implementation does not differ between error_code and error_condition. It only has one ErrorCode class,
+         * that holds the error code in question (which usually is the platform specific error), which then can be resolved in
+         * order to get a plarform independent error code.
+         *
+         * @see ErrorCode
+         * @see ErrorReport
+         */
+        class ErrorCategory
+        {
+        public:
+            
+            /**
+             * @brief Constructs an ErrorCategory with a name.
+             *
+             * Usually, error categories are lazy constructed statically.
+             *
+             * @see errorCategory
+             */
+            ErrorCategory(const String & _name);
+
+            /**
+             * @brief Virtual Destructor. You derive from this class to create a new ErrorCategory.
+             */
+            virtual ~ErrorCategory();
+            
+            /**
+             * @brief Returns true if the other ErrorCategory is this.
+             */
+            bool operator == (const ErrorCategory & _other) const;
+            
+            /**
+             * @brief Returns true if the other ErrorCategory is not this.
+             */
+            bool operator != (const ErrorCategory & _other) const;
+            
+            /**
+             * @brief Returns the name of this category.
+             */
+            const String & name() const;
+            
+            /**
+             * @brief Resolve can potentially change an error to something more meaningful/portable inside of this category.
+             *
+             * For example, _code might hold a platform specific error, that is changed to a platform independent error inside
+             * of the resolveErrorCode function of an ErrorCategory. The default implementation just returns the input ErrorCode.
+             *
+             * @param _code The code to resolve.
+             */
+            virtual ErrorCode resolveErrorCode(const ErrorCode & _code) const;
+            
+            /**
+             * @brief This needs to be overwritten to return descriptions for the error code in this category.
+             * @param _code The code to get the description for.
+             */
+            virtual String description(const ErrorCode & _code) const = 0;
+
+            /**
+             * @brief This allows you to specify conditions that don't necessarily indicate an error. (i.e. status codes)
+             */
+            virtual bool indicatesError(const ErrorCode & _code) const;
+            
+            
+        private:
+            
+            String m_name;
+        };
+
+        /**
+         * @brief An ErrorReport adds some more meta information about an error condition on top of ErrorCode.
+         *
+         * In addition to the error code, it can hold a message that gives some more contextual information about
+         * where and how the error occured. It can also store a file name and line number for debugging purposes
+         * to guide you to the piece of code that emitted the error. Additionally, an ErrorReport knows how and when
+         * to throw an exception that is appropriate for its condition.
+         */
+        class ErrorReport :
+        public ErrorCode
+        {
+        public:
+            
+            /**
+             * @brief Default Constructor.
+             *
+             * See the default constructor of ErrorCode.
+             */
+            ErrorReport();
+            
+            /**
+             * @brief Constructs an ErrorReport from an ErrorCode and contextual information.
+             * @param _code The ErrorCode that describes the error.
+             * @param _message A contextual message that describes when and how the error occured.
+             * @param _file You can optionally provide which file emitted the error for debugging.
+             * @param _line You can optionally provide the line number that emitted the error for debugging.
+             */
+            ErrorReport(const ErrorCode & _code, const String & _message = "", const String & _file = "", UInt32 _line = 0);
+            
+            /**
+             * @brief Returns the error message (contextual info) of this error.
+             */
+            const String & message() const;
+            
+            /**
+             * @brief Returns the contextual message of this error with the general
+             * error description.
+             * @see message
+             */
+            const String & messageAndDescription() const;
+            
+            /**
+             * @brief Returns the file where the error occured (if it was provided).
+             */
+            const String & file() const;
+            
+            /**
+             * @brief Returns the line number where the error occured (if it was provided).
+             * @see file
+             */
+            UInt32 line() const;
+            
+            /**
+             * @brief Throws the exception for this error. This will throw no matter what!
+             */
+            void throwException() const;
+            
+            /**
+             * @brief Throws the exception for this error if the condition indicates an error.
+             */
+            void throwOnError() const;
+            
+        private:
+            
+            mutable String m_messageAndDescription;
+            String m_message;
+            String m_file;
+            UInt32 m_line;
+        };
+
+
 
 
         /*

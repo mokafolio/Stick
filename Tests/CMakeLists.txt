@@ -1,1 +1,1 @@
-add_executable (StickCoreTests StickCoreTests.cpp)
+add_executable (StickTests StickTests.cpp)
