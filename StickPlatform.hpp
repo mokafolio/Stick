@@ -15,6 +15,18 @@
     #undef STICK_DEBUG
 #endif
 
+//POSSIBLE PLATFORMS
+#define STICK_PLATFORM_OSX 1
+#define STICK_PLATFORM_LINUX 2
+
+#if defined ( __APPLE__ )
+    #define STICK_PLATFORM STICK_PLATFORM_OSX
+    #define STICK_PLATFORM_UNIX
+#elif __linux__
+    #define STICK_PLATFORM STICK_PLATFORM_LINUX
+    #define STICK_PLATFORM_UNIX
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
