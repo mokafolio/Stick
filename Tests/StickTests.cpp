@@ -1,5 +1,8 @@
 #include <Stick/StickString.hpp>
 #include <Stick/StickDynamicArray.hpp>
+#include <Stick/StickRBTree.hpp>
+
+#include <iostream>
 
 using namespace stick;
 
@@ -123,5 +126,27 @@ int main(int _argc, const char * _args[])
             TEST(expectedArr2[i] == v);
             i++;
         }
+    }
+
+    SUITE("RBTree Tests")
+    {
+        RBTree<Int32> tree;
+        tree.insert(1);
+        tree.insert(2);
+
+        auto n = tree.find(1);
+        auto n2 = tree.find(2);
+
+        TEST(n->bIsRed == false);
+        TEST(n2->bIsRed == true);
+        TEST(n->value == 1);
+        TEST(n2->value == 2);
+        TEST(n != n2);
+        TEST(tree.elementCount() == 2);
+
+        auto oldn2 = n2;
+        tree.insert(2);
+        TEST(tree.elementCount() == 2);
+        TEST(oldn2 == tree.find(2));
     }
 }
