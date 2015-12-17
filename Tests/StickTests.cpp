@@ -6,6 +6,23 @@
 
 using namespace stick;
 
+
+void printNode(const char * _prefix, RBTree<Int32> & _tree, RBTree<Int32>::Node * _n, Size _depth)
+{
+    const char * col = _n->color == RBTree<Int32>::Color::Red ? "red" : "black";
+    std::cout<<_prefix<<" depth: "<<_depth++<<" VAL: "<<_n->value<<" Col: "<<col<<std::endl;
+
+    if(_n->left)
+    {
+        printNode("LFT", _tree, _n->left, _depth);
+    }
+    if(_n->right)
+    {
+        printNode("RGT: ", _tree, _n->right, _depth);
+    }
+}
+
+
 int main(int _argc, const char * _args[])
 {
     SUITE("String Tests")
@@ -91,7 +108,6 @@ int main(int _argc, const char * _args[])
 
         a.clear();
         TEST(a.elementCount() == 0);
-
         
         DynamicArray<Int32> b;
         Int32 arr[] = {1, 2, 3, 4};
@@ -131,22 +147,54 @@ int main(int _argc, const char * _args[])
     SUITE("RBTree Tests")
     {
         RBTree<Int32> tree;
+        TEST(tree.elementCount() == 0);
+
+        tree.insert(6);
+
+        TEST(tree.root()->value == 6);
+
+        tree.insert(5);
+        tree.insert(7);
+        tree.insert(9);
+        tree.insert(8);
         tree.insert(1);
+        tree.insert(24);
         tree.insert(2);
+        tree.insert(3);
 
-        auto n = tree.find(1);
+        TEST(tree.elementCount() == 9);
+
+        auto n = tree.find(5);
         auto n2 = tree.find(2);
+        auto n3 = tree.find(24);
 
-        TEST(n->bIsRed == false);
-        TEST(n2->bIsRed == true);
-        TEST(n->value == 1);
+        TEST(n != nullptr);
+        TEST(n2 != nullptr);
+        TEST(n3 != nullptr);
+
+        TEST(n->value == 5);
         TEST(n2->value == 2);
-        TEST(n != n2);
-        TEST(tree.elementCount() == 2);
+        TEST(n3->value == 24);
 
-        auto oldn2 = n2;
-        tree.insert(2);
-        TEST(tree.elementCount() == 2);
-        TEST(oldn2 == tree.find(2));
+        auto notFound = tree.find(199);
+        TEST(notFound == nullptr);
+        
+        printNode("root", tree, tree.root(), 0);
+
+        tree.remove(1);
+        tree.remove(8);
+        tree.remove(24);
+        std::cout<<"ELEMC: "<<tree.elementCount()<<std::endl;
+        TEST(tree.elementCount() == 6);
+
+        auto n4 = tree.find(1);
+        auto n5 = tree.find(8);
+        auto n6 = tree.find(24);
+
+        TEST(n4 == nullptr);
+        TEST(n5 == nullptr);
+        TEST(n6 == nullptr);
+
+        printNode("root", tree, tree.root(), 0);
     }
 }

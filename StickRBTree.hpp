@@ -6,6 +6,8 @@
 #include <Stick/StickUtility.hpp>
 #include <new> //for placement new
 
+#include <iostream>
+
 namespace stick
 {
     template<class T>
@@ -15,10 +17,16 @@ namespace stick
 
         typedef T ValueType;
 
+        enum class Color : bool
+        {
+            Red = true,
+            Black = false
+        };
+
         struct Node
         {
             Node() :
-            bIsRed(true),
+            color(Color::Red),
             left(nullptr),
             right(nullptr),
             parent(nullptr)
@@ -27,7 +35,7 @@ namespace stick
             }
 
             Node(const T & _value) :
-            bIsRed(true),
+            color(Color::Red),
             value(_value),
             left(nullptr),
             right(nullptr),
@@ -36,7 +44,42 @@ namespace stick
 
             }
 
-            bool bIsRed;
+            inline Node * grandparent()
+            {
+                if (parent != nullptr)
+                    return parent->parent;
+                return nullptr;
+            }
+
+            inline Node * uncle()
+            {
+                Node * g = grandparent();
+                if (g == nullptr)
+                    return nullptr;
+                if (parent == g->left)
+                    return g->right;
+                else
+                    return g->left;
+            }
+
+            inline Node * sibling()
+            {   
+                if(!parent) return nullptr;
+
+                if (this == parent->left)
+                    return parent->right;
+                else
+                    return parent->left;
+            }
+
+            inline void swapValue(Node & _other)
+            {
+                T tmp = _other.value;
+                _other.value = value;
+                value = tmp;
+            }
+
+            Color color;
             T value;
             Node * left;
             Node * right;
@@ -45,14 +88,12 @@ namespace stick
 
         RBTree(Allocator & _alloc = defaultAllocator()) :
         m_alloc(&_alloc),
-        m_rootNode(nullptr),
         m_elementCount(0)
         {
-
         }
 
         ~RBTree()
-        {
+        {   
             if(m_rootNode)
                 deallocateTree(m_rootNode);
         }
@@ -62,17 +103,32 @@ namespace stick
             return m_rootNode ? findImpl(m_rootNode, _val) : nullptr;
         }
 
+        Node * root() const
+        {
+            return m_rootNode;
+        }
+
         void insert(const ValueType & _val)
         {
-            if(!m_rootNode)
+            if(m_elementCount == 0)
             {
                 m_rootNode = createNode(_val);
-                rebalance(m_rootNode);
-                m_elementCount = 1;
+                m_rootNode->color = Color::Black;
+                m_elementCount++;
             }
             else
             {
                 insertImpl(m_rootNode, _val);
+            }
+        }
+
+        void remove(const ValueType & _val)
+        {
+            Node * n = find(_val);
+            if(n)
+            {
+                m_elementCount--;
+                removeImpl(n);
             }
         }
 
@@ -107,7 +163,7 @@ namespace stick
             }
             else if(_currentNode->value > _val)
             {
-                if(_currentNode->left == nullptr)
+                if(!_currentNode->left)
                 {
                     return nullptr;
                 }
@@ -118,7 +174,7 @@ namespace stick
             }
             else
             {
-                if(_currentNode->right == nullptr)
+                if(!_currentNode->right)
                 {
                     return nullptr;
                 }
@@ -129,179 +185,243 @@ namespace stick
             }
         }
 
+        void removeImpl(Node * _node)
+        {
+            STICK_ASSERT(m_elementCount >= 0);
+
+            UInt8 nullChildrenCount = 0;
+            if(!_node->left) nullChildrenCount++;
+            if(!_node->right) nullChildrenCount++;
+
+            if(nullChildrenCount == 0)
+            {
+                Node* p = _node->left;
+                while (p->left) p = p->right;
+                p->swapValue(*_node);
+                removeImpl(p);
+            }
+            else if(nullChildrenCount == 1)
+            {
+                Node * child = _node->left ? _node->left : _node->right;
+                STICK_ASSERT(_node->color == Color::Black && child->color == Color::Red);
+                child->color = Color::Black;
+                if (_node->parent)
+                {
+                    child->parent = _node->parent;
+                    if (_node->parent->left == _node)
+                        _node->parent->left = child;
+                    else 
+                        _node->parent->right = child;
+                } 
+                else 
+                {
+                    m_rootNode = child;
+                    child->parent = nullptr;
+                }
+            }
+            else if(nullChildrenCount == 2)
+            {
+                if(_node == m_rootNode)
+                {
+                    m_alloc->deallocate({_node, sizeof(Node)});
+                    m_rootNode = nullptr;
+                }
+                else
+                {
+                    if (_node->parent->left == _node)
+                        _node->parent->left = nullptr;
+                    else 
+                        _node->parent->right = nullptr;
+                    Node * p = _node->parent;
+                    auto col = _node->color;
+                    m_alloc->deallocate({_node, sizeof(Node)});
+                    //TODO: if black, fix tree
+                    if(col == Color::Black)
+                        deleteFix(p);
+                }
+            }
+        }
+
+        void deleteFix(Node * _node)
+        {
+            if(!_node->parent->parent)
+                return;
+
+            Node * sibling;
+            bool bLeft = false;
+            if(_node == _node->parent->left)
+                sibling = _node->parent->right;
+            else
+            {
+                bLeft = true;
+                sibling = _node->parent->left;
+            }
+
+            if(sibling->color == Color::Red)
+            {
+                sibling->color = sibling->parent->color;
+                sibling->parent->color = sibling->parent->color == Color::Red ? Color::Black : Color::Red;
+                rotate(sibling, !bLeft);
+                deleteFix(_node);
+            }
+            else if(_node->parent->color == Color::Black && sibling->color == Color::Black &&
+                    (!sibling->left || sibling->left->color == Color::Black) &&
+                    (!sibling->right || sibling->right->color == Color::Black))
+            {
+                sibling->color = Color::Red;
+                deleteFix(_node->parent);
+            }
+            else if(_node->parent->color == Color::Red)
+            {
+                STICK_ASSERT((!sibling->left || sibling->left->color == Color::Red) && (!sibling->right || sibling->right->color == Color::Red));
+                sibling->color = sibling->parent->color;
+                sibling->parent->color = sibling->parent->color == Color::Red ? Color::Black : Color::Red;
+            }
+            else if((!bLeft && (sibling->right || sibling->right->color == Color::Black) && sibling->left->color == Color::Red) ||
+                    (bLeft && (sibling->left || sibling->left->color == Color::Black) && sibling->right->color == Color::Red))
+            {
+                Node * child = bLeft ? sibling->right : sibling->left;
+                sibling->color = child->color;
+                child->color = child->color == Color::Red ? Color::Black : Color::Red;
+                rotate(child, bLeft);
+                deleteFix(_node);
+            }
+            else if((!bLeft && sibling->right && sibling->right->color == Color::Red) ||
+                    (bLeft && sibling->left && sibling->left->color == Color::Red))
+            {
+                auto tmpCol = sibling->color;
+                sibling->color = sibling->parent->color;
+                sibling->parent->color = tmpCol;
+                if(bLeft)
+                    sibling->right->color = Color::Black;
+                else
+                    sibling->left->color = Color::Black;
+                rotate(sibling, !bLeft);
+            }
+        }
+
         void insertImpl(Node * _currentNode, const ValueType & _val)
         {
-            Node * insertedNode = nullptr;
             if(_currentNode->value == _val)
             {
                 return;
             }
-            else if(_currentNode->value > _val)
+            else
             {
-                if(_currentNode->left == nullptr)
+                Node * node = nullptr;
+                bool bLeft = false;
+                if(_val < _currentNode->value)
                 {
-                    insertedNode = createNode(_val);
-                    _currentNode->left = insertedNode;
+                    bLeft = true;
+                    node = _currentNode->left;
+                }
+                else
+                    node = _currentNode->right;
+
+                if(!node)
+                {
+                    node = createNode(_val);
+                    node->parent = _currentNode;
+                    if(bLeft)
+                        _currentNode->left = node;
+                    else
+                        _currentNode->right = node;
                     m_elementCount++;
+
+                    //fix the balancing of the tree after creating the new node
+                    insertFix(node);
                 }
                 else
                 {
-                    insertImpl(_currentNode->left, _val);
+                    insertImpl(node, _val);
                 }
             }
-            else
+        }
+
+        inline void insertFix(Node * _node)
+        {   
+            if (_node->parent == nullptr && _node->color == Color::Red) 
+            {   // Root is wrong color
+                STICK_ASSERT(_node == m_rootNode);
+                _node->color = Color::Black;
+                return;
+            } 
+
+            //case 2: tree stil valid
+            if(_node->parent->color == Color::Black)
             {
-                if(_currentNode->right == nullptr)
+                return;
+            }
+            if (_node->color == Color::Red && _node->parent->color == Color::Red)
+            {
+                //case 3: parent and uncle are red
+                Node * uncle = _node->uncle();
+                if((uncle != nullptr) && (uncle->color == Color::Red))
                 {
-                    insertedNode = createNode(_val);
-                    _currentNode->right = insertedNode;
-                    m_elementCount++;
+                    _node->parent->color = Color::Black;
+                    uncle->color = Color::Black;
+                    Node * g = _node->grandparent();
+                    g->color = Color::Red;
+                    //fix what might be broken after these changes
+                    insertFix(g);
                 }
                 else
                 {
-                    insertImpl(_currentNode->right, _val);
+                    //case 4: Parent is red, uncle is black -> rotate to fix
+                    Node * g = _node->grandparent();
+                    if((_node == _node->parent->right) && (_node->parent == g->left))
+                    {
+                        rotate(_node, true);
+                        insertFix(_node->left);
+                    }
+                    else if((_node == _node->parent->left) && (_node->parent == g->right))
+                    {
+                        rotate(_node, false);
+                        insertFix(_node->right);
+                    }
+                    else
+                    {
+                        //case 5: Parent and Child are on same side.
+                        Node * g = _node->grandparent();
+                        _node->parent->color = g->color;
+                        g->color = g->color == Color::Red ? Color::Black : Color::Red;
+                        if(_node == _node->parent->left)
+                            rotate(_node->parent, false);
+                        else
+                            rotate(_node->parent, true);
+                    }
                 }
             }
-            //restore uniform black height
-            if (insertedNode == nullptr) return;
-            rebalance(_currentNode);
         }
 
-        inline static Node * grandparent(Node * _node)
+        inline void rotate(Node * _node, bool _bLeft)
         {
-            if ((_node != nullptr) && (_node->parent != nullptr))
-              return _node->parent->parent;
-             else
-              return nullptr;
-        }
-
-        inline static Node * uncle(Node * _node)
-        {
-            Node * g = grandparent(_node);
-            if (g == nullptr)
-                return nullptr; // No grandparent means no uncle
-            if (_node->parent == g->left)
-                return g->right;
-            else
-                return g->left;
-        }
-
-        inline static Node * sibling(Node * _node)
-        {
-            if (_node == _node->parent->left)
-                return _node->parent->right;
-            else
-                return _node->parent->left;
-        }
-
-        inline static void rebalanceCase1(Node * _node)
-        {
-            if(_node->parent == nullptr)
-                _node->bIsRed = false;
-            else
-                rebalanceCase2(_node);
-        }
-
-        inline static void rebalanceCase2(Node * _node)
-        {
-            if(!_node->parent->bIsRed)
+            Node* p = _node->parent;
+            Node* g = p->parent;
+            _node->parent = g;
+            p->parent = _node;
+            Node* gc;
+            if (_bLeft) 
+            { 
+                gc = _node->left;
+                _node->left = p;
+                p->right = gc;
+            } 
+            else 
             {
-                rebalanceCase3(_node);
+                gc = _node->right;
+                _node->right = p;
+                p->left = gc;
             }
-        }
+            if (gc) 
+                gc->parent = p;
 
-        inline static void rebalanceCase3(Node * _node)
-        {
-            Node * u = uncle(_node);
-            if ((u != nullptr) && (u->bIsRed)) 
-            {
-                _node->parent->bIsRed = false;
-                u->bIsRed = false;
-                Node * g = grandparent(_node);
-                g->bIsRed = false;
-                rebalanceCase1(g);
-            }
-            else
-            {
-                rebalanceCase4(_node);
-            }
-        }
-
-        inline static void rebalanceCase4(Node * _node)
-        {
-            Node * g = grandparent(_node);
-
-            if ((_node == _node->parent->right) && (_node->parent == g->left)) 
-            {
-                rotateLeft(_node->parent);
-                rebalanceCase5(_node->left);
-            }
-            else
-            {
-                rotateRight(_node->parent);
-                rebalanceCase5(_node->right);
-            }
-        }
-
-        inline static void rebalanceCase5(Node * _node)
-        {
-            Node * g = grandparent(_node);
-
-            _node->parent->bIsRed = false;
-            g->bIsRed = true;
-            if (_node == _node->parent->left)
-                rotateRight(g);
-            else
-                rotateLeft(g);
-        }
-
-        inline static void rotateLeft(Node * _node)
-        {
-            Node * nr = _node->right;
-
-            if(_node->parent)
-            {
-                if(_node->parent->left == _node)
-                    _node->parent->left = nr;
-                else
-                    _node->parent->right = nr;
-            }
-
-            nr->parent = _node->parent;
-            _node->parent = nr;
-
-            _node->right = nr->left;
-            nr->left = _node;
-
-            if(_node->right)
-                _node->right->parent = _node;
-        }
-
-        inline static void rotateRight(Node * _node)
-        {
-            Node * nn = _node->left;
-
-            if(_node->parent)
-            {
-                if(_node->parent->right == _node)
-                    _node->parent->right = nn;
-                else
-                    _node->parent->left = nn;
-            }
-
-            nn->parent = _node->parent;
-            _node->parent = nn;
-
-            _node->left = nn->right;
-            nn->right = _node;
-
-            if(_node->left)
-                _node->left->parent = _node;
-        }
-
-        static void rebalance(Node * _node)
-        {
-            rebalanceCase1(_node);
+            if (!g) 
+                m_rootNode = _node;
+            else if (g->left == p) 
+                g->left = _node;
+            else 
+                g->right = _node;
         }
 
         Allocator * m_alloc;
