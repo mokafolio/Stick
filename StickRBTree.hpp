@@ -144,7 +144,23 @@ namespace stick
             return m_elementCount;
         }
 
+        Node * rightMost() const
+        {
+            if(m_rootNode)
+                return recurseRight(m_rootNode);
+
+            return nullptr;
+        }
+
     private:
+
+        Node * recurseRight(Node * _node) const
+        {
+            if(_node->right)
+                return recurseRight(_node->right);
+
+            return _node;
+        }
 
         void deallocateTree(Node * _node)
         {

@@ -194,6 +194,11 @@ namespace stick
             return ReverseConstIter(begin());
         }
 
+        inline const char * cString() const
+        {
+            return m_cStr;
+        }
+
     private:
 
         char * m_cStr;

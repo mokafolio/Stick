@@ -54,34 +54,53 @@ namespace stick
         struct Iter
         {
             Iter() :
-            current(nullptr)
+            current(nullptr),
+            last(nullptr)
             {
 
             }
 
-            Iter(Node * _node) :
-            current(_node)
+            Iter(Node * _node, Node * _last) :
+            current(_node),
+            last(_last)
             {
 
             }
 
             inline void increment()
             {
+                if(!current)
+                    return;
+
                 if(current->left)
                 {
+                    std::cout<<"HAVE LEFT"<<std::endl;
                     current = current->left;
                 }
                 else if(current->right)
                 {
+                    std::cout<<"HAVE RIGHT"<<std::endl;
                     current = current->right;
                 }
                 else
                 {
-                    while(current->parent && !current->parent->right)
+                    std::cout<<"GOING UP BRA"<<std::endl;
+
+                    if(current == last)
                     {
+                        current = nullptr;
+                        return;
+                    }
+
+                    while(current->parent && (!current->parent->right || current->parent->right == current))
+                    {
+                        std::cout<<"UP YO"<<std::endl;
                         current = current->parent;
                     }
-                    if(current) current = current->right;
+                    if(current->parent) 
+                        current = current->parent->right;
+                    else
+                        current = last;
                 }
             }
 
@@ -167,6 +186,7 @@ namespace stick
             }
 
             Node * current;
+            Node * last;
         };
 
         typedef const Iter ConstIter;
@@ -180,7 +200,7 @@ namespace stick
         inline InsertResult insert(const KeyValuePair & _val)
         {
             auto res = m_tree.insert(_val);
-            return {Iter(res.node), res.inserted};
+            return {Iter(res.node, m_tree.rightMost()), res.inserted};
         }
 
         inline InsertResult insert(const KeyType & _key, const ValueType & _val)
@@ -190,22 +210,22 @@ namespace stick
 
         inline Iter find(const KeyType & _key)
         {
-            return Iter(m_tree.find({_key, ValueType()}));
+            return Iter(m_tree.find({_key, ValueType()}), m_tree.rightMost());
         }
 
         inline ConstIter find(const KeyType & _key) const
         {
-            return ConstIter(m_tree.find({_key, ValueType()}));
+            return ConstIter(m_tree.find({_key, ValueType()}), m_tree.rightMost());
         }
 
         inline Iter begin()
         {
-            return Iter(m_tree.root());
+            return Iter(m_tree.root(), m_tree.rightMost());
         }
 
         inline ConstIter begin() const
         {
-            return ConstIter(m_tree.root());
+            return ConstIter(m_tree.root(), m_tree.rightMost());
         }
 
         inline Iter end()

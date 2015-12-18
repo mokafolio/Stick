@@ -197,28 +197,47 @@ int main(int _argc, const char * _args[])
     SUITE("Map Tests")
     {
         Map<String, Int32> map;
-        auto res = map.insert("one", 1);
+        auto res = map.insert("a", 1);
 
         TEST(res.inserted == true);
         TEST((*res.iterator).value == 1);
         TEST(res.iterator->value == 1);
-        TEST(res.iterator->key == "one");
+        TEST(res.iterator->key == "a");
         TEST(map.elementCount() == 1);
 
-        auto res2 = map.insert("one", 2);
+        auto res2 = map.insert("a", 2);
         TEST(res2.inserted == false);
         TEST(res2.iterator->value == 2);
         TEST(map.elementCount() == 1);
         
-        map.insert("two", 2);
-        map.insert("three", 3);
+        map.insert("b", 3);
+        map.insert("c", 4);
         TEST(map.elementCount() == 3);
 
-        auto it = map.find("two");
+        auto it = map.find("b");
         TEST(it != map.end());
-        TEST(it->value == 2);
+        TEST(it->value == 3);
 
         it = map.find("notThere");
         TEST(it == map.end());
+
+        map.insert("d", 5);
+        map.insert("e", 6);
+
+        /*it = map.begin();
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it++;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it++;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it++;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it++;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;*/
+
+        for(const auto & kv : map)
+        {
+            std::cout<<kv.key.cString()<<": "<<kv.value<<std::endl;
+        }
     }
 }
