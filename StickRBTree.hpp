@@ -311,6 +311,8 @@ namespace stick
         {
             if(_currentNode->value == _val)
             {
+                //assign the value, as the comparision does not necessarily mean they are identical
+                _currentNode->value = _val;
                 return {_currentNode, false};
             }
             else

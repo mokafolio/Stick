@@ -90,6 +90,16 @@ namespace stick
 
             }
 
+            inline bool operator == (const Iter & _other) const
+            {
+                return current == _other.current;
+            }
+
+            inline bool operator != (const Iter & _other) const
+            {
+                return current != _other.current;
+            }
+
             inline Iter & operator--() 
             {
                 decrement();
@@ -176,6 +186,36 @@ namespace stick
         inline InsertResult insert(const KeyType & _key, const ValueType & _val)
         {
             return insert({_key, _val});
+        }
+
+        inline Iter find(const KeyType & _key)
+        {
+            return Iter(m_tree.find({_key, ValueType()}));
+        }
+
+        inline ConstIter find(const KeyType & _key) const
+        {
+            return ConstIter(m_tree.find({_key, ValueType()}));
+        }
+
+        inline Iter begin()
+        {
+            return Iter(m_tree.root());
+        }
+
+        inline ConstIter begin() const
+        {
+            return ConstIter(m_tree.root());
+        }
+
+        inline Iter end()
+        {
+            return Iter();
+        }
+
+        inline ConstIter end() const
+        {
+            return ConstIter();
         }
 
         inline Size elementCount() const

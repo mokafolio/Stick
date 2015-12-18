@@ -203,5 +203,22 @@ int main(int _argc, const char * _args[])
         TEST((*res.iterator).value == 1);
         TEST(res.iterator->value == 1);
         TEST(res.iterator->key == "one");
+        TEST(map.elementCount() == 1);
+
+        auto res2 = map.insert("one", 2);
+        TEST(res2.inserted == false);
+        TEST(res2.iterator->value == 2);
+        TEST(map.elementCount() == 1);
+        
+        map.insert("two", 2);
+        map.insert("three", 3);
+        TEST(map.elementCount() == 3);
+
+        auto it = map.find("two");
+        TEST(it != map.end());
+        TEST(it->value == 2);
+
+        it = map.find("notThere");
+        TEST(it == map.end());
     }
 }
