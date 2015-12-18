@@ -129,6 +129,26 @@ namespace stick
             return !(*this == _str);
         }
 
+        inline bool operator < (const String & _str) const
+        {
+            return strcmp(m_cStr, _str.m_cStr) < 0;
+        }
+
+        inline bool operator > (const String & _str) const
+        {
+            return strcmp(m_cStr, _str.m_cStr) > 0;
+        }
+
+        inline bool operator < (const char * _str) const
+        {
+            return strcmp(m_cStr, _str) < 0;
+        }
+
+        inline bool operator > (const char * _str) const
+        {
+            return strcmp(m_cStr, _str) > 0;
+        }
+
         inline Size length() const
         {
             return m_length;

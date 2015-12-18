@@ -48,7 +48,7 @@ namespace stick
             return *this;
         } 
 
-        inline ReverseIterator operator--(int) const
+        inline ReverseIterator operator--(int)
         {
             ReverseIterator ret = *this;
             m_it++;
@@ -61,7 +61,7 @@ namespace stick
             return *this;
         }
 
-        inline ReverseIterator operator-(Size _i) 
+        inline ReverseIterator operator-(Size _i) const
         {
             return m_it + _i;
         }
@@ -85,7 +85,7 @@ namespace stick
             return *this;
         }
 
-        inline ReverseIterator operator+(Size _i) 
+        inline ReverseIterator operator+(Size _i) const
         {
             return m_it - _i;
         }

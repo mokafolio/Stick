@@ -110,30 +110,40 @@ namespace stick
                 return *this;
             }
 
-            inline Iter operator-(Size _i) 
+            inline Iter operator-(Size _i) const
             {
                 Iter ret = *this;
                 for(Size i=0; i<=_i; ++i)
                     ret.decrement();
                 return ret;
             }
-            /*
+
             inline Iter & operator++() 
             {
-                m_it--;
+                increment();
                 return *this;
             } 
 
-            inline Iter & operator++(int) 
+            inline Iter operator++(int) 
             {
-                m_it--;
-                return *this;
+                Iter ret = *this;
+                increment();
+                return ret;
             }
 
             inline Iter & operator+=(Size _i) 
             {
-                m_it -= _i;
+                for(Size i=0; i<=_i; ++i)
+                    increment();
                 return *this;
+            }
+
+            inline Iter operator+(Size _i) const
+            {
+                Iter ret = *this;
+                for(Size i=0; i<=_i; ++i)
+                    ret.increment();
+                return ret;
             }
 
             inline Node & operator * () const
@@ -144,10 +154,38 @@ namespace stick
             inline Node *  operator -> () const
             {
                 return current;
-            }*/
+            }
 
             Node * current;
         };
+
+        typedef const Iter ConstIter;
+
+        struct InsertResult
+        {
+            Iter iterator;
+            bool inserted;
+        };
+
+        inline InsertResult insert(const KeyValuePair & _val)
+        {
+            auto res = m_tree.insert(_val);
+            return {Iter(res.node), res.inserted};
+        }
+
+        inline InsertResult insert(const KeyType & _key, const ValueType & _val)
+        {
+            return insert({_key, _val});
+        }
+
+        inline Size elementCount() const
+        {
+            return m_tree.elementCount();
+        }
+
+    private:
+
+        Representation m_tree;
     };
 }
 

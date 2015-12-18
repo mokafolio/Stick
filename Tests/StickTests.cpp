@@ -7,7 +7,7 @@
 
 using namespace stick;
 
-
+/*
 void printNode(const char * _prefix, RBTree<Int32> & _tree, RBTree<Int32>::Node * _n, Size _depth)
 {
     const char * col = _n->color == RBTree<Int32>::Color::Red ? "red" : "black";
@@ -21,7 +21,7 @@ void printNode(const char * _prefix, RBTree<Int32> & _tree, RBTree<Int32>::Node 
     {
         printNode("RGT: ", _tree, _n->right, _depth);
     }
-}
+}*/
 
 
 int main(int _argc, const char * _args[])
@@ -179,13 +179,10 @@ int main(int _argc, const char * _args[])
 
         auto notFound = tree.find(199);
         TEST(notFound == nullptr);
-        
-        printNode("root", tree, tree.root(), 0);
 
         tree.remove(1);
         tree.remove(8);
         tree.remove(24);
-        std::cout<<"ELEMC: "<<tree.elementCount()<<std::endl;
         TEST(tree.elementCount() == 6);
 
         auto n4 = tree.find(1);
@@ -195,7 +192,11 @@ int main(int _argc, const char * _args[])
         TEST(n4 == nullptr);
         TEST(n5 == nullptr);
         TEST(n6 == nullptr);
+    }
 
-        printNode("root", tree, tree.root(), 0);
+    SUITE("Map Tests")
+    {
+        Map<String, Int32> map;
+        map.insert("one", 1);
     }
 }

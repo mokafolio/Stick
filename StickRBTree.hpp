@@ -86,6 +86,12 @@ namespace stick
             Node * parent;
         };
 
+        struct InsertResult
+        {
+            Node * node;
+            bool inserted;
+        };
+
         RBTree(Allocator & _alloc = defaultAllocator()) :
         m_alloc(&_alloc),
         m_elementCount(0)
@@ -108,17 +114,18 @@ namespace stick
             return m_rootNode;
         }
 
-        void insert(const ValueType & _val)
+        InsertResult insert(const ValueType & _val)
         {
             if(m_elementCount == 0)
             {
                 m_rootNode = createNode(_val);
                 m_rootNode->color = Color::Black;
                 m_elementCount++;
+                return {m_rootNode, true};
             }
             else
             {
-                insertImpl(m_rootNode, _val);
+                return insertImpl(m_rootNode, _val);
             }
         }
 
@@ -300,11 +307,11 @@ namespace stick
             }
         }
 
-        void insertImpl(Node * _currentNode, const ValueType & _val)
+        InsertResult insertImpl(Node * _currentNode, const ValueType & _val)
         {
             if(_currentNode->value == _val)
             {
-                return;
+                return {_currentNode, false};
             }
             else
             {
@@ -330,10 +337,11 @@ namespace stick
 
                     //fix the balancing of the tree after creating the new node
                     insertFix(node);
+                    return {node, true};
                 }
                 else
                 {
-                    insertImpl(node, _val);
+                    return insertImpl(node, _val);
                 }
             }
         }
