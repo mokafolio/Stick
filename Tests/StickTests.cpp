@@ -197,6 +197,11 @@ int main(int _argc, const char * _args[])
     SUITE("Map Tests")
     {
         Map<String, Int32> map;
-        map.insert("one", 1);
+        auto res = map.insert("one", 1);
+
+        TEST(res.inserted == true);
+        TEST((*res.iterator).value == 1);
+        TEST(res.iterator->value == 1);
+        TEST(res.iterator->key == "one");
     }
 }

@@ -146,14 +146,14 @@ namespace stick
                 return ret;
             }
 
-            inline Node & operator * () const
+            inline KeyValuePair & operator * () const
             {
-                return *current;
+                return current->value;
             }
 
-            inline Node *  operator -> () const
+            inline KeyValuePair *  operator -> () const
             {
-                return current;
+                return &current->value;
             }
 
             Node * current;
