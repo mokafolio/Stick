@@ -48,10 +48,11 @@ namespace stick
             return *this;
         } 
 
-        inline ReverseIterator & operator--(int) 
+        inline ReverseIterator operator--(int) const
         {
+            ReverseIterator ret = *this;
             m_it++;
-            return *this;
+            return ret;
         }
 
         inline ReverseIterator & operator-=(Size _i) 
@@ -60,10 +61,9 @@ namespace stick
             return *this;
         }
 
-        inline ReverseIterator & operator-(Size _i) 
+        inline ReverseIterator operator-(Size _i) 
         {
-            m_it += _i;
-            return *this;
+            return m_it + _i;
         }
 
         inline ReverseIterator & operator++() 
@@ -72,16 +72,22 @@ namespace stick
             return *this;
         } 
 
-        inline ReverseIterator & operator++(int) 
+        inline ReverseIterator operator++(int) 
         {
+            ReverseIterator ret = *this;
             m_it--;
-            return *this;
+            return ret;
         }
 
         inline ReverseIterator & operator+=(Size _i) 
         {
             m_it -= _i;
             return *this;
+        }
+
+        inline ReverseIterator operator+(Size _i) 
+        {
+            return m_it - _i;
         }
 
         inline ReferenceType operator * () const

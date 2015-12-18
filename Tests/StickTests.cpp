@@ -1,6 +1,7 @@
 #include <Stick/StickString.hpp>
 #include <Stick/StickDynamicArray.hpp>
 #include <Stick/StickRBTree.hpp>
+#include <Stick/StickMap.hpp>
 
 #include <iostream>
 

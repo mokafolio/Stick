@@ -25,22 +25,22 @@ namespace stick
             //we only compare keys
             bool operator == (const KeyValuePair & _other) const
             {
-                return _key == _other.key;
+                return key == _other.key;
             }
 
             bool operator != (const KeyValuePair & _other) const
             {
-                return _key != _other.key;
+                return key != _other.key;
             }
 
             bool operator < (const KeyValuePair & _other) const
             {
-                return _key < _other.key;
+                return key < _other.key;
             }
 
             bool operator > (const KeyValuePair & _other) const
             {
-                return _key > _other.key;
+                return key > _other.key;
             }
 
             KeyType key;
@@ -54,49 +54,99 @@ namespace stick
         struct Iter
         {
             Iter() :
-            bLeft(true),
-            current(nullptr),
-            parent(nullptr)
+            current(nullptr)
             {
 
             }
 
             Iter(Node * _node) :
-            bLeft(true),
-            current(_node),
-            parent(_node->parent)
+            current(_node)
             {
 
             }
 
-            void increment()
+            inline void increment()
             {
-                if(current->left && bLeft)
+                if(current->left)
                 {
-                    parent = current;
                     current = current->left;
-                    bLeft = true;
                 }
                 else if(current->right)
                 {
-                    parent = current;
                     current = current->right;
-                    bLeft = false;
                 }
                 else
                 {
-                    
+                    while(current->parent && !current->parent->right)
+                    {
+                        current = current->parent;
+                    }
+                    if(current) current = current->right;
                 }
             }
 
-            void decrement()
+            inline void decrement()
             {
 
             }
 
-            bool bLeft;
+            inline Iter & operator--() 
+            {
+                decrement();
+                return *this;
+            } 
+
+            inline Iter operator--(int) 
+            {
+                Iter ret = *this;
+                decrement();
+                return ret;
+            }
+
+            inline Iter & operator-=(Size _i) 
+            {
+                for(Size i=0; i<=_i; ++i)
+                    decrement();
+                return *this;
+            }
+
+            inline Iter operator-(Size _i) 
+            {
+                Iter ret = *this;
+                for(Size i=0; i<=_i; ++i)
+                    ret.decrement();
+                return ret;
+            }
+            /*
+            inline Iter & operator++() 
+            {
+                m_it--;
+                return *this;
+            } 
+
+            inline Iter & operator++(int) 
+            {
+                m_it--;
+                return *this;
+            }
+
+            inline Iter & operator+=(Size _i) 
+            {
+                m_it -= _i;
+                return *this;
+            }
+
+            inline Node & operator * () const
+            {
+                return *current;
+            }
+
+            inline Node *  operator -> () const
+            {
+                return current;
+            }*/
+
             Node * current;
-            Node * parent;
         };
     };
 }
