@@ -69,23 +69,20 @@ namespace stick
 
             inline void increment()
             {
+                //TODO: I am pretty sure this function can be more compact and simple
                 if(!current)
                     return;
 
                 if(current->left)
                 {
-                    std::cout<<"HAVE LEFT"<<std::endl;
                     current = current->left;
                 }
                 else if(current->right)
                 {
-                    std::cout<<"HAVE RIGHT"<<std::endl;
                     current = current->right;
                 }
                 else
                 {
-                    std::cout<<"GOING UP BRA"<<std::endl;
-
                     if(current == last)
                     {
                         current = nullptr;
@@ -94,7 +91,6 @@ namespace stick
 
                     while(current->parent && (!current->parent->right || current->parent->right == current))
                     {
-                        std::cout<<"UP YO"<<std::endl;
                         current = current->parent;
                     }
                     if(current->parent) 
@@ -106,7 +102,38 @@ namespace stick
 
             inline void decrement()
             {
+                if(!current)
+                    return;
 
+                if(!current->parent)
+                {
+                    current = nullptr;
+                    return;
+                }
+
+                if(current == current->parent->left)
+                    current = current->parent;
+                else
+                {
+                    if(!current->parent->left)
+                        current = current->parent;
+                    else 
+                    {
+                        current = current->parent->left;
+                        while(!current->right)
+                        {
+                            if(current->left)
+                                current = current->left;
+                            else
+                                break;
+                        }
+                        if(current->right)
+                        {
+                            while(current->right)
+                                current = current->right;
+                        }
+                    }
+                }
             }
 
             inline bool operator == (const Iter & _other) const

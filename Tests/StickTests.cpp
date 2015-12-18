@@ -224,7 +224,7 @@ int main(int _argc, const char * _args[])
         map.insert("d", 5);
         map.insert("e", 6);
 
-        /*it = map.begin();
+        it = map.begin();
         std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
         it++;
         std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
@@ -233,11 +233,20 @@ int main(int _argc, const char * _args[])
         it++;
         std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
         it++;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;*/
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
 
-        for(const auto & kv : map)
+        it--;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it--;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it--;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        it--;
+        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+
+        /*for(const auto & kv : map)
         {
             std::cout<<kv.key.cString()<<": "<<kv.value<<std::endl;
-        }
+        }*/
     }
 }
