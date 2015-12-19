@@ -292,14 +292,14 @@ namespace stick
             return ConstIter(m_tree.find(_key), m_tree.rightMost());
         }
 
-        inline Iter erase(Iter _it)
+        inline Iter remove(Iter _it)
         {
             Iter ret = _it + 1;
             m_tree.removeNode(_it.current);
             return ret;
         }
 
-        inline Iter erase(const KeyType & _key)
+        inline Iter remove(const KeyType & _key)
         {
             Iter it = find(_key);
             if(it != end())

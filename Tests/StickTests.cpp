@@ -2,6 +2,7 @@
 #include <Stick/StickDynamicArray.hpp>
 #include <Stick/StickRBTree.hpp>
 #include <Stick/StickMap.hpp>
+#include <Stick/StickHashMap.hpp>
 
 #include <iostream>
 
@@ -120,7 +121,7 @@ int main(int _argc, const char * _args[])
         TEST(a.back() == 10);
         TEST(a.front() == 0);
 
-        a.popBack();
+        a.removeBack();
         TEST(a.back() == 4);
         TEST(a.elementCount() == 5);
 
@@ -165,7 +166,7 @@ int main(int _argc, const char * _args[])
         }
         TEST(b.elementCount() == 9);
 
-        auto it3 = b.erase(b.begin() + 2, b.begin() + 6);
+        auto it3 = b.remove(b.begin() + 2, b.begin() + 6);
         TEST(it3 == b.begin() + 2);
         TEST(*it3 == 2);
         Int32 expectedArr2[] = {10, 11, 2, 3, 4};
@@ -184,7 +185,7 @@ int main(int _argc, const char * _args[])
         tt.append(DestructorTester());
         tt.append(DestructorTester());
         DestructorTester::reset();
-        tt.erase(tt.begin(), tt.begin() + 2);
+        tt.remove(tt.begin(), tt.begin() + 2);
         std::cout<<DestructorTester::destructionCount<<std::endl;
         TEST(DestructorTester::destructionCount == 2);
         tt.clear();
@@ -319,16 +320,16 @@ int main(int _argc, const char * _args[])
         delete [] expectedVals;
         delete [] expectedKeys;
 
-        //erase tests
+        //remove tests
         it = map.find("f");
         auto it3 = it + 1;
-        auto it2 = map.erase(it);
+        auto it2 = map.remove(it);
         TEST(it3 == it2);
         TEST(map.elementCount() == 5);
 
         it = map.find("c");
         it++;
-        it2 = map.erase("c");
+        it2 = map.remove("c");
         TEST(it == it2);
         TEST(map.elementCount() == 4);
     }

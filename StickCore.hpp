@@ -506,7 +506,7 @@ namespace stick
                 return insert(_it, &_val, &_val + 1);
             }
 
-            inline Iter erase(ConstIter _first, ConstIter _last)
+            inline Iter remove(ConstIter _first, ConstIter _last)
             {
                 Size diff = end() - _last;
                 Size idiff = _last - _first;
@@ -521,7 +521,7 @@ namespace stick
                 return begin() + index;
             }
 
-            inline void popBack()
+            inline void removeBack()
             {
                 (reinterpret_cast<T*>(m_data.ptr)[m_elementCount - 1]).~T();
                 m_elementCount--;
@@ -1221,7 +1221,7 @@ int main(int _argc, const char * _args[])
         TEST(a.back() == 10);
         TEST(a.front() == 0);
 
-        a.popBack();
+        a.removeBack();
         TEST(a.back() == 4);
         TEST(a.elementCount() == 5);
 
@@ -1267,7 +1267,7 @@ int main(int _argc, const char * _args[])
         }
         TEST(b.elementCount() == 9);
 
-        auto it3 = b.erase(b.begin() + 2, b.begin() + 6);
+        auto it3 = b.remove(b.begin() + 2, b.begin() + 6);
         TEST(it3 == b.begin() + 2);
         TEST(*it3 == 2);
         Int32 expectedArr2[] = {10, 11, 2, 3, 4};

@@ -160,7 +160,7 @@ namespace stick
             return insert(_it, &_val, &_val + 1);
         }
 
-        inline Iter erase(ConstIter _first, ConstIter _last)
+        inline Iter remove(ConstIter _first, ConstIter _last)
         {
             Size diff = end() - _last;
             Size idiff = _last - _first;
@@ -186,7 +186,7 @@ namespace stick
             return begin() + index;
         }
 
-        inline void popBack()
+        inline void removeBack()
         {
             (reinterpret_cast<T*>(m_data.ptr)[m_elementCount - 1]).~T();
             m_elementCount--;
