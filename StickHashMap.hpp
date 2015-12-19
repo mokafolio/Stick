@@ -5,6 +5,8 @@
 #include <Stick/StickString.hpp>
 #include <Stick/Detail/StickMurmurHash2.hpp>
 
+#include <iostream>
+
 namespace stick
 {
     template<class T>
@@ -16,6 +18,15 @@ namespace stick
         Size operator()(const String & _str) const
         {
             return detail::murmur2(_str.cString(), _str.length(), 0);
+        }
+    };
+
+    template<>
+    struct DefaultHash<Int32>
+    {
+        Size operator()(Int32 _i) const
+        {
+            return _i;
         }
     };
 
@@ -49,12 +60,11 @@ namespace stick
         struct Bucket
         {
             Bucket() :
-            elementCount(0)
+            first(nullptr)
             {
 
             }
 
-            Size elementCount;
             Node * first;
         };
 
@@ -84,19 +94,17 @@ namespace stick
 
             //the key allready exists, change the value
             if(n)
+            {
                 n->kv.value = _value;
+            }
             else
             {
                 //otherwise create the node n stuff
                 n = createNode(_key, _value);
                 if(prev)
-                {
                     prev->next = n;
-                }
                 else
-                {
                     b.first = n;
-                }
                 ++m_elementCount;
             }
 
@@ -144,13 +152,9 @@ namespace stick
                 {
                     Size bucketIndex = m_hasher(n->kv.key) % _bucketCount;
                     if(!prev)
-                    {
                         newBuckets[bucketIndex].first = n;
-                    }
                     else
-                    {
                         prev->next = n;
-                    }
                     n = n->next;
                     n->next = nullptr;
                 }
@@ -206,12 +210,19 @@ namespace stick
 
         inline void findHelper(Bucket & _bucket, const KeyType & _key, Node *& _outNode, Node *& _prev)
         {
-            _outNode = _bucket.first;
+            _outNode = nullptr;
+            Node * n = _bucket.first;
             _prev = nullptr;
-            while(_outNode && _outNode->kv.key != _key)
+
+            while(n)
             {
-                _prev = _outNode;
-                _outNode = _outNode->next;
+                if(_key == n->kv.key.cString())
+                {
+                    _outNode = n;
+                    return;
+                }
+                _prev = n;
+                n = n->next;
             }
         }
 

@@ -59,6 +59,8 @@ namespace stick
         m_elementCount(move(_other.m_elementCount)),
         m_allocator(move(_other.m_allocator))
         {
+            //we don't want other to deallocate anything
+            _other.m_elementCount = 0;
         }
 
         ~DynamicArray()
@@ -89,7 +91,8 @@ namespace stick
             m_data = move(_other.m_data);
             m_allocator = move(_other.m_allocator);
             m_elementCount = move(_other.m_elementCount);
-
+            _other.m_elementCount = 0;
+            
             return *this;
         }
 

@@ -21,10 +21,10 @@ namespace stick
         typedef ReverseIterator<ConstIter> ReverseConstIter;
 
 
-        String() :
+        explicit String(Allocator & _alloc = defaultAllocator()) :
         m_cStr(nullptr),
         m_length(0),
-        m_allocator(&defaultAllocator())
+        m_allocator(&_alloc)
         {
 
         }
@@ -53,14 +53,13 @@ namespace stick
         m_length(move(_other.m_length)),
         m_allocator(move(_other.m_allocator))
         {
-
+            _other.m_cStr = nullptr;
         }
 
         ~String()
         {
             if(m_cStr)
             {
-                STICK_ASSERT(m_allocator);
                 m_allocator->deallocate({m_cStr, m_length});
             }
         }
@@ -83,7 +82,7 @@ namespace stick
             m_cStr = move(_other.m_cStr);
             m_allocator = move(_other.m_allocator);
             m_length = move(_other.m_length);
-
+            _other.m_cStr = nullptr;
             return *this;
         }
 
