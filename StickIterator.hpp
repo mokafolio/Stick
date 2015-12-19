@@ -4,7 +4,12 @@
 namespace stick
 {
     template<class T>
-    struct IteratorTraits;
+    struct IteratorTraits
+    {
+        typedef typename T::ValueType ValueType;
+        typedef typename T::ReferenceType ReferenceType;
+        typedef typename T::PointerType PointerType;
+    };
 
     template<class T>
     struct IteratorTraits<T*>
@@ -97,7 +102,7 @@ namespace stick
 
         inline PointerType operator -> () const
         {
-            return m_it;
+            return m_it.operator->();
         }
 
         inline bool operator == (const ReverseIterator & _other) const

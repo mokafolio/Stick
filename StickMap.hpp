@@ -2,6 +2,7 @@
 #define STICK_MAP_HPP
 
 #include <Stick/StickRBTree.hpp>
+#include <Stick/StickIterator.hpp>
 
 namespace stick
 {
@@ -53,6 +54,13 @@ namespace stick
 
         struct Iter
         {
+            typedef KeyValuePair ValueType;
+
+            typedef ValueType & ReferenceType;
+
+            typedef ValueType * PointerType;
+
+
             Iter() :
             current(nullptr),
             last(nullptr)
@@ -218,6 +226,11 @@ namespace stick
 
         typedef const Iter ConstIter;
 
+        typedef ReverseIterator<Iter> ReverseIter;
+
+        typedef ReverseIterator<ConstIter> ReverseConstIter;
+
+
         struct InsertResult
         {
             Iter iterator;
@@ -269,6 +282,18 @@ namespace stick
             return ConstIter(m_tree.root(), m_tree.rightMost());
         }
 
+        inline ReverseIter rbegin()
+        {
+            Node * rm = m_tree.rightMost();
+            return ReverseIter(Iter(rm, rm));
+        }
+
+        inline ReverseConstIter rbegin() const
+        {
+            Node * rm = m_tree.rightMost();
+            return ReverseConstIter(ConstIter(rm, rm));
+        }
+
         inline Iter end()
         {
             return Iter();
@@ -277,6 +302,16 @@ namespace stick
         inline ConstIter end() const
         {
             return ConstIter();
+        }
+
+        inline ReverseIter rend()
+        {
+            return ReverseIter(Iter());
+        }
+
+        inline ReverseConstIter rend() const
+        {
+            return ReverseConstIter(ConstIter());
         }
 
         inline Size elementCount() const

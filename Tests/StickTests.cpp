@@ -195,8 +195,9 @@ int main(int _argc, const char * _args[])
     }
 
     SUITE("Map Tests")
-    {
-        Map<String, Int32> map;
+    {   
+        typedef Map<String, Int32> TestMapType;
+        TestMapType map;
         auto res = map.insert("a", 1);
 
         TEST(res.inserted == true);
@@ -229,26 +230,48 @@ int main(int _argc, const char * _args[])
         it = map.find("e");
         TEST(it->value == 7);
         TEST(map["f"] == 8);
+        TEST(map.elementCount() == 6);
 
         it = map.begin();
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it++;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it++;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it++;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it++;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
 
-        it--;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it--;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it--;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
-        it--;
-        std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
+        auto lastKey = it->key;
+        auto lastVal = it->value;
+
+        it++;
+        TEST(it->key != lastKey);
+        TEST(it->value != lastVal);
+        --it;
+        TEST(it->key == lastKey);
+        TEST(it->value == lastVal);
+
+
+        TestMapType::KeyType * expectedKeys = new TestMapType::KeyType[map.elementCount()];
+        TestMapType::ValueType * expectedVals = new TestMapType::ValueType[map.elementCount()];
+
+        Size i=0;
+        for(const auto & kv : map)
+        {
+            expectedKeys[i] = kv.key;
+            expectedVals[i] = kv.value;
+            i++;
+        }
+
+        TEST(i == map.elementCount());
+
+        --i;
+        Size j = 0;
+        for(auto rit = map.rbegin(); rit != map.rend(); ++rit)
+        {
+            TEST(expectedKeys[i] == rit->key);
+            TEST(expectedVals[i] == rit->value);
+            ++j;
+            --i;
+        }
+
+        TEST(j == map.elementCount());
+
+        delete [] expectedVals;
+        delete [] expectedKeys;
 
         /*for(const auto & kv : map)
         {
