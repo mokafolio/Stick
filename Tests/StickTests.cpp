@@ -331,23 +331,5 @@ int main(int _argc, const char * _args[])
         it2 = map.erase("c");
         TEST(it == it2);
         TEST(map.elementCount() == 4);
-
-        /*
-        {
-            //destruction tests
-            Map<Int32, DestructorTester> dtm;
-
-            dtm.insert(1, DestructorTester());
-            dtm.insert(2, DestructorTester());
-            dtm.insert(3, DestructorTester());
-            dtm.insert(4, DestructorTester());
-            dtm.insert(5, DestructorTester());
-            DestructorTester::reset();
-            dtm.erase(2);
-            dtm.erase(4);
-            TEST(dtm.elementCount() == 3);
-            TEST(DestructorTester::destructionCount == 2);
-        }
-        TEST(DestructorTester::destructionCount == 5);*/
     }
 }

@@ -34,6 +34,16 @@ namespace stick
                 return key != _other.key;
             }
 
+            bool operator == (const KeyType & _other) const
+            {
+                return key == _other;
+            }
+
+            bool operator != (const KeyType & _other) const
+            {
+                return key != _other;
+            }
+
             bool operator < (const KeyValuePair & _other) const
             {
                 return key < _other.key;
@@ -42,6 +52,16 @@ namespace stick
             bool operator > (const KeyValuePair & _other) const
             {
                 return key > _other.key;
+            }
+
+            bool operator < (const KeyType & _other) const
+            {
+                return key < _other;
+            }
+
+            bool operator > (const KeyType & _other) const
+            {
+                return key > _other;
             }
 
             KeyType key;
@@ -250,7 +270,7 @@ namespace stick
 
         ValueType & operator [] (const KeyType & _key)
         {
-            Node * n = m_tree.find({_key, ValueType()});
+            Node * n = m_tree.find(_key);
             if(n)
             {
                 return n->value.value;
@@ -264,12 +284,12 @@ namespace stick
 
         inline Iter find(const KeyType & _key)
         {
-            return Iter(m_tree.find({_key, ValueType()}), m_tree.rightMost());
+            return Iter(m_tree.find(_key), m_tree.rightMost());
         }
 
         inline ConstIter find(const KeyType & _key) const
         {
-            return ConstIter(m_tree.find({_key, ValueType()}), m_tree.rightMost());
+            return ConstIter(m_tree.find(_key), m_tree.rightMost());
         }
 
         inline Iter erase(Iter _it)

@@ -104,7 +104,8 @@ namespace stick
                 deallocateTree(m_rootNode);
         }
 
-        inline Node * find(const ValueType & _val)
+        template<class K>
+        inline Node * find(const K & _val)
         {
             return m_rootNode ? findImpl(m_rootNode, _val) : nullptr;
         }
@@ -175,7 +176,8 @@ namespace stick
                 deallocateTree(_node->left);
             if(_node->right)
                 deallocateTree(_node->right);
-            m_alloc->deallocate({_node, sizeof(Node)});
+
+            destroyNode(_node);
         }
 
         inline Node * createNode(const ValueType & _val)
@@ -185,7 +187,14 @@ namespace stick
             return new (mem.ptr) Node(_val);
         }
 
-        inline Node * findImpl(Node * _currentNode, const ValueType & _val)
+        inline void destroyNode(Node * _n)
+        {
+            _n->~Node();
+            m_alloc->deallocate({_n, sizeof(Node)});
+        }
+
+        template<class K>
+        inline Node * findImpl(Node * _currentNode, const K & _val)
         {
             if(_currentNode->value == _val)
             {
@@ -253,7 +262,7 @@ namespace stick
             {
                 if(_node == m_rootNode)
                 {
-                    m_alloc->deallocate({_node, sizeof(Node)});
+                    destroyNode(_node);
                     m_rootNode = nullptr;
                 }
                 else
@@ -264,7 +273,7 @@ namespace stick
                         _node->parent->right = nullptr;
                     Node * p = _node->parent;
                     auto col = _node->color;
-                    m_alloc->deallocate({_node, sizeof(Node)});
+                    destroyNode(_node);
                     //TODO: if black, fix tree
                     if(col == Color::Black)
                         deleteFix(p);
