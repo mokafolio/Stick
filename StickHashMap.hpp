@@ -2,17 +2,31 @@
 #define STICK_STICKHASHMAP_HPP
 
 #include <Stick/StickAllocator.hpp>
+#include <Stick/StickString.hpp>
+#include <Stick/Detail/StickMurmurHash2.hpp>
 
 namespace stick
 {
-    template<class K, class V, class H>
+    template<class T>
+    struct DefaultHash;
+
+    template<>
+    struct DefaultHash<String>
+    {
+        Size operator()(const String & _str) const
+        {
+            return detail::murmur2(_str.cString(), _str.length(), 0);
+        }
+    };
+
+    template<class K, class V, template<class> class H = DefaultHash>
     class HashMap
     {
     public:
 
         typedef K KeyType;
         typedef V ValueType;
-        typedef H Hash;
+        typedef H<KeyType> Hash;
 
         struct KeyValuePair
         {
@@ -48,7 +62,8 @@ namespace stick
         m_alloc(&_alloc),
         m_buckets(nullptr),
         m_bucketCount(_initialBucketCount),
-        m_maxLoadFactor(1.0f)
+        m_maxLoadFactor(1.0f),
+        m_elementCount(0)
         {  
             auto mem = m_alloc->allocate(sizeof(Bucket) * _initialBucketCount);
             m_buckets = new (mem.ptr) Bucket [_initialBucketCount];
@@ -61,17 +76,11 @@ namespace stick
 
         inline void insert(const KeyType & _key, const ValueType & _value)
         {   
-            Size bucketIndex = m_hasher(_key) % bucketCount();
-            Bucket & b = m_buckets[bucketIndex];
+            Bucket & b = bucket(_key);
 
             //check if the key allready exists
-            Node * n = b.first;
-            Node * prev;
-            while(n && n->kv.key != _key)
-            {
-                prev = n;
-                n = n->next;
-            }
+            Node * n, *prev;
+            findHelper(b, _key, n, prev);
 
             //the key allready exists, change the value
             if(n)
@@ -88,17 +97,69 @@ namespace stick
                 {
                     b.first = n;
                 }
+                ++m_elementCount;
+            }
+
+            Float32 lf = loadFactor();
+            if(lf > m_maxLoadFactor)
+            {
+                rehash(m_bucketCount + (lf - m_maxLoadFactor) * 2.0 * m_bucketCount);
             }
         }
 
         inline void remove(const KeyType & _key)
         {
+            Bucket & b = bucket(_key);
 
+            Node * n, *prev;
+            findHelper(b, _key, n, prev);
+
+            if(!n)
+                return;
+
+            if(!prev)
+            {
+                b.first = n->next;
+            }
+            else
+            {
+                prev->next = n->next;
+            }
+
+            destroyNode(n);
+            --m_elementCount;
         }
 
         inline void rehash(Size _bucketCount)
         {
+            auto mem = m_alloc->allocate(sizeof(Bucket) * _bucketCount);
+            Bucket * newBuckets = new (mem.ptr) Bucket[_bucketCount];
 
+            for(Size i=0; i<m_bucketCount; ++i)
+            {
+                Bucket & b = m_buckets[i];
+                Node * n = b.first;
+                Node * prev = nullptr;
+                while(n)
+                {
+                    Size bucketIndex = m_hasher(n->kv.key) % _bucketCount;
+                    if(!prev)
+                    {
+                        newBuckets[bucketIndex].first = n;
+                    }
+                    else
+                    {
+                        prev->next = n;
+                    }
+                    n = n->next;
+                    n->next = nullptr;
+                }
+
+                b.~Bucket();
+            }
+
+            m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+            m_bucketCount = _bucketCount;
         }
 
         inline Size bucketCount() const
@@ -108,7 +169,7 @@ namespace stick
 
         inline Size elementCount() const
         {
-
+            return m_elementCount;
         }
 
         inline Float32 maxLoadFactor() const
@@ -131,11 +192,35 @@ namespace stick
             return ret;
         }
 
+        inline void destroyNode(Node * _n)
+        {
+            _n->~Node();
+            m_alloc->deallocate({_n, sizeof(Node)});
+        }
+
+        inline Bucket & bucket(const KeyType & _key)
+        {
+            Size bucketIndex = m_hasher(_key) % bucketCount();
+            return m_buckets[bucketIndex];
+        }
+
+        inline void findHelper(Bucket & _bucket, const KeyType & _key, Node *& _outNode, Node *& _prev)
+        {
+            _outNode = _bucket.first;
+            _prev = nullptr;
+            while(_outNode && _outNode->kv.key != _key)
+            {
+                _prev = _outNode;
+                _outNode = _outNode->next;
+            }
+        }
+
         Allocator * m_alloc;
         Bucket * m_buckets;
         Size m_bucketCount;
         Float32 m_maxLoadFactor;
         Hash m_hasher;
+        Size m_elementCount;
     };
 }
 

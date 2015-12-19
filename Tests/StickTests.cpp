@@ -333,4 +333,14 @@ int main(int _argc, const char * _args[])
         TEST(it == it2);
         TEST(map.elementCount() == 4);
     }
+
+    SUITE("HashMap Tests")
+    {
+        HashMap<String, Int32> hm;
+
+        hm.insert("test", 1);
+        hm.insert("test", 2);
+        std::cout<<hm.elementCount()<<std::endl;
+        TEST(hm.elementCount() == 1);
+    }
 }
