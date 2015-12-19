@@ -274,7 +274,7 @@ namespace stick
 
         inline void deleteFix(Node * _node)
         {
-            if(!_node->parent->parent)
+            if(!_node->parent || !_node->parent->parent)
                 return;
 
             Node * sibling;
