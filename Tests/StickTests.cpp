@@ -273,9 +273,17 @@ int main(int _argc, const char * _args[])
         delete [] expectedVals;
         delete [] expectedKeys;
 
-        /*for(const auto & kv : map)
-        {
-            std::cout<<kv.key.cString()<<": "<<kv.value<<std::endl;
-        }*/
+        //erase tests
+        it = map.find("f");
+        auto it3 = it + 1;
+        auto it2 = map.erase(it);
+        TEST(it3 == it2);
+        TEST(map.elementCount() == 5);
+
+        it = map.find("c");
+        it++;
+        it2 = map.erase("c");
+        TEST(it == it2);
+        TEST(map.elementCount() == 4);
     }
 }

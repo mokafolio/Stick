@@ -104,17 +104,17 @@ namespace stick
                 deallocateTree(m_rootNode);
         }
 
-        Node * find(const ValueType & _val)
+        inline Node * find(const ValueType & _val)
         {
             return m_rootNode ? findImpl(m_rootNode, _val) : nullptr;
         }
 
-        Node * root() const
+        inline Node * root() const
         {
             return m_rootNode;
         }
 
-        InsertResult insert(const ValueType & _val)
+        inline InsertResult insert(const ValueType & _val)
         {
             if(m_elementCount == 0)
             {
@@ -129,22 +129,29 @@ namespace stick
             }
         }
 
-        void remove(const ValueType & _val)
+        inline bool remove(const ValueType & _val)
         {
             Node * n = find(_val);
             if(n)
             {
-                m_elementCount--;
-                removeImpl(n);
+                removeNode(n);
+                return true;
             }
+            return false;
         }
 
-        Size elementCount() const
+        inline void removeNode(Node * _n)
+        {
+            removeImpl(_n);
+            m_elementCount--;
+        }
+
+        inline Size elementCount() const
         {
             return m_elementCount;
         }
 
-        Node * rightMost() const
+        inline Node * rightMost() const
         {
             if(m_rootNode)
                 return recurseRight(m_rootNode);
@@ -154,7 +161,7 @@ namespace stick
 
     private:
 
-        Node * recurseRight(Node * _node) const
+        inline Node * recurseRight(Node * _node) const
         {
             if(_node->right)
                 return recurseRight(_node->right);
@@ -162,7 +169,7 @@ namespace stick
             return _node;
         }
 
-        void deallocateTree(Node * _node)
+        inline void deallocateTree(Node * _node)
         {
             if(_node->left)
                 deallocateTree(_node->left);
@@ -171,14 +178,14 @@ namespace stick
             m_alloc->deallocate({_node, sizeof(Node)});
         }
 
-        Node * createNode(const ValueType & _val)
+        inline Node * createNode(const ValueType & _val)
         {
             auto mem = m_alloc->allocate(sizeof(Node));
             STICK_ASSERT(mem.ptr);
             return new (mem.ptr) Node(_val);
         }
 
-        Node * findImpl(Node * _currentNode, const ValueType & _val)
+        inline Node * findImpl(Node * _currentNode, const ValueType & _val)
         {
             if(_currentNode->value == _val)
             {
@@ -208,7 +215,7 @@ namespace stick
             }
         }
 
-        void removeImpl(Node * _node)
+        inline void removeImpl(Node * _node)
         {
             STICK_ASSERT(m_elementCount >= 0);
 
@@ -265,7 +272,7 @@ namespace stick
             }
         }
 
-        void deleteFix(Node * _node)
+        inline void deleteFix(Node * _node)
         {
             if(!_node->parent->parent)
                 return;
@@ -323,7 +330,7 @@ namespace stick
             }
         }
 
-        InsertResult insertImpl(Node * _currentNode, const ValueType & _val)
+        inline InsertResult insertImpl(Node * _currentNode, const ValueType & _val)
         {
             if(_currentNode->value == _val)
             {

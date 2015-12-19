@@ -272,6 +272,24 @@ namespace stick
             return ConstIter(m_tree.find({_key, ValueType()}), m_tree.rightMost());
         }
 
+        inline Iter erase(Iter _it)
+        {
+            Iter ret = _it + 1;
+            m_tree.removeNode(_it.current);
+            return ret;
+        }
+
+        inline Iter erase(const KeyType & _key)
+        {
+            Iter it = find(_key);
+            if(it != end())
+            {
+                m_tree.removeNode(it.current);
+                return ++it;
+            }
+            return Iter();
+        }
+
         inline Iter begin()
         {
             return Iter(m_tree.root(), m_tree.rightMost());

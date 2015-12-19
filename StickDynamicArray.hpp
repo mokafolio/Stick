@@ -100,8 +100,8 @@ namespace stick
                     m_allocator->deallocate(m_data);
                 }
                 m_data = blk;
-                    //TODO: do this for POD types?
-                    //m_data = m_allocator->reallocate(m_data, _s * sizeof(T));
+                //TODO: do this for POD types?
+                //m_data = m_allocator->reallocate(m_data, _s * sizeof(T));
             }
         }
 
