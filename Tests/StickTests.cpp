@@ -38,6 +38,24 @@ public:
     }
 };
 
+struct DestructorTester
+{
+    static int destructionCount;
+
+    ~DestructorTester()
+    {
+        ++destructionCount;
+    }
+
+    static void reset()
+    {
+        destructionCount = 0;
+    }
+};
+
+int DestructorTester::destructionCount = 0;
+
+
 int main(int _argc, const char * _args[])
 {
     SUITE("String Tests")
@@ -158,12 +176,19 @@ int main(int _argc, const char * _args[])
             i++;
         }
 
-        DynamicArray<SomeClass> ta;
-        SomeClass sc;
-        ta.append(sc);
-        ta.erase(ta.begin(), ta.end());
-
-        std::cout<<ta.elementCount()<<std::endl;
+        //destructor tests
+        DynamicArray<DestructorTester> tt;
+        tt.append(DestructorTester());
+        tt.append(DestructorTester());
+        tt.append(DestructorTester());
+        tt.append(DestructorTester());
+        tt.append(DestructorTester());
+        DestructorTester::reset();
+        tt.erase(tt.begin(), tt.begin() + 2);
+        std::cout<<DestructorTester::destructionCount<<std::endl;
+        TEST(DestructorTester::destructionCount == 2);
+        tt.clear();
+        TEST(DestructorTester::destructionCount == 5);
     }
 
     SUITE("RBTree Tests")
