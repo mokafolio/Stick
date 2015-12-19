@@ -23,6 +23,20 @@ void printNode(const char * _prefix, RBTree<Int32> & _tree, RBTree<Int32>::Node 
     }
 }*/
 
+class SomeClass
+{
+public:
+
+    SomeClass()
+    {
+        std::cout<<"SomeClass()"<<std::endl;
+    }
+
+    ~SomeClass()
+    {
+        std::cout<<"~SomeClass()"<<std::endl;
+    }
+};
 
 int main(int _argc, const char * _args[])
 {
@@ -143,6 +157,13 @@ int main(int _argc, const char * _args[])
             TEST(expectedArr2[i] == v);
             i++;
         }
+
+        DynamicArray<SomeClass> ta;
+        SomeClass sc;
+        ta.append(sc);
+        ta.erase(ta.begin(), ta.end());
+
+        std::cout<<ta.elementCount()<<std::endl;
     }
 
     SUITE("RBTree Tests")

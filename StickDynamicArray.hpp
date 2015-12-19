@@ -5,6 +5,8 @@
 #include <Stick/StickIterator.hpp>
 #include <Stick/StickUtility.hpp>
 
+#include <iostream>
+
 namespace stick
 {
     template<class T>
@@ -57,6 +59,17 @@ namespace stick
         m_elementCount(move(_other.m_elementCount)),
         m_allocator(move(_other.m_allocator))
         {
+        }
+
+        ~DynamicArray()
+        {
+            if(m_elementCount)
+            {
+                //call the destructors
+                clear();
+                //and release the memory
+                m_allocator->deallocate(m_data);
+            }
         }
 
         inline DynamicArray & operator = (const DynamicArray & _other)
@@ -154,10 +167,21 @@ namespace stick
             Size index = (_first - begin());
             Size endIndex = m_elementCount - diff;
 
-            for(Size i=0; i < diff; ++i)
+            //call the destructors of the removed elements
+            for(Size i=0; i < idiff; ++i)
             {
-                (*this)[index + i] = (*this)[endIndex + i];
+                (*this)[index + i].~T();
             }
+
+            //fill the resulting gap if needed by shifting the remaining elements down
+            if(diff)
+            {
+                for(Size i=0; i < diff; ++i)
+                {
+                    (*this)[index + i] = (*this)[endIndex + i];
+                }
+            }
+
             m_elementCount -= idiff;
             return begin() + index;
         }
