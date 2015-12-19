@@ -224,6 +224,12 @@ int main(int _argc, const char * _args[])
         map.insert("d", 5);
         map.insert("e", 6);
 
+        map["e"] = 7;
+        map["f"] = 8;
+        it = map.find("e");
+        TEST(it->value == 7);
+        TEST(map["f"] == 8);
+
         it = map.begin();
         std::cout<<it->key.cString()<<": "<<it->value<<std::endl;
         it++;

@@ -235,6 +235,20 @@ namespace stick
             return insert({_key, _val});
         }
 
+        ValueType & operator [] (const KeyType & _key)
+        {
+            Node * n = m_tree.find({_key, ValueType()});
+            if(n)
+            {
+                return n->value.value;
+            }
+            else
+            {
+                auto res = m_tree.insert({_key, ValueType()});
+                return res.node->value.value;
+            }
+        }
+
         inline Iter find(const KeyType & _key)
         {
             return Iter(m_tree.find({_key, ValueType()}), m_tree.rightMost());
