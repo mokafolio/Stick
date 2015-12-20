@@ -77,6 +77,7 @@ namespace stick
 
             typedef ValueType * PointerType;
 
+
             Iter() :
             map(nullptr),
             bucketIndex(0),
@@ -102,16 +103,65 @@ namespace stick
                     node = node->next;
                 else
                 {
-                    if(bucketIndex < map->m_bucketCount)
+                    if(bucketIndex < map->m_bucketCount - 1)
                     {
-
+                        ++bucketIndex;
+                        node = map->m_buckets[bucketIndex].first;
+                    }
+                    else
+                    {
+                        //we reached the end
+                        node = nullptr;
                     }
                 }
             }
 
-            inline void decrement()
+            inline bool operator == (const Iter & _other) const
             {
+                return node == _other.node;
+            }
 
+            inline bool operator != (const Iter & _other) const
+            {
+                return node != _other.node;
+            }
+
+            inline Iter & operator++() 
+            {
+                increment();
+                return *this;
+            } 
+
+            inline Iter operator++(int) 
+            {
+                Iter ret = *this;
+                increment();
+                return ret;
+            }
+
+            inline Iter & operator+=(Size _i) 
+            {
+                for(Size i=0; i<=_i; ++i)
+                    increment();
+                return *this;
+            }
+
+            inline Iter operator+(Size _i) const
+            {
+                Iter ret = *this;
+                for(Size i=0; i<=_i; ++i)
+                    ret.increment();
+                return ret;
+            }
+
+            inline KeyValuePair & operator * () const
+            {
+                return node->kv;
+            }
+
+            inline KeyValuePair *  operator -> () const
+            {
+                return &node->kv;
             }
 
         private:
@@ -120,6 +170,9 @@ namespace stick
             Size bucketIndex;
             Node * node;
         };
+
+        typedef const Iter ConstIter;
+
 
         HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
         m_alloc(&_alloc),
