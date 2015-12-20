@@ -91,6 +91,9 @@ int main(int _argc, const char * _args[])
 
         d = "another one";
         TEST(d == "another one");
+
+        String e;
+        TEST(e != d);
     }
 
     SUITE("DynamicArray Tests")

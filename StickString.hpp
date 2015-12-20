@@ -110,6 +110,8 @@ namespace stick
 
         inline bool operator == (const String & _b) const
         {
+            if(!m_cStr && !_b.m_cStr) return true;
+            else if(!m_cStr) return false;
             return strcmp(m_cStr, _b.m_cStr) == 0;
         }
 
@@ -120,6 +122,8 @@ namespace stick
 
         inline bool operator == (const char * _str) const
         {
+            if(!m_cStr && !_str) return true;
+            else if(!m_cStr) return false;
             return strcmp(m_cStr, _str) == 0;
         }
 
@@ -130,21 +134,25 @@ namespace stick
 
         inline bool operator < (const String & _str) const
         {
+            if(!m_cStr) return true;
             return strcmp(m_cStr, _str.m_cStr) < 0;
         }
 
         inline bool operator > (const String & _str) const
         {
+            if(!m_cStr) return false;
             return strcmp(m_cStr, _str.m_cStr) > 0;
         }
 
         inline bool operator < (const char * _str) const
         {
+            if(!m_cStr) return true;
             return strcmp(m_cStr, _str) < 0;
         }
 
         inline bool operator > (const char * _str) const
         {
+            if(!m_cStr) return false;
             return strcmp(m_cStr, _str) > 0;
         }
 
