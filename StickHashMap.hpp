@@ -69,6 +69,58 @@ namespace stick
             Node * first;
         };
 
+        struct Iter
+        {
+            typedef KeyValuePair ValueType;
+
+            typedef ValueType & ReferenceType;
+
+            typedef ValueType * PointerType;
+
+            Iter() :
+            map(nullptr),
+            bucketIndex(0),
+            node(nullptr)
+            {
+
+            }
+
+            Iter(HashMap & _map, Size _bucketIndex, Node * _node) :
+            map(&_map),
+            bucketIndex(_bucketIndex),
+            node(_node)
+            {
+
+            }
+
+            inline void increment()
+            {
+                if(!node)
+                    return;
+
+                if(node->next)
+                    node = node->next;
+                else
+                {
+                    if(bucketIndex < map->m_bucketCount)
+                    {
+
+                    }
+                }
+            }
+
+            inline void decrement()
+            {
+
+            }
+
+        private:
+
+            HashMap * map;
+            Size bucketIndex;
+            Node * node;
+        };
+
         HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
         m_alloc(&_alloc),
         m_buckets(nullptr),
@@ -173,9 +225,11 @@ namespace stick
             {
                 Bucket & b = m_buckets[i];
                 Node * n = b.first;
+
                 while(n)
                 {
                     Size bucketIndex = m_hasher(n->kv.key) % _bucketCount;
+                    Node * nextn = n->next;
                     if(!newBuckets[bucketIndex].first)
                     {
                         newBuckets[bucketIndex].first = n;
@@ -187,7 +241,8 @@ namespace stick
                             n2 = n2->next;
                         n2->next = n;
                     }
-                    n = n->next;
+                    n->next = nullptr;
+                    n = nextn;
                 }
 
                 b.~Bucket();
