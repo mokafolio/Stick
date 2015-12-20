@@ -357,6 +357,11 @@ namespace stick
             return m_tree.elementCount();
         }
 
+        inline void clear() const
+        {
+            m_tree.clear();
+        }
+
     private:
 
         Representation m_tree;

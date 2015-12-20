@@ -6,6 +6,7 @@
 #include <Stick/Detail/StickMurmurHash2.hpp>
 
 #include <iostream>
+#include <math.h>
 
 namespace stick
 {
@@ -68,7 +69,7 @@ namespace stick
             Node * first;
         };
 
-        HashMap(Allocator & _alloc = defaultAllocator(), Size _initialBucketCount = 16) :
+        HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
         m_alloc(&_alloc),
         m_buckets(nullptr),
         m_bucketCount(_initialBucketCount),
@@ -110,15 +111,14 @@ namespace stick
 
             Float32 lf = loadFactor();
             if(lf > m_maxLoadFactor)
-            {
-                rehash(m_bucketCount + (lf - m_maxLoadFactor) * 2.0 * m_bucketCount);
+            { 
+                rehash(m_bucketCount * 2);
             }
         }
 
         inline void remove(const KeyType & _key)
         {
             Bucket & b = bucket(_key);
-
             Node * n, *prev;
             findHelper(b, _key, n, prev);
 
@@ -147,22 +147,28 @@ namespace stick
             {
                 Bucket & b = m_buckets[i];
                 Node * n = b.first;
-                Node * prev = nullptr;
                 while(n)
                 {
                     Size bucketIndex = m_hasher(n->kv.key) % _bucketCount;
-                    if(!prev)
+                    if(!newBuckets[bucketIndex].first)
+                    {
                         newBuckets[bucketIndex].first = n;
+                    }
                     else
-                        prev->next = n;
+                    {
+                        Node * n2 = newBuckets[bucketIndex].first;
+                        while(n2->next)
+                            n2 = n2->next;
+                        n2->next = n;
+                    }
                     n = n->next;
-                    n->next = nullptr;
                 }
 
                 b.~Bucket();
             }
 
             m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+            m_buckets = newBuckets;
             m_bucketCount = _bucketCount;
         }
 
@@ -183,7 +189,7 @@ namespace stick
 
         inline Float32 loadFactor() const
         {
-            return elementCount() / bucketCount();
+            return (Float32)elementCount() / (Float32)bucketCount();
         }
 
     private:
@@ -216,7 +222,7 @@ namespace stick
 
             while(n)
             {
-                if(_key == n->kv.key.cString())
+                if(_key == n->kv.key)
                 {
                     _outNode = n;
                     return;

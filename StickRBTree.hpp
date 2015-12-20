@@ -100,8 +100,7 @@ namespace stick
 
         ~RBTree()
         {   
-            if(m_rootNode)
-                deallocateTree(m_rootNode);
+            clear();
         }
 
         template<class K>
@@ -145,6 +144,12 @@ namespace stick
         {
             removeImpl(_n);
             m_elementCount--;
+        }
+
+        inline void clear()
+        {
+            if(m_rootNode)
+                deallocateTree(m_rootNode);
         }
 
         inline Size elementCount() const

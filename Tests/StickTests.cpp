@@ -336,11 +336,19 @@ int main(int _argc, const char * _args[])
 
     SUITE("HashMap Tests")
     {
-        HashMap<String, Int32> hm;
+        HashMap<String, Int32> hm(1);
 
         hm.insert("test", 1);
         hm.insert("test", 2);
+        TEST(hm.elementCount() == 1);
+        hm.insert("anotherKey", 3);
+        TEST(hm.elementCount() == 2);
+        std::cout<<hm.bucketCount()<<" "<<hm.loadFactor()<<std::endl;
+        hm.remove("anotherKey");
         std::cout<<hm.elementCount()<<std::endl;
         TEST(hm.elementCount() == 1);
+
+
+        //hm.rehash(hm.bucketCount() * 2);
     }
 }
