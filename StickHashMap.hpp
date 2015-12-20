@@ -173,6 +173,11 @@ namespace stick
 
         typedef const Iter ConstIter;
 
+        struct InsertResult
+        {
+            Iter iterator;
+            bool inserted;
+        };
 
         HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
         m_alloc(&_alloc),
@@ -200,9 +205,10 @@ namespace stick
             }
         }
 
-        inline void insert(const KeyType & _key, const ValueType & _value)
+        inline InsertResult insert(const KeyType & _key, const ValueType & _value)
         {   
-            Bucket & b = bucket(_key);
+            Size bi = bucketIndex(_key);
+            Bucket & b = m_buckets[bi];
 
             //check if the key allready exists
             Node * n, *prev;
@@ -212,6 +218,7 @@ namespace stick
             if(n)
             {
                 n->kv.value = _value;
+                return {Iter(*this, bi, n)};
             }
             else
             {
@@ -229,11 +236,25 @@ namespace stick
             { 
                 rehash(m_bucketCount * 2);
             }
+
+            return {Iter(*this, bi, n)};
+        }
+
+        inline Iter find(const KeyType & _key)
+        {
+            Size bi = bucketIndex(_key);
+            Bucket & b = m_buckets[bi];
+            Node * n, *prev;
+            findHelper(b, _key, n, prev);
+            if(!n)
+                return end();
+            else
+                return Iter(*this, bi, n);
         }
 
         inline void remove(const KeyType & _key)
         {
-            Bucket & b = bucket(_key);
+            Bucket & b = m_buckets[bucketIndex(_key)];
             Node * n, *prev;
             findHelper(b, _key, n, prev);
 
@@ -326,6 +347,16 @@ namespace stick
             return (Float32)elementCount() / (Float32)bucketCount();
         }
 
+        inline Iter end()
+        {
+            return Iter();
+        }
+
+        inline ConstIter end() const
+        {
+            return ConstIter();
+        }
+
     private:
 
         inline Node * createNode(const KeyType & _key, const ValueType & _val)
@@ -342,10 +373,9 @@ namespace stick
             m_alloc->deallocate({_n, sizeof(Node)});
         }
 
-        inline Bucket & bucket(const KeyType & _key)
+        inline Size bucketIndex(const KeyType & _key)
         {
-            Size bucketIndex = m_hasher(_key) % bucketCount();
-            return m_buckets[bucketIndex];
+            return m_hasher(_key) % bucketCount();
         }
 
         inline void findHelper(Bucket & _bucket, const KeyType & _key, Node *& _outNode, Node *& _prev)
