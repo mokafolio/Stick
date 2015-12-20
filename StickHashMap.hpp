@@ -82,7 +82,17 @@ namespace stick
 
         ~HashMap()
         {
+            //deallocate buckets and nodes
+            if(m_buckets)
+            {
+                clear();
+                //I guess technically buckets are pod types right now so we
+                //don't need to call the destructor...safety first though.
+                for(Size i=0; i<m_bucketCount; ++i)
+                    m_buckets[i].~Bucket();
 
+                m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+            }
         }
 
         inline void insert(const KeyType & _key, const ValueType & _value)
@@ -136,6 +146,22 @@ namespace stick
 
             destroyNode(n);
             --m_elementCount;
+        }
+
+        inline void clear()
+        {
+            for(Size i=0; i<m_bucketCount; ++i)
+            {
+                Bucket & b = m_buckets[i];
+                Node * n = b.first;
+                while(n)
+                {
+                    Node * on = n;
+                    n = n->next;
+                    destroyNode(on);
+                }
+                b.first = nullptr;
+            }
         }
 
         inline void rehash(Size _bucketCount)
