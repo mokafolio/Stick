@@ -69,16 +69,17 @@ namespace stick
             Node * first;
         };
 
-        struct Iter
+        template<class T>
+        struct IterT
         {
-            typedef KeyValuePair ValueType;
+            typedef typename T::KeyValuePair ValueType;
 
-            typedef ValueType & ReferenceType;
+            typedef typename T::ValueType & ReferenceType;
 
-            typedef ValueType * PointerType;
+            typedef typename T::ValueType * PointerType;
 
 
-            Iter() :
+            IterT() :
             map(nullptr),
             bucketIndex(0),
             node(nullptr)
@@ -86,7 +87,7 @@ namespace stick
 
             }
 
-            Iter(HashMap & _map, Size _bucketIndex, Node * _node) :
+            IterT(T & _map, Size _bucketIndex, Node * _node) :
             map(&_map),
             bucketIndex(_bucketIndex),
             node(_node)
@@ -116,39 +117,39 @@ namespace stick
                 }
             }
 
-            inline bool operator == (const Iter & _other) const
+            inline bool operator == (const IterT & _other) const
             {
                 return node == _other.node;
             }
 
-            inline bool operator != (const Iter & _other) const
+            inline bool operator != (const IterT & _other) const
             {
                 return node != _other.node;
             }
 
-            inline Iter & operator++() 
+            inline IterT & operator++() 
             {
                 increment();
                 return *this;
             } 
 
-            inline Iter operator++(int) 
+            inline IterT operator++(int) 
             {
-                Iter ret = *this;
+                IterT ret = *this;
                 increment();
                 return ret;
             }
 
-            inline Iter & operator+=(Size _i) 
+            inline IterT & operator+=(Size _i) 
             {
                 for(Size i=0; i<=_i; ++i)
                     increment();
                 return *this;
             }
 
-            inline Iter operator+(Size _i) const
+            inline IterT operator+(Size _i) const
             {
-                Iter ret = *this;
+                IterT ret = *this;
                 for(Size i=0; i<=_i; ++i)
                     ret.increment();
                 return ret;
@@ -166,12 +167,13 @@ namespace stick
 
         private:
 
-            HashMap * map;
+            T * map;
             Size bucketIndex;
             Node * node;
         };
 
-        typedef const Iter ConstIter;
+        typedef IterT<HashMap> Iter;
+        typedef IterT<const HashMap> ConstIter;
 
         struct InsertResult
         {
@@ -356,12 +358,38 @@ namespace stick
 
         inline Iter begin()
         {
-            return Iter(*this, 0, m_buckets[0].first);
+            Bucket * b;
+            Size i = 0;
+            for(; i<m_bucketCount; ++i)
+            {
+                if(m_buckets[i].first)
+                {
+                    b = &m_buckets[i];
+                    break;
+                }
+            }
+            if(!b)
+                return end();
+            else
+                return Iter(*this, i, b->first);
         }
 
         inline ConstIter begin() const
         {
-            return ConstIter(*this, 0, m_buckets[0].first);
+            Bucket * b;
+            Size i = 0;
+            for(; i<m_bucketCount; ++i)
+            {
+                if(m_buckets[i].first)
+                {
+                    b = &m_buckets[i];
+                    break;
+                }
+            }
+            if(!b)
+                return end();
+            else
+                return ConstIter(*this, i, b->first);
         }
 
         inline Iter end()

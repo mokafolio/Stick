@@ -339,7 +339,7 @@ int main(int _argc, const char * _args[])
 
     SUITE("HashMap Tests")
     {
-        HashMap<String, Int32> hm(2);
+        HashMap<String, Int32> hm(1);
 
         hm.insert("test", 1);
         hm.insert("test", 2);
@@ -347,13 +347,18 @@ int main(int _argc, const char * _args[])
         hm.insert("anotherKey", 3);
         hm.insert("blubb", 4);
         TEST(hm.elementCount() == 3);
-        std::cout<<hm.bucketCount()<<" "<<hm.loadFactor()<<std::endl;
 
-        /*hm.remove("anotherKey");
-        std::cout<<hm.elementCount()<<std::endl;
-        TEST(hm.elementCount() == 1);*/
+        const HashMap<String, Int32> & hm2 = hm;
+        auto it = hm.begin();
+        std::cout<<"BEGIN: "<<it->key.cString()<<" VAL: "<<it->value<<std::endl;
+        for(auto a : hm)
+        {
+            std::cout<<a.value<<std::endl;
+        }
 
-
-        //hm.rehash(hm.bucketCount() * 2);
+        for(auto a : hm2)
+        {
+            std::cout<<a.value<<std::endl;
+        }
     }
 }
