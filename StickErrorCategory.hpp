@@ -111,12 +111,6 @@ namespace stick
 
     namespace detail
     {
-        template<class T>
-        struct isErrorEnum
-        {
-            static const bool value = false;
-        };
-
         const NoErrorCategory & noErrorCategory();
 
         const SystemErrorCategory & systemErrorCategory();

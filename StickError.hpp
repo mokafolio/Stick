@@ -2,10 +2,20 @@
 #define STICK_STICKERROR_HPP
 
 #include <Stick/StickString.hpp>
+#include <Stick/StickUtility.hpp>
 
 namespace stick
 {
     class ErrorCategory;
+
+    namespace detail
+    {
+        template<class T>
+        struct isErrorEnum
+        {
+            static const bool value = false;
+        };
+    }
 
     /**
      * @brief An Error describes an error condition: http://en.wikipedia.org/wiki/Error_code
@@ -40,17 +50,16 @@ namespace stick
          *
          * The error category is automatically deducted at compile time.
          */
-        //template<class ErrorEnum>
-        //Error(ErrorEnum _code, typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value>::type* = 0);
+        template<class ErrorEnum>
+        Error(ErrorEnum _code, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type * = 0);
 
         /**
          * @brief Assigns an ErrorEnum value to this.
          *
          * The error category is automatically deducted at compile time.
          */
-        /*template<class ErrorEnum>
-        typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value, Error>::type &
-        operator = (ErrorEnum _code);*/
+        template<class ErrorEnum>
+        typename EnableIf<detail::isErrorEnum<ErrorEnum>::value, Error>::Type & operator = (ErrorEnum _code);
 
         /**
          * @brief Implicit conversion to bool.
@@ -117,6 +126,22 @@ namespace stick
         String m_file;
         UInt32 m_line;
     };
+
+    template<class ErrorEnum>
+    Error::Error(ErrorEnum _code, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type *) :
+    m_category(&errorCategory(_code)),
+    m_code(_code)
+    {
+
+    }
+
+    template<class ErrorEnum>
+    typename EnableIf<detail::isErrorEnum<ErrorEnum>::value, Error>::Type & Error::operator = (ErrorEnum _code)
+    {
+        m_category = &errorCategory(_code);
+        m_code = _code;
+        return *this;
+    }
 }
 
 #endif //STICK_STICKERROR_HPP

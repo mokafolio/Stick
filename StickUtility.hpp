@@ -24,6 +24,12 @@ namespace stick
         typedef T Type;
     };
 
+    template<bool B, class T = void>
+    struct EnableIf {};
+
+    template<class T>
+    struct EnableIf<true, T> { typedef T Type; };
+
     template<class T>
     inline typename RemoveReference<T>::Type && move(T && _arg)
     {

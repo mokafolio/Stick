@@ -11,7 +11,7 @@
 namespace stick
 {
     template<class T>
-    class RBTree 
+    class RBTree
     {
     public:
 
@@ -26,20 +26,20 @@ namespace stick
         struct Node
         {
             Node() :
-            color(Color::Red),
-            left(nullptr),
-            right(nullptr),
-            parent(nullptr)
+                color(Color::Red),
+                left(nullptr),
+                right(nullptr),
+                parent(nullptr)
             {
 
             }
 
             Node(const T & _value) :
-            color(Color::Red),
-            value(_value),
-            left(nullptr),
-            right(nullptr),
-            parent(nullptr)
+                color(Color::Red),
+                value(_value),
+                left(nullptr),
+                right(nullptr),
+                parent(nullptr)
             {
 
             }
@@ -63,8 +63,8 @@ namespace stick
             }
 
             inline Node * sibling()
-            {   
-                if(!parent) return nullptr;
+            {
+                if (!parent) return nullptr;
 
                 if (this == parent->left)
                     return parent->right;
@@ -93,13 +93,13 @@ namespace stick
         };
 
         RBTree(Allocator & _alloc = defaultAllocator()) :
-        m_alloc(&_alloc),
-        m_elementCount(0)
+            m_alloc(&_alloc),
+            m_elementCount(0)
         {
         }
 
         ~RBTree()
-        {   
+        {
             clear();
         }
 
@@ -116,7 +116,7 @@ namespace stick
 
         inline InsertResult insert(const ValueType & _val)
         {
-            if(m_elementCount == 0)
+            if (m_elementCount == 0)
             {
                 m_rootNode = createNode(_val);
                 m_rootNode->color = Color::Black;
@@ -132,7 +132,7 @@ namespace stick
         inline bool remove(const ValueType & _val)
         {
             Node * n = find(_val);
-            if(n)
+            if (n)
             {
                 removeNode(n);
                 return true;
@@ -148,7 +148,7 @@ namespace stick
 
         inline void clear()
         {
-            if(m_rootNode)
+            if (m_rootNode)
                 deallocateTree(m_rootNode);
         }
 
@@ -159,7 +159,7 @@ namespace stick
 
         inline Node * rightMost() const
         {
-            if(m_rootNode)
+            if (m_rootNode)
                 return recurseRight(m_rootNode);
 
             return nullptr;
@@ -169,7 +169,7 @@ namespace stick
 
         inline Node * recurseRight(Node * _node) const
         {
-            if(_node->right)
+            if (_node->right)
                 return recurseRight(_node->right);
 
             return _node;
@@ -177,9 +177,9 @@ namespace stick
 
         inline void deallocateTree(Node * _node)
         {
-            if(_node->left)
+            if (_node->left)
                 deallocateTree(_node->left);
-            if(_node->right)
+            if (_node->right)
                 deallocateTree(_node->right);
 
             destroyNode(_node);
@@ -201,13 +201,13 @@ namespace stick
         template<class K>
         inline Node * findImpl(Node * _currentNode, const K & _val)
         {
-            if(_currentNode->value == _val)
+            if (_currentNode->value == _val)
             {
                 return _currentNode;
             }
-            else if(_currentNode->value > _val)
+            else if (_currentNode->value > _val)
             {
-                if(!_currentNode->left)
+                if (!_currentNode->left)
                 {
                     return nullptr;
                 }
@@ -218,7 +218,7 @@ namespace stick
             }
             else
             {
-                if(!_currentNode->right)
+                if (!_currentNode->right)
                 {
                     return nullptr;
                 }
@@ -234,17 +234,17 @@ namespace stick
             STICK_ASSERT(m_elementCount >= 0);
 
             UInt8 nullChildrenCount = 0;
-            if(!_node->left) nullChildrenCount++;
-            if(!_node->right) nullChildrenCount++;
+            if (!_node->left) nullChildrenCount++;
+            if (!_node->right) nullChildrenCount++;
 
-            if(nullChildrenCount == 0)
+            if (nullChildrenCount == 0)
             {
-                Node* p = _node->left;
+                Node * p = _node->left;
                 while (p->left) p = p->right;
                 p->swapValue(*_node);
                 removeImpl(p);
             }
-            else if(nullChildrenCount == 1)
+            else if (nullChildrenCount == 1)
             {
                 Node * child = _node->left ? _node->left : _node->right;
                 STICK_ASSERT(_node->color == Color::Black && child->color == Color::Red);
@@ -254,18 +254,18 @@ namespace stick
                     child->parent = _node->parent;
                     if (_node->parent->left == _node)
                         _node->parent->left = child;
-                    else 
+                    else
                         _node->parent->right = child;
-                } 
-                else 
+                }
+                else
                 {
                     m_rootNode = child;
                     child->parent = nullptr;
                 }
             }
-            else if(nullChildrenCount == 2)
+            else if (nullChildrenCount == 2)
             {
-                if(_node == m_rootNode)
+                if (_node == m_rootNode)
                 {
                     destroyNode(_node);
                     m_rootNode = nullptr;
@@ -274,13 +274,13 @@ namespace stick
                 {
                     if (_node->parent->left == _node)
                         _node->parent->left = nullptr;
-                    else 
+                    else
                         _node->parent->right = nullptr;
                     Node * p = _node->parent;
                     auto col = _node->color;
                     destroyNode(_node);
                     //TODO: if black, fix tree
-                    if(col == Color::Black)
+                    if (col == Color::Black)
                         deleteFix(p);
                 }
             }
@@ -288,12 +288,12 @@ namespace stick
 
         inline void deleteFix(Node * _node)
         {
-            if(!_node->parent || !_node->parent->parent)
+            if (!_node->parent || !_node->parent->parent)
                 return;
 
             Node * sibling;
             bool bLeft = false;
-            if(_node == _node->parent->left)
+            if (_node == _node->parent->left)
                 sibling = _node->parent->right;
             else
             {
@@ -301,28 +301,28 @@ namespace stick
                 sibling = _node->parent->left;
             }
 
-            if(sibling->color == Color::Red)
+            if (sibling->color == Color::Red)
             {
                 sibling->color = sibling->parent->color;
                 sibling->parent->color = sibling->parent->color == Color::Red ? Color::Black : Color::Red;
                 rotate(sibling, !bLeft);
                 deleteFix(_node);
             }
-            else if(_node->parent->color == Color::Black && sibling->color == Color::Black &&
-                    (!sibling->left || sibling->left->color == Color::Black) &&
-                    (!sibling->right || sibling->right->color == Color::Black))
+            else if (_node->parent->color == Color::Black && sibling->color == Color::Black &&
+                     (!sibling->left || sibling->left->color == Color::Black) &&
+                     (!sibling->right || sibling->right->color == Color::Black))
             {
                 sibling->color = Color::Red;
                 deleteFix(_node->parent);
             }
-            else if(_node->parent->color == Color::Red)
+            else if (_node->parent->color == Color::Red)
             {
                 STICK_ASSERT((!sibling->left || sibling->left->color == Color::Red) && (!sibling->right || sibling->right->color == Color::Red));
                 sibling->color = sibling->parent->color;
                 sibling->parent->color = sibling->parent->color == Color::Red ? Color::Black : Color::Red;
             }
-            else if((!bLeft && (sibling->right || sibling->right->color == Color::Black) && sibling->left->color == Color::Red) ||
-                    (bLeft && (sibling->left || sibling->left->color == Color::Black) && sibling->right->color == Color::Red))
+            else if ((!bLeft && (sibling->right || sibling->right->color == Color::Black) && sibling->left->color == Color::Red) ||
+                     (bLeft && (sibling->left || sibling->left->color == Color::Black) && sibling->right->color == Color::Red))
             {
                 Node * child = bLeft ? sibling->right : sibling->left;
                 sibling->color = child->color;
@@ -330,13 +330,13 @@ namespace stick
                 rotate(child, bLeft);
                 deleteFix(_node);
             }
-            else if((!bLeft && sibling->right && sibling->right->color == Color::Red) ||
-                    (bLeft && sibling->left && sibling->left->color == Color::Red))
+            else if ((!bLeft && sibling->right && sibling->right->color == Color::Red) ||
+                     (bLeft && sibling->left && sibling->left->color == Color::Red))
             {
                 auto tmpCol = sibling->color;
                 sibling->color = sibling->parent->color;
                 sibling->parent->color = tmpCol;
-                if(bLeft)
+                if (bLeft)
                     sibling->right->color = Color::Black;
                 else
                     sibling->left->color = Color::Black;
@@ -346,7 +346,7 @@ namespace stick
 
         inline InsertResult insertImpl(Node * _currentNode, const ValueType & _val)
         {
-            if(_currentNode->value == _val)
+            if (_currentNode->value == _val)
             {
                 //assign the value, as the comparision does not necessarily mean they are identical
                 _currentNode->value = _val;
@@ -356,7 +356,7 @@ namespace stick
             {
                 Node * node = nullptr;
                 bool bLeft = false;
-                if(_val < _currentNode->value)
+                if (_val < _currentNode->value)
                 {
                     bLeft = true;
                     node = _currentNode->left;
@@ -364,11 +364,11 @@ namespace stick
                 else
                     node = _currentNode->right;
 
-                if(!node)
+                if (!node)
                 {
                     node = createNode(_val);
                     node->parent = _currentNode;
-                    if(bLeft)
+                    if (bLeft)
                         _currentNode->left = node;
                     else
                         _currentNode->right = node;
@@ -386,16 +386,17 @@ namespace stick
         }
 
         inline void insertFix(Node * _node)
-        {   
-            if (_node->parent == nullptr && _node->color == Color::Red) 
-            {   // Root is wrong color
+        {
+            if (_node->parent == nullptr && _node->color == Color::Red)
+            {
+                // Root is wrong color
                 STICK_ASSERT(_node == m_rootNode);
                 _node->color = Color::Black;
                 return;
-            } 
+            }
 
             //case 2: tree stil valid
-            if(_node->parent->color == Color::Black)
+            if (_node->parent->color == Color::Black)
             {
                 return;
             }
@@ -403,7 +404,7 @@ namespace stick
             {
                 //case 3: parent and uncle are red
                 Node * uncle = _node->uncle();
-                if((uncle != nullptr) && (uncle->color == Color::Red))
+                if ((uncle != nullptr) && (uncle->color == Color::Red))
                 {
                     _node->parent->color = Color::Black;
                     uncle->color = Color::Black;
@@ -416,12 +417,12 @@ namespace stick
                 {
                     //case 4: Parent is red, uncle is black -> rotate to fix
                     Node * g = _node->grandparent();
-                    if((_node == _node->parent->right) && (_node->parent == g->left))
+                    if ((_node == _node->parent->right) && (_node->parent == g->left))
                     {
                         rotate(_node, true);
                         insertFix(_node->left);
                     }
-                    else if((_node == _node->parent->left) && (_node->parent == g->right))
+                    else if ((_node == _node->parent->left) && (_node->parent == g->right))
                     {
                         rotate(_node, false);
                         insertFix(_node->right);
@@ -432,7 +433,7 @@ namespace stick
                         Node * g = _node->grandparent();
                         _node->parent->color = g->color;
                         g->color = g->color == Color::Red ? Color::Black : Color::Red;
-                        if(_node == _node->parent->left)
+                        if (_node == _node->parent->left)
                             rotate(_node->parent, false);
                         else
                             rotate(_node->parent, true);
@@ -443,31 +444,31 @@ namespace stick
 
         inline void rotate(Node * _node, bool _bLeft)
         {
-            Node* p = _node->parent;
-            Node* g = p->parent;
+            Node * p = _node->parent;
+            Node * g = p->parent;
             _node->parent = g;
             p->parent = _node;
-            Node* gc;
-            if (_bLeft) 
-            { 
+            Node * gc;
+            if (_bLeft)
+            {
                 gc = _node->left;
                 _node->left = p;
                 p->right = gc;
-            } 
-            else 
+            }
+            else
             {
                 gc = _node->right;
                 _node->right = p;
                 p->left = gc;
             }
-            if (gc) 
+            if (gc)
                 gc->parent = p;
 
-            if (!g) 
+            if (!g)
                 m_rootNode = _node;
-            else if (g->left == p) 
+            else if (g->left == p)
                 g->left = _node;
-            else 
+            else
                 g->right = _node;
         }
 

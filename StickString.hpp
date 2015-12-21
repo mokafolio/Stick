@@ -22,43 +22,43 @@ namespace stick
 
 
         explicit String(Allocator & _alloc = defaultAllocator()) :
-        m_cStr(nullptr),
-        m_length(0),
-        m_allocator(&_alloc)
+            m_cStr(nullptr),
+            m_length(0),
+            m_allocator(&_alloc)
         {
 
         }
 
         String(const char * _c, Allocator & _alloc = defaultAllocator()) :
-        m_allocator(&_alloc)
+            m_allocator(&_alloc)
         {
             m_length = strlen(_c);
-            m_cStr = (char*)m_allocator->allocate(m_length + 1).ptr;
+            m_cStr = (char *)m_allocator->allocate(m_length + 1).ptr;
             strcpy(m_cStr, _c);
         }
 
         String(const String & _other) :
-        m_length(_other.m_length),
-        m_allocator(_other.m_allocator)
+            m_length(_other.m_length),
+            m_allocator(_other.m_allocator)
         {
-            if(_other.m_cStr)
+            if (_other.m_cStr)
             {
-                m_cStr = (char*)m_allocator->allocate(m_length + 1).ptr;
+                m_cStr = (char *)m_allocator->allocate(m_length + 1).ptr;
                 strcpy(m_cStr, _other.m_cStr);
             }
         }
 
         String(String && _other) :
-        m_cStr(move(_other.m_cStr)),
-        m_length(move(_other.m_length)),
-        m_allocator(move(_other.m_allocator))
+            m_cStr(move(_other.m_cStr)),
+            m_length(move(_other.m_length)),
+            m_allocator(move(_other.m_allocator))
         {
             _other.m_cStr = nullptr;
         }
 
         ~String()
         {
-            if(m_cStr)
+            if (m_cStr)
             {
                 m_allocator->deallocate({m_cStr, m_length});
             }
@@ -68,9 +68,9 @@ namespace stick
         {
             m_length = _other.m_length;
             m_allocator = _other.m_allocator;
-            if(_other.m_cStr)
+            if (_other.m_cStr)
             {
-                m_cStr = (char*)m_allocator->allocate(_other.m_length + 1).ptr;
+                m_cStr = (char *)m_allocator->allocate(_other.m_length + 1).ptr;
                 strcpy(m_cStr, _other.m_cStr);
             }
 
@@ -87,12 +87,12 @@ namespace stick
         }
 
         inline String & operator = (const char * _other)
-        {   
-            if(!m_allocator)
+        {
+            if (!m_allocator)
                 m_allocator = &defaultAllocator();
 
             m_length = strlen(_other);
-            m_cStr = (char*)m_allocator->allocate(m_length + 1).ptr;
+            m_cStr = (char *)m_allocator->allocate(m_length + 1).ptr;
             strcpy(m_cStr, _other);
 
             return *this;
@@ -110,8 +110,8 @@ namespace stick
 
         inline bool operator == (const String & _b) const
         {
-            if(!m_cStr && !_b.m_cStr) return true;
-            else if(!m_cStr) return false;
+            if (!m_cStr && !_b.m_cStr) return true;
+            else if (!m_cStr) return false;
             return strcmp(m_cStr, _b.m_cStr) == 0;
         }
 
@@ -122,8 +122,8 @@ namespace stick
 
         inline bool operator == (const char * _str) const
         {
-            if(!m_cStr && !_str) return true;
-            else if(!m_cStr) return false;
+            if (!m_cStr && !_str) return true;
+            else if (!m_cStr) return false;
             return strcmp(m_cStr, _str) == 0;
         }
 
@@ -134,25 +134,25 @@ namespace stick
 
         inline bool operator < (const String & _str) const
         {
-            if(!m_cStr) return true;
+            if (!m_cStr) return true;
             return strcmp(m_cStr, _str.m_cStr) < 0;
         }
 
         inline bool operator > (const String & _str) const
         {
-            if(!m_cStr) return false;
+            if (!m_cStr) return false;
             return strcmp(m_cStr, _str.m_cStr) > 0;
         }
 
         inline bool operator < (const char * _str) const
         {
-            if(!m_cStr) return true;
+            if (!m_cStr) return true;
             return strcmp(m_cStr, _str) < 0;
         }
 
         inline bool operator > (const char * _str) const
         {
-            if(!m_cStr) return false;
+            if (!m_cStr) return false;
             return strcmp(m_cStr, _str) > 0;
         }
 

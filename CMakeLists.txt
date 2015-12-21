@@ -3,7 +3,7 @@ project (Stick)
 set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set (STICKSRC StickError.cpp StickErrorCategory.cpp)
+set (STICKSRC StickError.cpp StickErrorCategory.cpp StickThread.cpp)
 
 add_library (Stick ${STICKSRC})
 

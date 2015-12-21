@@ -27,13 +27,17 @@
 #define STICK_PLATFORM_UNIX
 #endif
 
+//LINE AND FILE MACROS
+#define STICK_LINE __LINE__
+#define STICK_FILE __FILE__
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 
 //UNIT TESTING
 #define SUITE(...) if(printf("\n------ " __VA_ARGS__),puts(""),true)
-#define TEST(...)  (++tst,err+=!(ok=!!(__VA_ARGS__))),printf("[%s] %d %s \n",ok?" OK ":"FAIL",__LINE__,#__VA_ARGS__)
+#define TEST(...)  (++tst,err+=!(ok=!!(__VA_ARGS__))),printf("[%s] %d %s \n",ok?" OK ":"FAIL",STICK_LINE,#__VA_ARGS__)
 unsigned tst = 0, err = 0, ok = atexit([] { SUITE("summary") { printf("[%s] %d tests = %d passed + %d errors\n", err ? "FAIL" : " OK ", tst, tst - err, err); }});
 
 namespace stick

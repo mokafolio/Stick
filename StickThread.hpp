@@ -1,7 +1,7 @@
 #ifndef STICK_THREAD_HPP
 #define STICK_THREAD_HPP
 
-#include <Stick/StickPlatform.hpp>
+#include <Stick/StickError.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
@@ -9,21 +9,34 @@
 
 namespace stick
 {
+    typedef Size ThreadID;
+
     class Thread
     {
     public:
 
-        Thread(){}
+#ifdef STICK_PLATFORM_UNIX
+        typedef pthread_t NativeHandle;
+#endif //STICK_PLATFORM_UNIX
+
+        Thread();
 
         ~Thread();
 
-        
+        template<class F>
+        inline Error run(F _func);
+
+        Error join();
+
+        NativeHandle nativeHandle();
+
+        bool joinable() const;
+
+        ThreadID id() const;
 
     private:
 
-#ifdef STICK_PLATFORM_UNIX
-        pthread_t m_pthread;
-#endif //STICK_PLATFORM_UNIX
+        NativeHandle m_handle;
     };
 }
 
