@@ -252,14 +252,21 @@ namespace stick
                 return Iter(*this, bi, n);
         }
 
-        inline void remove(const KeyType & _key)
+        inline Iter remove(const KeyType & _key)
         {
-            Bucket & b = m_buckets[bucketIndex(_key)];
+            Size bi = bucketIndex(_key);
+            Bucket & b = m_buckets[bi];
             Node * n, *prev;
             findHelper(b, _key, n, prev);
 
             if(!n)
-                return;
+                return end();
+
+            Iter ret;
+            if(n->next)
+                ret = Iter(*this, bi, n->next);
+            else
+                ret = end();
 
             if(!prev)
             {
@@ -345,6 +352,16 @@ namespace stick
         inline Float32 loadFactor() const
         {
             return (Float32)elementCount() / (Float32)bucketCount();
+        }
+
+        inline Iter begin()
+        {
+            return Iter(*this, 0, m_buckets[0].first);
+        }
+
+        inline ConstIter begin() const
+        {
+            return ConstIter(*this, 0, m_buckets[0].first);
         }
 
         inline Iter end()
