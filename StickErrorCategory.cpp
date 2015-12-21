@@ -3,36 +3,57 @@
 namespace stick
 {
     ErrorCategory::ErrorCategory(const String & _name) :
-    m_name(_name)
+        m_name(_name)
     {
-        
+
     }
-    
+
     bool ErrorCategory::operator == (const ErrorCategory & _other) const
     {
         return this == &_other;
     }
-    
+
     bool ErrorCategory::operator != (const ErrorCategory & _other) const
     {
         return this != &_other;
     }
-    
-    ErrorCode ErrorCategory::resolveErrorCode(const ErrorCode & _code) const
+
+    Error ErrorCategory::resolveError(const Error & _code) const
     {
         //the default implementation does not do anything
         return _code;
     }
-    
-    bool ErrorCategory::indicatesError(const ErrorCode & _code) const
+
+    bool ErrorCategory::indicatesError(const Error & _code) const
     {
-        if(_code.code() == 0)
+        if (_code.code() == 0)
             return false;
         return true;
     }
-    
+
     const String & ErrorCategory::name() const
     {
         return m_name;
+    }
+
+    NoErrorCategory::NoErrorCategory() :
+        ErrorCategory("No Error")
+    {
+
+    }
+
+    String NoErrorCategory::description(const Error & _code) const
+    {
+        return "No Error";
+    }
+
+    namespace detail
+    {
+        const NoErrorCategory & noErrorCategory()
+        {
+            static NoErrorCategory s_cat;
+            return s_cat;
+        }
+
     }
 }

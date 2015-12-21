@@ -1,62 +1,60 @@
-#include <Stick/StickError.hpp>
+#include <Stick/StickErrorCategory.hpp>
 
 namespace stick
 {
     Error::Error() :
-    m_code(0),
-    m_category(&detail::noErrorCategory())
+        m_code(0),
+        m_category(&detail::noErrorCategory())
     {
-        
+
     }
-    
+
     Error::Error(Int32 _code, const ErrorCategory & _category) :
-    m_code(_code),
-    m_category(&_category)
+        m_code(_code),
+        m_category(&_category)
     {
-        
+
     }
-    
+
     Error::operator bool() const
     {
         return m_category->indicatesError(*this) ? true : false;
     }
-    
+
     bool Error::operator!() const
     {
         return m_category->indicatesError(*this) ? false : true;
     }
-    
+
     bool Error::operator == (const Error & _other) const
     {
         Error a = resolvedCode();
         Error b = _other.resolvedCode();
         return a.m_code == b.m_code && a.m_category == b.m_category;
     }
-    
+
     bool Error::operator != (const Error & _other) const
     {
         return !(*this == _other);
     }
-    
+
     String Error::description() const
     {
         return m_category->description(*this);
     }
-    
+
     Int32 Error::code() const
     {
         return m_code;
     }
-    
+
     Error Error::resolvedCode() const
     {
         return m_category->resolveError(*this);
     }
-    
+
     const ErrorCategory & Error::category() const
     {
         return *m_category;
     }
-
-    
 }

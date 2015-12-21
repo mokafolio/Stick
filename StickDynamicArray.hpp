@@ -26,28 +26,28 @@ namespace stick
 
 
         DynamicArray(Allocator & _alloc = defaultAllocator()) :
-        m_data({nullptr, 0}),
-        m_elementCount(0),
-        m_allocator(&_alloc)
+            m_data( {nullptr, 0}),
+                m_elementCount(0),
+                m_allocator(&_alloc)
         {
 
         }
 
         DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
-        m_elementCount(_size),
-        m_allocator(&_alloc)
+            m_elementCount(_size),
+            m_allocator(&_alloc)
         {
-            m_data = (T*)m_allocator->allocate(m_elementCount * sizeof(T));
+            m_data = (T *)m_allocator->allocate(m_elementCount * sizeof(T));
         }
 
         DynamicArray(const DynamicArray & _other) :
-        m_elementCount(_other.m_elementCount),
-        m_allocator(_other.m_allocator)
+            m_elementCount(_other.m_elementCount),
+            m_allocator(_other.m_allocator)
         {
-            if(m_elementCount)
+            if (m_elementCount)
             {
                 resize(m_elementCount);
-                for(Size i = 0; i < m_elementCount; ++i)
+                for (Size i = 0; i < m_elementCount; ++i)
                 {
                     *this[i] = _other[i];
                 }
@@ -55,9 +55,9 @@ namespace stick
         }
 
         DynamicArray(DynamicArray && _other) :
-        m_data(move(_other.m_data)),
-        m_elementCount(move(_other.m_elementCount)),
-        m_allocator(move(_other.m_allocator))
+            m_data(move(_other.m_data)),
+            m_elementCount(move(_other.m_elementCount)),
+            m_allocator(move(_other.m_allocator))
         {
             //we don't want other to deallocate anything
             _other.m_elementCount = 0;
@@ -65,7 +65,7 @@ namespace stick
 
         ~DynamicArray()
         {
-            if(m_elementCount)
+            if (m_elementCount)
             {
                 //call the destructors
                 clear();
@@ -79,7 +79,7 @@ namespace stick
             m_elementCount = _other.m_elementCount;
             m_allocator = _other.m_allocator;
             resize(m_elementCount);
-            for(Size i = 0; i < m_elementCount; ++i)
+            for (Size i = 0; i < m_elementCount; ++i)
             {
                 *this[i] = _other[i];
             }
@@ -92,7 +92,7 @@ namespace stick
             m_allocator = move(_other.m_allocator);
             m_elementCount = move(_other.m_elementCount);
             _other.m_elementCount = 0;
-            
+
             return *this;
         }
 
@@ -104,14 +104,14 @@ namespace stick
 
         inline void reserve(Size _s)
         {
-            if(_s > capacity())
+            if (_s > capacity())
             {
                 auto blk = m_allocator->allocate(_s * sizeof(T));
-                if(blk.ptr != m_data.ptr)
+                if (blk.ptr != m_data.ptr)
                 {
-                    for(Size i = 0; i < m_elementCount; ++i)
+                    for (Size i = 0; i < m_elementCount; ++i)
                     {
-                        reinterpret_cast<T*>(blk.ptr)[i] = reinterpret_cast<T*>(m_data.ptr)[i];
+                        reinterpret_cast<T *>(blk.ptr)[i] = reinterpret_cast<T *>(m_data.ptr)[i];
                     }
                     m_allocator->deallocate(m_data);
                 }
@@ -123,7 +123,7 @@ namespace stick
 
         inline void append(const T & _element)
         {
-            if(capacity() <= m_elementCount)
+            if (capacity() <= m_elementCount)
             {
                 reserve(max((Size)1, m_elementCount * 2));
             }
@@ -137,19 +137,19 @@ namespace stick
             Size index = (_it - begin());
             Size diff = m_elementCount - index;
 
-            if(capacity() < m_elementCount + idiff)
+            if (capacity() < m_elementCount + idiff)
             {
                 reserve(max(idiff, m_elementCount * 2));
             }
 
             Size fidx = index + diff - 1;
-            Size iidx = fidx + idiff; 
-            for(Size i = 0; i < diff; ++i)
+            Size iidx = fidx + idiff;
+            for (Size i = 0; i < diff; ++i)
             {
                 (*this)[iidx - i] = (*this)[fidx - i];
             }
 
-            for(Size i = 0; _first != _last; ++_first, ++i)
+            for (Size i = 0; _first != _last; ++_first, ++i)
             {
                 (*this)[index + i] = *_first;
             }
@@ -171,15 +171,15 @@ namespace stick
             Size endIndex = m_elementCount - diff;
 
             //call the destructors of the removed elements
-            for(Size i=0; i < idiff; ++i)
+            for (Size i = 0; i < idiff; ++i)
             {
                 (*this)[index + i].~T();
             }
 
             //fill the resulting gap if needed by shifting the remaining elements down
-            if(diff)
+            if (diff)
             {
-                for(Size i=0; i < diff; ++i)
+                for (Size i = 0; i < diff; ++i)
                 {
                     (*this)[index + i] = (*this)[endIndex + i];
                 }
@@ -191,13 +191,13 @@ namespace stick
 
         inline void removeBack()
         {
-            (reinterpret_cast<T*>(m_data.ptr)[m_elementCount - 1]).~T();
+            (reinterpret_cast<T *>(m_data.ptr)[m_elementCount - 1]).~T();
             m_elementCount--;
         }
 
         inline void clear()
         {
-            for(auto & el : *this)
+            for (auto & el : *this)
             {
                 el.~T();
             }
@@ -206,12 +206,12 @@ namespace stick
 
         inline const T & operator [](Size _index) const
         {
-            return reinterpret_cast<T*>(m_data.ptr)[_index];
+            return reinterpret_cast<T *>(m_data.ptr)[_index];
         }
 
         inline T & operator [](Size _index)
         {
-            return reinterpret_cast<T*>(m_data.ptr)[_index];
+            return reinterpret_cast<T *>(m_data.ptr)[_index];
         }
 
         inline Iter begin()
@@ -266,7 +266,7 @@ namespace stick
 
         inline const T * ptr() const
         {
-            return (const T*)m_data.ptr;
+            return (const T *)m_data.ptr;
         }
 
         inline Size capacity() const
@@ -286,12 +286,12 @@ namespace stick
 
         inline T & back()
         {
-            return (*this)[m_elementCount-1];
+            return (*this)[m_elementCount - 1];
         }
 
         inline const T & back() const
         {
-            return (*this)[m_elementCount-1];
+            return (*this)[m_elementCount - 1];
         }
 
     private:

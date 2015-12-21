@@ -13,9 +13,9 @@ namespace stick
      * This implementation holds an integer code that describes the error condition and a pointer to a
      * ErrorCategory which is the group of errors that the Error is part of.
      */
-     class Error
-     {
-     public:
+    class Error
+    {
+    public:
 
         /**
          * @brief Default Constructor.
@@ -23,7 +23,7 @@ namespace stick
          * This will initialize the error category to NoErrorCategory and the code to 0,
          * which is the default no error indicator.
          */
-         Error();
+        Error();
 
         /**
          * @brief Constructs an Error from a code and a category.
@@ -33,7 +33,7 @@ namespace stick
          *
          * @see detail::isErrorEnum
          */
-         Error(Int32 _code, const ErrorCategory & _category);
+        Error(Int32 _code, const ErrorCategory & _category);
 
         /**
          * @brief Constructs an Error from an ErrorEnum value.
@@ -51,53 +51,61 @@ namespace stick
         /*template<class ErrorEnum>
         typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value, Error>::type &
         operator = (ErrorEnum _code);*/
-        
-        /**
-         * @brief Implicit conversion to bool.
-         */
-         explicit operator bool() const;
 
         /**
          * @brief Implicit conversion to bool.
          */
-         bool operator!() const;
+        explicit operator bool() const;
+
+        /**
+         * @brief Implicit conversion to bool.
+         */
+        bool operator!() const;
 
         /**
          * @brief Returns true if the codes and categories of both Errors are equal.
          */
-         bool operator == (const Error & _other) const;
+        bool operator == (const Error & _other) const;
 
         /**
          * @brief Returns true if either the codes and/or categories of the Errors are not equal.
          */
-         bool operator != (const Error & _other) const;
+        bool operator != (const Error & _other) const;
 
         /**
          * @brief Returns a String describing the error condition of this code.
          */
-         String description() const;
+        String description() const;
+
+        /**
+         * @brief Returns a String describing the error condition of this code.
+         */
+        const String & message() const;
 
         /**
          * @brief Returns the integer representation of the error condition.
          */
-         Int32 code() const;
+        Int32 code() const;
 
         /**
          * @brief Returns the resolved, platform independent error code.
          * @see ErrorCategory::resolveError
          */
-         Error resolvedCode() const;
+        Error resolvedCode() const;
 
         /**
          * @brief Returns the ErrorCategory that this Error belongs to.
          */
-         const ErrorCategory & category() const;
+        const ErrorCategory & category() const;
 
 
-     protected:
+    protected:
 
         Int32 m_code;
         const ErrorCategory * m_category;
+        String m_message;
+        String m_file;
+        UInt32 m_line;
     };
 }
 

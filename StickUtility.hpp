@@ -13,13 +13,13 @@ namespace stick
     };
 
     template<class T>
-    struct RemoveReference<T&>  
+    struct RemoveReference<T &>
     {
         typedef T Type;
     };
 
     template<class T>
-    struct RemoveReference<T&&> 
+    struct RemoveReference < T && >
     {
         typedef T Type;
     };
@@ -27,7 +27,7 @@ namespace stick
     template<class T>
     inline typename RemoveReference<T>::Type && move(T && _arg)
     {
-        return static_cast<typename RemoveReference<T>::Type&&>(_arg);
+        return static_cast < typename RemoveReference<T>::Type && > (_arg);
     }
 
     template<class T>

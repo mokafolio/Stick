@@ -21,13 +21,13 @@ namespace stick
         };
 
         template<class T>
-        struct RemoveReference<T&>  
+        struct RemoveReference<T &>
         {
             typedef T Type;
         };
 
         template<class T>
-        struct RemoveReference<T&&> 
+        struct RemoveReference < T && >
         {
             typedef T Type;
         };
@@ -35,7 +35,7 @@ namespace stick
         template<class T>
         inline typename RemoveReference<T>::Type && move(T && _arg)
         {
-            return static_cast<typename RemoveReference<T>::Type&&>(_arg);
+            return static_cast < typename RemoveReference<T>::Type && > (_arg);
         }
 
         template<class T>
@@ -93,7 +93,7 @@ namespace stick
         struct IteratorTraits;
 
         template<class T>
-        struct IteratorTraits<T*>
+        struct IteratorTraits<T *>
         {
             typedef T ValueType;
             typedef T & ReferenceType;
@@ -101,7 +101,7 @@ namespace stick
         };
 
         template<class T>
-        struct IteratorTraits<const T*>
+        struct IteratorTraits<const T *>
         {
             typedef const T ValueType;
             typedef const T & ReferenceType;
@@ -123,48 +123,48 @@ namespace stick
 
 
             explicit ReverseIterator(const Iter & _it) :
-            m_it(_it)
+                m_it(_it)
             {
 
             }
 
-            inline ReverseIterator & operator--() 
-            {
-                m_it++;
-                return *this;
-            } 
-
-            inline ReverseIterator & operator--(int) 
+            inline ReverseIterator & operator--()
             {
                 m_it++;
                 return *this;
             }
 
-            inline ReverseIterator & operator-=(Size _i) 
+            inline ReverseIterator & operator--(int)
+            {
+                m_it++;
+                return *this;
+            }
+
+            inline ReverseIterator & operator-=(Size _i)
             {
                 m_it += _i;
                 return *this;
             }
 
-            inline ReverseIterator & operator-(Size _i) 
+            inline ReverseIterator & operator-(Size _i)
             {
                 m_it += _i;
                 return *this;
             }
 
-            inline ReverseIterator & operator++() 
-            {
-                m_it--;
-                return *this;
-            } 
-
-            inline ReverseIterator & operator++(int) 
+            inline ReverseIterator & operator++()
             {
                 m_it--;
                 return *this;
             }
 
-            inline ReverseIterator & operator+=(Size _i) 
+            inline ReverseIterator & operator++(int)
+            {
+                m_it--;
+                return *this;
+            }
+
+            inline ReverseIterator & operator+=(Size _i)
             {
                 m_it -= _i;
                 return *this;
@@ -207,43 +207,43 @@ namespace stick
 
 
             String() :
-            m_cStr(nullptr),
-            m_length(0),
-            m_allocator(&defaultAllocator())
+                m_cStr(nullptr),
+                m_length(0),
+                m_allocator(&defaultAllocator())
             {
 
             }
 
             String(const char * _c, Allocator & _alloc = defaultAllocator()) :
-            m_allocator(&_alloc)
+                m_allocator(&_alloc)
             {
                 m_length = strlen(_c);
-                m_cStr = (char*)m_allocator->allocate(m_length + 1).ptr;
+                m_cStr = (char *)m_allocator->allocate(m_length + 1).ptr;
                 strcpy(m_cStr, _c);
             }
 
             String(const String & _other) :
-            m_length(_other.m_length),
-            m_allocator(_other.m_allocator)
+                m_length(_other.m_length),
+                m_allocator(_other.m_allocator)
             {
-                if(_other.m_cStr)
+                if (_other.m_cStr)
                 {
-                    m_cStr = (char*)m_allocator->allocate(m_length + 1).ptr;
+                    m_cStr = (char *)m_allocator->allocate(m_length + 1).ptr;
                     strcpy(m_cStr, _other.m_cStr);
                 }
             }
 
             String(String && _other) :
-            m_cStr(move(_other.m_cStr)),
-            m_length(move(_other.m_length)),
-            m_allocator(move(_other.m_allocator))
+                m_cStr(move(_other.m_cStr)),
+                m_length(move(_other.m_length)),
+                m_allocator(move(_other.m_allocator))
             {
 
             }
 
             ~String()
             {
-                if(m_cStr)
+                if (m_cStr)
                 {
                     STICK_ASSERT(m_allocator);
                     m_allocator->deallocate({m_cStr, m_length});
@@ -254,9 +254,9 @@ namespace stick
             {
                 m_length = _other.m_length;
                 m_allocator = _other.m_allocator;
-                if(_other.m_cStr)
+                if (_other.m_cStr)
                 {
-                    m_cStr = (char*)m_allocator->allocate(_other.m_length + 1).ptr;
+                    m_cStr = (char *)m_allocator->allocate(_other.m_length + 1).ptr;
                     strcpy(m_cStr, _other.m_cStr);
                 }
 
@@ -273,12 +273,12 @@ namespace stick
             }
 
             inline String & operator = (const char * _other)
-            {   
-                if(!m_allocator)
+            {
+                if (!m_allocator)
                     m_allocator = &defaultAllocator();
 
                 m_length = strlen(_other);
-                m_cStr = (char*)m_allocator->allocate(m_length + 1).ptr;
+                m_cStr = (char *)m_allocator->allocate(m_length + 1).ptr;
                 strcpy(m_cStr, _other);
 
                 return *this;
@@ -383,28 +383,28 @@ namespace stick
 
 
             DynamicArray(Allocator & _alloc = defaultAllocator()) :
-            m_data({nullptr, 0}),
-            m_elementCount(0),
-            m_allocator(&_alloc)
+                m_data( {nullptr, 0}),
+                    m_elementCount(0),
+                    m_allocator(&_alloc)
             {
 
             }
 
             DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
-            m_elementCount(_size),
-            m_allocator(&_alloc)
+                m_elementCount(_size),
+                m_allocator(&_alloc)
             {
-                m_data = (T*)m_allocator->allocate(m_elementCount * sizeof(T));
+                m_data = (T *)m_allocator->allocate(m_elementCount * sizeof(T));
             }
 
             DynamicArray(const DynamicArray & _other) :
-            m_elementCount(_other.m_elementCount),
-            m_allocator(_other.m_allocator)
+                m_elementCount(_other.m_elementCount),
+                m_allocator(_other.m_allocator)
             {
-                if(m_elementCount)
+                if (m_elementCount)
                 {
                     resize(m_elementCount);
-                    for(Size i = 0; i < m_elementCount; ++i)
+                    for (Size i = 0; i < m_elementCount; ++i)
                     {
                         *this[i] = _other[i];
                     }
@@ -412,9 +412,9 @@ namespace stick
             }
 
             DynamicArray(DynamicArray && _other) :
-            m_data(move(_other.m_data)),
-            m_elementCount(move(_other.m_elementCount)),
-            m_allocator(move(_other.m_allocator))
+                m_data(move(_other.m_data)),
+                m_elementCount(move(_other.m_elementCount)),
+                m_allocator(move(_other.m_allocator))
             {
             }
 
@@ -423,7 +423,7 @@ namespace stick
                 m_elementCount = _other.m_elementCount;
                 m_allocator = _other.m_allocator;
                 resize(m_elementCount);
-                for(Size i = 0; i < m_elementCount; ++i)
+                for (Size i = 0; i < m_elementCount; ++i)
                 {
                     *this[i] = _other[i];
                 }
@@ -447,14 +447,14 @@ namespace stick
 
             inline void reserve(Size _s)
             {
-                if(_s > capacity())
+                if (_s > capacity())
                 {
                     auto blk = m_allocator->allocate(_s * sizeof(T));
-                    if(blk.ptr != m_data.ptr)
+                    if (blk.ptr != m_data.ptr)
                     {
-                        for(Size i = 0; i < m_elementCount; ++i)
+                        for (Size i = 0; i < m_elementCount; ++i)
                         {
-                            reinterpret_cast<T*>(blk.ptr)[i] = reinterpret_cast<T*>(m_data.ptr)[i];
+                            reinterpret_cast<T *>(blk.ptr)[i] = reinterpret_cast<T *>(m_data.ptr)[i];
                         }
                         m_allocator->deallocate(m_data);
                     }
@@ -466,7 +466,7 @@ namespace stick
 
             inline void append(const T & _element)
             {
-                if(capacity() <= m_elementCount)
+                if (capacity() <= m_elementCount)
                 {
                     reserve(max((Size)1, m_elementCount * 2));
                 }
@@ -479,20 +479,20 @@ namespace stick
                 Size idiff = _last - _first;
                 Size index = (_it - begin());
                 Size diff = m_elementCount - index;
-                
-                if(capacity() < m_elementCount + idiff)
+
+                if (capacity() < m_elementCount + idiff)
                 {
                     reserve(max(idiff, m_elementCount * 2));
                 }
-                
+
                 Size fidx = index + diff - 1;
-                Size iidx = fidx + idiff; 
-                for(Size i = 0; i < diff; ++i)
+                Size iidx = fidx + idiff;
+                for (Size i = 0; i < diff; ++i)
                 {
                     (*this)[iidx - i] = (*this)[fidx - i];
                 }
 
-                for(Size i = 0; _first != _last; ++_first, ++i)
+                for (Size i = 0; _first != _last; ++_first, ++i)
                 {
                     (*this)[index + i] = *_first;
                 }
@@ -513,7 +513,7 @@ namespace stick
                 Size index = (_first - begin());
                 Size endIndex = m_elementCount - diff;
 
-                for(Size i=0; i < diff; ++i)
+                for (Size i = 0; i < diff; ++i)
                 {
                     (*this)[index + i] = (*this)[endIndex + i];
                 }
@@ -523,13 +523,13 @@ namespace stick
 
             inline void removeBack()
             {
-                (reinterpret_cast<T*>(m_data.ptr)[m_elementCount - 1]).~T();
+                (reinterpret_cast<T *>(m_data.ptr)[m_elementCount - 1]).~T();
                 m_elementCount--;
             }
 
             inline void clear()
             {
-                for(auto & el : *this)
+                for (auto & el : *this)
                 {
                     el.~T();
                 }
@@ -538,12 +538,12 @@ namespace stick
 
             inline const T & operator [](Size _index) const
             {
-                return reinterpret_cast<T*>(m_data.ptr)[_index];
+                return reinterpret_cast<T *>(m_data.ptr)[_index];
             }
 
             inline T & operator [](Size _index)
             {
-                return reinterpret_cast<T*>(m_data.ptr)[_index];
+                return reinterpret_cast<T *>(m_data.ptr)[_index];
             }
 
             inline Iter begin()
@@ -598,7 +598,7 @@ namespace stick
 
             inline const T * ptr() const
             {
-                return (const T*)m_data.ptr;
+                return (const T *)m_data.ptr;
             }
 
             inline Size capacity() const
@@ -618,12 +618,12 @@ namespace stick
 
             inline T & back()
             {
-                return (*this)[m_elementCount-1];
+                return (*this)[m_elementCount - 1];
             }
 
             inline const T & back() const
             {
-                return (*this)[m_elementCount-1];
+                return (*this)[m_elementCount - 1];
             }
 
         private:
@@ -706,7 +706,7 @@ namespace stick
         class ErrorCode
         {
         public:
-            
+
             /**
              * @brief Default Constructor.
              *
@@ -714,7 +714,7 @@ namespace stick
              * which is the default no error indicator.
              */
             ErrorCode();
-            
+
             /**
              * @brief Constructs an ErrorCode from a code and a category.
              *
@@ -724,7 +724,7 @@ namespace stick
              * @see detail::isErrorCodeEnum
              */
             ErrorCode(Int32 _code, const ErrorCategory & _category);
-            
+
             /**
              * @brief Constructs an ErrorCode from an ErrorCodeEnum value.
              *
@@ -732,7 +732,7 @@ namespace stick
              */
             //template<class ErrorCodeEnum>
             //ErrorCode(ErrorCodeEnum _code, typename std::enable_if<detail::isErrorCodeEnum<ErrorCodeEnum>::value>::type* = 0);
-            
+
             /**
              * @brief Assigns an ErrorCodeEnum value to this.
              *
@@ -741,51 +741,51 @@ namespace stick
             /*template<class ErrorCodeEnum>
             typename std::enable_if<detail::isErrorCodeEnum<ErrorCodeEnum>::value, ErrorCode>::type &
             operator = (ErrorCodeEnum _code);*/
-            
+
             /**
              * @brief Implicit conversion to bool.
              */
             explicit operator bool() const;
-            
+
             /**
              * @brief Implicit conversion to bool.
              */
             bool operator!() const;
-            
+
             /**
              * @brief Returns true if the codes and categories of both ErrorCodes are equal.
              */
             bool operator == (const ErrorCode & _other) const;
-            
+
             /**
              * @brief Returns true if either the codes and/or categories of the ErrorCodes are not equal.
              */
             bool operator != (const ErrorCode & _other) const;
-            
+
             /**
              * @brief Returns a String describing the error condition of this code.
              */
             String description() const;
-            
+
             /**
              * @brief Returns the integer representation of the error condition.
              */
             Int32 code() const;
-            
+
             /**
              * @brief Returns the resolved, platform independent error code.
              * @see ErrorCategory::resolveErrorCode
              */
             ErrorCode resolvedCode() const;
-            
+
             /**
              * @brief Returns the ErrorCategory that this ErrorCode belongs to.
              */
             const ErrorCategory & category() const;
-            
-            
+
+
         protected:
-            
+
             Int32 m_code;
             const ErrorCategory * m_category;
         };
@@ -806,7 +806,7 @@ namespace stick
         class ErrorCategory
         {
         public:
-            
+
             /**
              * @brief Constructs an ErrorCategory with a name.
              *
@@ -820,22 +820,22 @@ namespace stick
              * @brief Virtual Destructor. You derive from this class to create a new ErrorCategory.
              */
             virtual ~ErrorCategory();
-            
+
             /**
              * @brief Returns true if the other ErrorCategory is this.
              */
             bool operator == (const ErrorCategory & _other) const;
-            
+
             /**
              * @brief Returns true if the other ErrorCategory is not this.
              */
             bool operator != (const ErrorCategory & _other) const;
-            
+
             /**
              * @brief Returns the name of this category.
              */
             const String & name() const;
-            
+
             /**
              * @brief Resolve can potentially change an error to something more meaningful/portable inside of this category.
              *
@@ -845,7 +845,7 @@ namespace stick
              * @param _code The code to resolve.
              */
             virtual ErrorCode resolveErrorCode(const ErrorCode & _code) const;
-            
+
             /**
              * @brief This needs to be overwritten to return descriptions for the error code in this category.
              * @param _code The code to get the description for.
@@ -856,10 +856,10 @@ namespace stick
              * @brief This allows you to specify conditions that don't necessarily indicate an error. (i.e. status codes)
              */
             virtual bool indicatesError(const ErrorCode & _code) const;
-            
-            
+
+
         private:
-            
+
             String m_name;
         };
 
@@ -872,17 +872,17 @@ namespace stick
          * to throw an exception that is appropriate for its condition.
          */
         class ErrorReport :
-        public ErrorCode
+            public ErrorCode
         {
         public:
-            
+
             /**
              * @brief Default Constructor.
              *
              * See the default constructor of ErrorCode.
              */
             ErrorReport();
-            
+
             /**
              * @brief Constructs an ErrorReport from an ErrorCode and contextual information.
              * @param _code The ErrorCode that describes the error.
@@ -891,42 +891,42 @@ namespace stick
              * @param _line You can optionally provide the line number that emitted the error for debugging.
              */
             ErrorReport(const ErrorCode & _code, const String & _message = "", const String & _file = "", UInt32 _line = 0);
-            
+
             /**
              * @brief Returns the error message (contextual info) of this error.
              */
             const String & message() const;
-            
+
             /**
              * @brief Returns the contextual message of this error with the general
              * error description.
              * @see message
              */
             const String & messageAndDescription() const;
-            
+
             /**
              * @brief Returns the file where the error occured (if it was provided).
              */
             const String & file() const;
-            
+
             /**
              * @brief Returns the line number where the error occured (if it was provided).
              * @see file
              */
             UInt32 line() const;
-            
+
             /**
              * @brief Throws the exception for this error. This will throw no matter what!
              */
             void throwException() const;
-            
+
             /**
              * @brief Throws the exception for this error if the condition indicates an error.
              */
             void throwOnError() const;
-            
+
         private:
-            
+
             mutable String m_messageAndDescription;
             String m_message;
             String m_file;
@@ -992,7 +992,7 @@ namespace stick
         {
             return createString(_str.cStr, _allocator);
         }
-        
+
         template<class Allocator = Mallocator>
         inline void destroy(const String & _str, Allocator & _allocator = defaultAllocator())
         {
@@ -1078,14 +1078,14 @@ class Adder
 {
 public:
     Adder() :
-    num(0)
+        num(0)
     {
     }
 
     void add(int _num)
     {
         num += _num;
-        std::cerr<<"fock"<<std::endl;
+        std::cerr << "fock" << std::endl;
     }
 
     int num;
@@ -1093,7 +1093,7 @@ public:
 
 class BaseAdder
 {
-    public:
+public:
     virtual void add(int _num) = 0;
 };
 
@@ -1102,14 +1102,14 @@ class VirtualAdder : public BaseAdder
 public:
 
     VirtualAdder() :
-    num(0)
+        num(0)
     {
     }
 
     void add(int _num) override
     {
         num += _num;
-        std::cerr<<"fock"<<std::endl;
+        std::cerr << "fock" << std::endl;
     }
 
     int num;
@@ -1154,14 +1154,14 @@ int main(int _argc, const char * _args[])
         char expectedResults[] = {'t', 'e', 's', 't'};
 
         Int32 i = 0;
-        for(auto c : a)
+        for (auto c : a)
         {
             TEST(c == expectedResults[i]);
             i++;
         }
 
         i = 3;
-        for(auto it = a.rbegin(); it != a.rend(); it++)
+        for (auto it = a.rbegin(); it != a.rend(); it++)
         {
             TEST(*it == expectedResults[i]);
             i--;
@@ -1203,7 +1203,7 @@ int main(int _argc, const char * _args[])
         TEST(a.elementCount() == 5);
         TEST(a.byteCount() == 20);
 
-        for(Int32 i = 0; i < 5; ++i)
+        for (Int32 i = 0; i < 5; ++i)
         {
             a[i] = i;
         }
@@ -1227,14 +1227,14 @@ int main(int _argc, const char * _args[])
 
         Int32 expectedResults[] = {0, 1, 2, 3, 4};
         Int32 i = 0;
-        for(auto e : a)
+        for (auto e : a)
         {
             TEST(e == expectedResults[i]);
             ++i;
         }
 
         i = a.elementCount() - 1;
-        for(auto it = a.rbegin(); it != a.rend(); ++it)
+        for (auto it = a.rbegin(); it != a.rend(); ++it)
         {
             TEST(*it == expectedResults[i]);
             --i;
@@ -1243,7 +1243,7 @@ int main(int _argc, const char * _args[])
         a.clear();
         TEST(a.elementCount() == 0);
 
-        
+
         DynamicArray<Int32> b;
         Int32 arr[] = {1, 2, 3, 4};
         b.append(10);
@@ -1260,7 +1260,7 @@ int main(int _argc, const char * _args[])
 
         Int32 expectedArr[] = {10, 11, 99, 12, 13, 1, 2, 3, 4};
         i = 0;
-        for(auto v : b)
+        for (auto v : b)
         {
             TEST(expectedArr[i] == v);
             i++;
@@ -1271,8 +1271,8 @@ int main(int _argc, const char * _args[])
         TEST(it3 == b.begin() + 2);
         TEST(*it3 == 2);
         Int32 expectedArr2[] = {10, 11, 2, 3, 4};
-        i=0;
-        for(auto v : b)
+        i = 0;
+        for (auto v : b)
         {
             TEST(expectedArr2[i] == v);
             i++;
