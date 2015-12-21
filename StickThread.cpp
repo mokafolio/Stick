@@ -1,4 +1,5 @@
 #include <Stick/StickThread.hpp>
+#include <Stick/StickErrorCodes.hpp>
 
 namespace stick
 {
@@ -15,7 +16,9 @@ namespace stick
     Error Thread::join()
     {
 #ifdef STICK_PLATFORM_UNIX
-        pthread_join(m_handle, NULL);
+        int res = pthread_join(m_handle, NULL);
+        if(res != 0)
+            return Error(ec::SystemErrorCode(res), "Could not join pthread", STICK_FILE, STICK_LINE);
 #endif //STICK_PLATFORM_UNIX
 
         return Error();

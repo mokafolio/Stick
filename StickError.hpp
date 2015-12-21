@@ -51,7 +51,7 @@ namespace stick
          * The error category is automatically deducted at compile time.
          */
         template<class ErrorEnum>
-        Error(ErrorEnum _code, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type * = 0);
+        Error(ErrorEnum _code, const String & _message = "", const char * _file = "", UInt32 _line = 0, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type * = 0);
 
         /**
          * @brief Assigns an ErrorEnum value to this.
@@ -120,17 +120,26 @@ namespace stick
 
     protected:
 
-        Int32 m_code;
         const ErrorCategory * m_category;
+        Int32 m_code;
         String m_message;
         String m_file;
         UInt32 m_line;
     };
 
+}
+
+#include <Stick/StickErrorCategory.hpp>
+
+namespace stick
+{
     template<class ErrorEnum>
-    Error::Error(ErrorEnum _code, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type *) :
+    Error::Error(ErrorEnum _code, const String & _message, const char * _file, UInt32 _line, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type *) :
     m_category(&errorCategory(_code)),
-    m_code(_code)
+    m_code(_code),
+    m_message(_message),
+    m_file(_file),
+    m_line(_line)
     {
 
     }

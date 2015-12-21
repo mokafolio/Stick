@@ -115,6 +115,17 @@ namespace stick
 
         const SystemErrorCategory & systemErrorCategory();
     }
+
+}
+
+#include <Stick/StickErrorCodes.hpp>
+
+namespace stick
+{
+    inline const ErrorCategory & errorCategory(ec::SystemErrorCode)
+    {
+        return detail::systemErrorCategory();
+    }
 }
 
 #endif //STICK_STICKERRORCATEGORY_HPP

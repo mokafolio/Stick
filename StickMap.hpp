@@ -17,8 +17,8 @@ namespace stick
         struct KeyValuePair
         {
             KeyValuePair(const KeyType & _key, const ValueType & _value) :
-            key(_key),
-            value(_value)
+                key(_key),
+                value(_value)
             {
 
             }
@@ -85,15 +85,15 @@ namespace stick
 
 
             IterT() :
-            current(nullptr),
-            last(nullptr)
+                current(nullptr),
+                last(nullptr)
             {
 
             }
 
             IterT(NodeType * _node, NodeType * _last) :
-            current(_node),
-            last(_last)
+                current(_node),
+                last(_last)
             {
 
             }
@@ -101,30 +101,30 @@ namespace stick
             inline void increment()
             {
                 //TODO: I am pretty sure this function can be more compact and simple
-                if(!current)
+                if (!current)
                     return;
 
-                if(current->left)
+                if (current->left)
                 {
                     current = current->left;
                 }
-                else if(current->right)
+                else if (current->right)
                 {
                     current = current->right;
                 }
                 else
                 {
-                    if(current == last)
+                    if (current == last)
                     {
                         current = nullptr;
                         return;
                     }
 
-                    while(current->parent && (!current->parent->right || current->parent->right == current))
+                    while (current->parent && (!current->parent->right || current->parent->right == current))
                     {
                         current = current->parent;
                     }
-                    if(current->parent) 
+                    if (current->parent)
                         current = current->parent->right;
                     else
                         current = last;
@@ -133,34 +133,34 @@ namespace stick
 
             inline void decrement()
             {
-                if(!current)
+                if (!current)
                     return;
 
-                if(!current->parent)
+                if (!current->parent)
                 {
                     current = nullptr;
                     return;
                 }
 
-                if(current == current->parent->left)
+                if (current == current->parent->left)
                     current = current->parent;
                 else
                 {
-                    if(!current->parent->left)
+                    if (!current->parent->left)
                         current = current->parent;
-                    else 
+                    else
                     {
                         current = current->parent->left;
-                        while(!current->right)
+                        while (!current->right)
                         {
-                            if(current->left)
+                            if (current->left)
                                 current = current->left;
                             else
                                 break;
                         }
-                        if(current->right)
+                        if (current->right)
                         {
-                            while(current->right)
+                            while (current->right)
                                 current = current->right;
                         }
                     }
@@ -177,22 +177,22 @@ namespace stick
                 return current != _other.current;
             }
 
-            inline IterT & operator--() 
+            inline IterT & operator--()
             {
                 decrement();
                 return *this;
-            } 
+            }
 
-            inline IterT operator--(int) 
+            inline IterT operator--(int)
             {
                 Iter ret = *this;
                 decrement();
                 return ret;
             }
 
-            inline IterT & operator-=(Size _i) 
+            inline IterT & operator-=(Size _i)
             {
-                for(Size i=0; i<=_i; ++i)
+                for (Size i = 0; i <= _i; ++i)
                     decrement();
                 return *this;
             }
@@ -200,27 +200,27 @@ namespace stick
             inline IterT operator-(Size _i) const
             {
                 Iter ret = *this;
-                for(Size i=0; i<=_i; ++i)
+                for (Size i = 0; i <= _i; ++i)
                     ret.decrement();
                 return ret;
             }
 
-            inline IterT & operator++() 
+            inline IterT & operator++()
             {
                 increment();
                 return *this;
-            } 
+            }
 
-            inline IterT operator++(int) 
+            inline IterT operator++(int)
             {
                 Iter ret = *this;
                 increment();
                 return ret;
             }
 
-            inline IterT & operator+=(Size _i) 
+            inline IterT & operator+=(Size _i)
             {
-                for(Size i=0; i<=_i; ++i)
+                for (Size i = 0; i <= _i; ++i)
                     increment();
                 return *this;
             }
@@ -228,7 +228,7 @@ namespace stick
             inline IterT operator+(Size _i) const
             {
                 Iter ret = *this;
-                for(Size i=0; i<=_i; ++i)
+                for (Size i = 0; i <= _i; ++i)
                     ret.increment();
                 return ret;
             }
@@ -238,7 +238,7 @@ namespace stick
                 return current->value;
             }
 
-            inline KeyValuePair *  operator -> () const
+            inline KeyValuePair  * operator -> () const
             {
                 return &current->value;
             }
@@ -276,7 +276,7 @@ namespace stick
         ValueType & operator [] (const KeyType & _key)
         {
             Node * n = m_tree.find(_key);
-            if(n)
+            if (n)
             {
                 return n->value.value;
             }
@@ -307,7 +307,7 @@ namespace stick
         inline Iter remove(const KeyType & _key)
         {
             Iter it = find(_key);
-            if(it != end())
+            if (it != end())
             {
                 m_tree.removeNode(it.current);
                 return ++it;

@@ -12,7 +12,7 @@ namespace stick
     };
 
     template<class T>
-    struct IteratorTraits<T*>
+    struct IteratorTraits<T *>
     {
         typedef T ValueType;
         typedef T & ReferenceType;
@@ -20,7 +20,7 @@ namespace stick
     };
 
     template<class T>
-    struct IteratorTraits<const T*>
+    struct IteratorTraits<const T *>
     {
         typedef const T ValueType;
         typedef const T & ReferenceType;
@@ -42,16 +42,16 @@ namespace stick
 
 
         explicit ReverseIterator(const Iter & _it) :
-        m_it(_it)
+            m_it(_it)
         {
 
         }
 
-        inline ReverseIterator & operator--() 
+        inline ReverseIterator & operator--()
         {
             m_it++;
             return *this;
-        } 
+        }
 
         inline ReverseIterator operator--(int)
         {
@@ -60,7 +60,7 @@ namespace stick
             return ret;
         }
 
-        inline ReverseIterator & operator-=(Size _i) 
+        inline ReverseIterator & operator-=(Size _i)
         {
             m_it += _i;
             return *this;
@@ -71,20 +71,20 @@ namespace stick
             return m_it + _i;
         }
 
-        inline ReverseIterator & operator++() 
+        inline ReverseIterator & operator++()
         {
             m_it--;
             return *this;
-        } 
+        }
 
-        inline ReverseIterator operator++(int) 
+        inline ReverseIterator operator++(int)
         {
             ReverseIterator ret = *this;
             m_it--;
             return ret;
         }
 
-        inline ReverseIterator & operator+=(Size _i) 
+        inline ReverseIterator & operator+=(Size _i)
         {
             m_it -= _i;
             return *this;

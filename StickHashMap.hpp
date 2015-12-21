@@ -49,7 +49,7 @@ namespace stick
         struct Node
         {
             Node() :
-            next(nullptr)
+                next(nullptr)
             {
 
             }
@@ -61,7 +61,7 @@ namespace stick
         struct Bucket
         {
             Bucket() :
-            first(nullptr)
+                first(nullptr)
             {
 
             }
@@ -80,31 +80,31 @@ namespace stick
 
 
             IterT() :
-            map(nullptr),
-            bucketIndex(0),
-            node(nullptr)
+                map(nullptr),
+                bucketIndex(0),
+                node(nullptr)
             {
 
             }
 
             IterT(T & _map, Size _bucketIndex, Node * _node) :
-            map(&_map),
-            bucketIndex(_bucketIndex),
-            node(_node)
+                map(&_map),
+                bucketIndex(_bucketIndex),
+                node(_node)
             {
 
             }
 
             inline void increment()
             {
-                if(!node)
+                if (!node)
                     return;
 
-                if(node->next)
+                if (node->next)
                     node = node->next;
                 else
                 {
-                    if(bucketIndex < map->m_bucketCount - 1)
+                    if (bucketIndex < map->m_bucketCount - 1)
                     {
                         ++bucketIndex;
                         node = map->m_buckets[bucketIndex].first;
@@ -127,22 +127,22 @@ namespace stick
                 return node != _other.node;
             }
 
-            inline IterT & operator++() 
+            inline IterT & operator++()
             {
                 increment();
                 return *this;
-            } 
+            }
 
-            inline IterT operator++(int) 
+            inline IterT operator++(int)
             {
                 IterT ret = *this;
                 increment();
                 return ret;
             }
 
-            inline IterT & operator+=(Size _i) 
+            inline IterT & operator+=(Size _i)
             {
-                for(Size i=0; i<=_i; ++i)
+                for (Size i = 0; i <= _i; ++i)
                     increment();
                 return *this;
             }
@@ -150,7 +150,7 @@ namespace stick
             inline IterT operator+(Size _i) const
             {
                 IterT ret = *this;
-                for(Size i=0; i<=_i; ++i)
+                for (Size i = 0; i <= _i; ++i)
                     ret.increment();
                 return ret;
             }
@@ -160,7 +160,7 @@ namespace stick
                 return node->kv;
             }
 
-            inline KeyValuePair *  operator -> () const
+            inline KeyValuePair  * operator -> () const
             {
                 return &node->kv;
             }
@@ -182,12 +182,12 @@ namespace stick
         };
 
         HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
-        m_alloc(&_alloc),
-        m_buckets(nullptr),
-        m_bucketCount(_initialBucketCount),
-        m_maxLoadFactor(1.0f),
-        m_elementCount(0)
-        {  
+            m_alloc(&_alloc),
+            m_buckets(nullptr),
+            m_bucketCount(_initialBucketCount),
+            m_maxLoadFactor(1.0f),
+            m_elementCount(0)
+        {
             auto mem = m_alloc->allocate(sizeof(Bucket) * _initialBucketCount);
             m_buckets = new (mem.ptr) Bucket [_initialBucketCount];
         }
@@ -195,12 +195,12 @@ namespace stick
         ~HashMap()
         {
             //deallocate buckets and nodes
-            if(m_buckets)
+            if (m_buckets)
             {
                 clear();
                 //I guess technically buckets are pod types right now so we
                 //don't need to call the destructor...safety first though.
-                for(Size i=0; i<m_bucketCount; ++i)
+                for (Size i = 0; i < m_bucketCount; ++i)
                     m_buckets[i].~Bucket();
 
                 m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
@@ -208,7 +208,7 @@ namespace stick
         }
 
         inline InsertResult insert(const KeyType & _key, const ValueType & _value)
-        {   
+        {
             Size bi = bucketIndex(_key);
             Bucket & b = m_buckets[bi];
 
@@ -217,7 +217,7 @@ namespace stick
             findHelper(b, _key, n, prev);
 
             //the key allready exists, change the value
-            if(n)
+            if (n)
             {
                 n->kv.value = _value;
                 return {Iter(*this, bi, n), false};
@@ -226,7 +226,7 @@ namespace stick
             {
                 //otherwise create the node n stuff
                 n = createNode(_key, _value);
-                if(prev)
+                if (prev)
                     prev->next = n;
                 else
                     b.first = n;
@@ -234,8 +234,8 @@ namespace stick
             }
 
             Float32 lf = loadFactor();
-            if(lf > m_maxLoadFactor)
-            { 
+            if (lf > m_maxLoadFactor)
+            {
                 rehash(m_bucketCount * 2);
             }
 
@@ -248,7 +248,7 @@ namespace stick
             Bucket & b = m_buckets[bi];
             Node * n, *prev;
             findHelper(b, _key, n, prev);
-            if(!n)
+            if (!n)
                 return end();
             else
                 return Iter(*this, bi, n);
@@ -261,16 +261,16 @@ namespace stick
             Node * n, *prev;
             findHelper(b, _key, n, prev);
 
-            if(!n)
+            if (!n)
                 return end();
 
             Iter ret;
-            if(n->next)
+            if (n->next)
                 ret = Iter(*this, bi, n->next);
             else
                 ret = end();
 
-            if(!prev)
+            if (!prev)
             {
                 b.first = n->next;
             }
@@ -285,11 +285,11 @@ namespace stick
 
         inline void clear()
         {
-            for(Size i=0; i<m_bucketCount; ++i)
+            for (Size i = 0; i < m_bucketCount; ++i)
             {
                 Bucket & b = m_buckets[i];
                 Node * n = b.first;
-                while(n)
+                while (n)
                 {
                     Node * on = n;
                     n = n->next;
@@ -304,23 +304,23 @@ namespace stick
             auto mem = m_alloc->allocate(sizeof(Bucket) * _bucketCount);
             Bucket * newBuckets = new (mem.ptr) Bucket[_bucketCount];
 
-            for(Size i=0; i<m_bucketCount; ++i)
+            for (Size i = 0; i < m_bucketCount; ++i)
             {
                 Bucket & b = m_buckets[i];
                 Node * n = b.first;
 
-                while(n)
+                while (n)
                 {
                     Size bucketIndex = m_hasher(n->kv.key) % _bucketCount;
                     Node * nextn = n->next;
-                    if(!newBuckets[bucketIndex].first)
+                    if (!newBuckets[bucketIndex].first)
                     {
                         newBuckets[bucketIndex].first = n;
                     }
                     else
                     {
                         Node * n2 = newBuckets[bucketIndex].first;
-                        while(n2->next)
+                        while (n2->next)
                             n2 = n2->next;
                         n2->next = n;
                     }
@@ -360,15 +360,15 @@ namespace stick
         {
             Bucket * b;
             Size i = 0;
-            for(; i<m_bucketCount; ++i)
+            for (; i < m_bucketCount; ++i)
             {
-                if(m_buckets[i].first)
+                if (m_buckets[i].first)
                 {
                     b = &m_buckets[i];
                     break;
                 }
             }
-            if(!b)
+            if (!b)
                 return end();
             else
                 return Iter(*this, i, b->first);
@@ -378,15 +378,15 @@ namespace stick
         {
             Bucket * b;
             Size i = 0;
-            for(; i<m_bucketCount; ++i)
+            for (; i < m_bucketCount; ++i)
             {
-                if(m_buckets[i].first)
+                if (m_buckets[i].first)
                 {
                     b = &m_buckets[i];
                     break;
                 }
             }
-            if(!b)
+            if (!b)
                 return end();
             else
                 return ConstIter(*this, i, b->first);
@@ -429,9 +429,9 @@ namespace stick
             Node * n = _bucket.first;
             _prev = nullptr;
 
-            while(n)
+            while (n)
             {
-                if(_key == n->kv.key)
+                if (_key == n->kv.key)
                 {
                     _outNode = n;
                     return;
