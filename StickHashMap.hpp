@@ -220,7 +220,7 @@ namespace stick
             if(n)
             {
                 n->kv.value = _value;
-                return {Iter(*this, bi, n)};
+                return {Iter(*this, bi, n), false};
             }
             else
             {
@@ -239,7 +239,7 @@ namespace stick
                 rehash(m_bucketCount * 2);
             }
 
-            return {Iter(*this, bi, n)};
+            return {Iter(*this, bi, n), true};
         }
 
         inline Iter find(const KeyType & _key)

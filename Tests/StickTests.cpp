@@ -345,20 +345,13 @@ int main(int _argc, const char * _args[])
         hm.insert("test", 2);
         TEST(hm.elementCount() == 1);
         hm.insert("anotherKey", 3);
-        hm.insert("blubb", 4);
+        auto res = hm.insert("blubb", 4);
         TEST(hm.elementCount() == 3);
-
-        const HashMap<String, Int32> & hm2 = hm;
-        auto it = hm.begin();
-        std::cout<<"BEGIN: "<<it->key.cString()<<" VAL: "<<it->value<<std::endl;
-        for(auto a : hm)
-        {
-            std::cout<<a.value<<std::endl;
-        }
-
-        for(auto a : hm2)
-        {
-            std::cout<<a.value<<std::endl;
-        }
+        TEST(res.iterator->key == "blubb");
+        TEST(res.iterator->value == 4);
+        TEST(res.inserted == true);
+        res = hm.insert("blubb", 5);
+        TEST(res.iterator->value == 5);
+        TEST(res.inserted == false);
     }
 }
