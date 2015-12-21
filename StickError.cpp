@@ -43,6 +43,21 @@ namespace stick
         return m_category->description(*this);
     }
 
+    const String & Error::message() const
+    {
+        return m_message;
+    }
+
+    const String & Error::file() const
+    {
+        return m_file;
+    }
+
+    UInt32 Error::line() const
+    {
+        return m_line;
+    }
+
     Int32 Error::code() const
     {
         return m_code;

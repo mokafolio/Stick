@@ -95,6 +95,20 @@ namespace stick
         String description(const Error & _code) const;
     };
 
+    /**
+     * @brief The error category for the platform independent system errors.
+     * @see ErrorCategory
+     */
+    class SystemErrorCategory :
+        public ErrorCategory
+    {
+    public:
+
+        SystemErrorCategory();
+
+        String description(const Error & _code) const;
+    };
+
     namespace detail
     {
         template<class T>
@@ -104,6 +118,8 @@ namespace stick
         };
 
         const NoErrorCategory & noErrorCategory();
+
+        const SystemErrorCategory & systemErrorCategory();
     }
 }
 

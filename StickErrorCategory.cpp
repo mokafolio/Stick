@@ -1,4 +1,5 @@
 #include <Stick/StickErrorCategory.hpp>
+#include <string.h> //for strerror
 
 namespace stick
 {
@@ -47,6 +48,17 @@ namespace stick
         return "No Error";
     }
 
+    SystemErrorCategory::SystemErrorCategory() :
+        ErrorCategory("System")
+    {
+
+    }
+
+    String SystemErrorCategory::description(const Error & _code) const
+    {
+        return String(strerror(_code.code()));
+    }
+
     namespace detail
     {
         const NoErrorCategory & noErrorCategory()
@@ -55,5 +67,10 @@ namespace stick
             return s_cat;
         }
 
+        const SystemErrorCategory & systemErrorCategory()
+        {
+            static SystemErrorCategory s_cat;
+            return s_cat;
+        }
     }
 }

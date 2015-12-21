@@ -78,9 +78,19 @@ namespace stick
         String description() const;
 
         /**
-         * @brief Returns a String describing the error condition of this code.
+         * @brief Returns a contextual message in which the error occured.
          */
         const String & message() const;
+
+        /**
+         * @brief Returns the file in which the error occured.
+         */
+        const String & file() const;
+
+        /**
+         * @brief Returns the line number that emitted the error.
+         */
+        UInt32 line() const;
 
         /**
          * @brief Returns the integer representation of the error condition.
