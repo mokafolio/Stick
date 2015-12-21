@@ -74,9 +74,9 @@ namespace stick
         {
             typedef typename T::KeyValuePair ValueType;
 
-            typedef typename T::ValueType & ReferenceType;
+            typedef ValueType & ReferenceType;
 
-            typedef typename T::ValueType * PointerType;
+            typedef ValueType * PointerType;
 
 
             IterT() :

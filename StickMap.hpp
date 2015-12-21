@@ -72,23 +72,26 @@ namespace stick
 
         typedef typename Representation::Node Node;
 
-        struct Iter
+        template<class T>
+        struct IterT
         {
-            typedef KeyValuePair ValueType;
+            typedef typename T::Node NodeType;
+
+            typedef typename T::KeyValuePair ValueType;
 
             typedef ValueType & ReferenceType;
 
             typedef ValueType * PointerType;
 
 
-            Iter() :
+            IterT() :
             current(nullptr),
             last(nullptr)
             {
 
             }
 
-            Iter(Node * _node, Node * _last) :
+            IterT(NodeType * _node, NodeType * _last) :
             current(_node),
             last(_last)
             {
@@ -164,37 +167,37 @@ namespace stick
                 }
             }
 
-            inline bool operator == (const Iter & _other) const
+            inline bool operator == (const IterT & _other) const
             {
                 return current == _other.current;
             }
 
-            inline bool operator != (const Iter & _other) const
+            inline bool operator != (const IterT & _other) const
             {
                 return current != _other.current;
             }
 
-            inline Iter & operator--() 
+            inline IterT & operator--() 
             {
                 decrement();
                 return *this;
             } 
 
-            inline Iter operator--(int) 
+            inline IterT operator--(int) 
             {
                 Iter ret = *this;
                 decrement();
                 return ret;
             }
 
-            inline Iter & operator-=(Size _i) 
+            inline IterT & operator-=(Size _i) 
             {
                 for(Size i=0; i<=_i; ++i)
                     decrement();
                 return *this;
             }
 
-            inline Iter operator-(Size _i) const
+            inline IterT operator-(Size _i) const
             {
                 Iter ret = *this;
                 for(Size i=0; i<=_i; ++i)
@@ -202,27 +205,27 @@ namespace stick
                 return ret;
             }
 
-            inline Iter & operator++() 
+            inline IterT & operator++() 
             {
                 increment();
                 return *this;
             } 
 
-            inline Iter operator++(int) 
+            inline IterT operator++(int) 
             {
                 Iter ret = *this;
                 increment();
                 return ret;
             }
 
-            inline Iter & operator+=(Size _i) 
+            inline IterT & operator+=(Size _i) 
             {
                 for(Size i=0; i<=_i; ++i)
                     increment();
                 return *this;
             }
 
-            inline Iter operator+(Size _i) const
+            inline IterT operator+(Size _i) const
             {
                 Iter ret = *this;
                 for(Size i=0; i<=_i; ++i)
@@ -240,11 +243,13 @@ namespace stick
                 return &current->value;
             }
 
-            Node * current;
-            Node * last;
+            NodeType * current;
+            NodeType * last;
         };
 
-        typedef const Iter ConstIter;
+        typedef IterT<Map> Iter;
+
+        typedef IterT<const Map> ConstIter;
 
         typedef ReverseIterator<Iter> ReverseIter;
 
