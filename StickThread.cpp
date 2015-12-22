@@ -3,20 +3,23 @@
 
 namespace stick
 {
-    Thread::Thread()
+    Thread::Thread() :
+    m_threadID(0)
     {
 
     }
 
     Thread::~Thread()
     {
-        join();
+        if(joinable())
+            join();
     }
 
     Error Thread::join()
     {
 #ifdef STICK_PLATFORM_UNIX
         int res = pthread_join(m_handle, NULL);
+        m_threadID = 0;
         if(res != 0)
             return Error(ec::SystemErrorCode(res), "Could not join pthread", STICK_FILE, STICK_LINE);
 #endif //STICK_PLATFORM_UNIX
@@ -31,11 +34,11 @@ namespace stick
 
     bool Thread::joinable() const
     {
-
+        return m_threadID != 0;
     }
 
     ThreadID Thread::id() const
     {
-
+        return m_threadID;
     }
 }
