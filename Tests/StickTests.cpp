@@ -5,6 +5,7 @@
 #include <Stick/StickHashMap.hpp>
 #include <Stick/StickError.hpp>
 #include <Stick/StickThread.hpp>
+#include <Stick/StickPrint.hpp>
 
 #include <iostream>
 
@@ -373,13 +374,10 @@ int main(int _argc, const char * _args[])
         TEST(hm.elementCount() == 2);
     }
 
-    /*
-    SUITE("Thread Tests")
-    {
-        Thread t;
-        Error err = t.run([](){ std::cout<<"FORK"<<std::endl; });
-        TEST(3 == 3);
-    }*/
+    UInt64 i = 1274;
+    String str("da string testor");
+    const UInt32 & b = 24;
+    print(1, "test", i, &i, b, str);
 
-        return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

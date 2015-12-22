@@ -133,6 +133,11 @@ namespace stick
             }
         }
 
+        inline void append(std::initializer_list<T> _l)
+        {
+            insert(end(), _l.begin(), _l.end());
+        }
+
         inline void append(const T & _element)
         {
             if (capacity() <= m_elementCount)
