@@ -3,8 +3,17 @@
 #include <Stick/StickRBTree.hpp>
 #include <Stick/StickMap.hpp>
 #include <Stick/StickHashMap.hpp>
+#include <Stick/StickError.hpp>
+#include <Stick/StickThread.hpp>
 
 #include <iostream>
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#define SUITE(...) if(printf("\n------ " __VA_ARGS__),puts(""),true)
+#define TEST(...)  (++tst,err+=!(ok=!!(__VA_ARGS__))),printf("[%s] %d %s \n",ok?" OK ":"FAIL",STICK_LINE,#__VA_ARGS__)
+unsigned tst = 0, err = 0, ok = atexit([] { SUITE("summary") { printf("[%s] %d tests = %d passed + %d errors\n", err ? "FAIL" : " OK ", tst, tst - err, err); }});
 
 using namespace stick;
 
@@ -193,6 +202,13 @@ int main(int _argc, const char * _args[])
         TEST(DestructorTester::destructionCount == 2);
         tt.clear();
         TEST(DestructorTester::destructionCount == 5);
+
+        DynamicArray<Int32> ttt = {1, 2, 3, 4, 5};
+        TEST(ttt.elementCount() == 5);
+        for(auto i : ttt)
+        {
+            std::cout<<i<<std::endl;
+        }
     }
 
     SUITE("RBTree Tests")
@@ -353,5 +369,17 @@ int main(int _argc, const char * _args[])
         res = hm.insert("blubb", 5);
         TEST(res.iterator->value == 5);
         TEST(res.inserted == false);
+        auto it = hm.remove("anotherKey");
+        TEST(hm.elementCount() == 2);
     }
+
+    /*
+    SUITE("Thread Tests")
+    {
+        Thread t;
+        Error err = t.run([](){ std::cout<<"FORK"<<std::endl; });
+        TEST(3 == 3);
+    }*/
+
+        return EXIT_SUCCESS;
 }

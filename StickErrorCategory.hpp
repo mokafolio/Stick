@@ -2,6 +2,7 @@
 #define STICK_STICKERRORCATEGORY_HPP
 
 #include <Stick/StickError.hpp>
+#include <Stick/StickErrorCodes.hpp>
 
 namespace stick
 {
@@ -32,7 +33,7 @@ namespace stick
         /**
          * @brief Virtual Destructor. You derive from this class to create a new ErrorCategory.
          */
-        virtual ~ErrorCategory();
+        virtual ~ErrorCategory(){}
 
         /**
          * @brief Returns true if the other ErrorCategory is this.
@@ -114,14 +115,14 @@ namespace stick
         const NoErrorCategory & noErrorCategory();
 
         const SystemErrorCategory & systemErrorCategory();
+
+        template<>
+        struct isErrorEnum<ec::SystemErrorCode>
+        {
+            static const bool value = true;
+        };
     }
 
-}
-
-#include <Stick/StickErrorCodes.hpp>
-
-namespace stick
-{
     inline const ErrorCategory & errorCategory(ec::SystemErrorCode)
     {
         return detail::systemErrorCategory();

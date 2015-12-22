@@ -281,6 +281,7 @@ namespace stick
 
             destroyNode(n);
             --m_elementCount;
+            return ret;
         }
 
         inline void clear()

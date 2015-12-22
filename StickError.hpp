@@ -127,6 +127,8 @@ namespace stick
         UInt32 m_line;
     };
 
+    template<class T>
+    inline const ErrorCategory & errorCategory(T);
 }
 
 #include <Stick/StickErrorCategory.hpp>

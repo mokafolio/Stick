@@ -4,8 +4,7 @@
 #include <Stick/StickAllocator.hpp>
 #include <Stick/StickIterator.hpp>
 #include <Stick/StickUtility.hpp>
-
-#include <iostream>
+#include <initializer_list>
 
 namespace stick
 {
@@ -31,6 +30,12 @@ namespace stick
                 m_allocator(&_alloc)
         {
 
+        }
+
+        DynamicArray(std::initializer_list<T> _il) :
+        m_allocator(&defaultAllocator())
+        {
+            insert(end(), _il.begin(), _il.end());
         }
 
         DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
@@ -83,6 +88,13 @@ namespace stick
             {
                 *this[i] = _other[i];
             }
+            return *this;
+        }
+
+        inline DynamicArray & operator = (std::initializer_list<T> _il)
+        {
+            clear();
+            insert(end(), _il.begin(), _il.end());
             return *this;
         }
 

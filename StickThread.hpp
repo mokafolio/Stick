@@ -2,9 +2,11 @@
 #define STICK_THREAD_HPP
 
 #include <Stick/StickError.hpp>
+#include <Stick/StickErrorCodes.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
+#include <new> //for std::nothrow
 #endif //STICK_PLATFORM_UNIX
 
 namespace stick
@@ -51,14 +53,14 @@ namespace stick
         };
 
         template<class F>
-        struct PThreadData
+        struct PThreadData : public PThreadDataBase
         {
             PThreadData(F _f) :
             func(_f)
             {
             }
 
-            void call()
+            void call() override
             {
                 func();
             }
@@ -70,6 +72,7 @@ namespace stick
         {
             PThreadDataBase * data = reinterpret_cast<PThreadDataBase*>(_data);
             data->call();
+            delete data;
         }
     }
 #endif //STICK_PLATFORM_UNIX
@@ -78,7 +81,7 @@ namespace stick
     inline Error Thread::run(F _func)
     {
 #ifdef STICK_PLATFORM_UNIX
-        detail::PThreadDataBase * data = new detail::PThreadData<F>(_func);
+        detail::PThreadDataBase * data = new (std::nothrow) detail::PThreadData<F>(_func);
         int res = pthread_create(&m_handle, NULL, &detail::_pthreadFunc, data);
         if(res != 0)
             return Error(ec::SystemErrorCode(res), "Could not create pthread", STICK_FILE, STICK_LINE);

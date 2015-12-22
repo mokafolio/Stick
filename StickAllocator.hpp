@@ -2,6 +2,7 @@
 #define STICK_ALLOCATOR_HPP
 
 #include <Stick/StickPlatform.hpp>
+#include <stdlib.h>
 
 namespace stick
 {
