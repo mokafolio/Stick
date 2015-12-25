@@ -3,6 +3,7 @@
 
 #include <Stick/StickRBTree.hpp>
 #include <Stick/StickIterator.hpp>
+#include <initializer_list>
 
 namespace stick
 {
@@ -262,10 +263,44 @@ namespace stick
             bool inserted;
         };
 
+        Map(Allocator & _alloc = defaultAllocator()) :
+        m_tree(_alloc)
+        {
+
+        }
+
+        Map(std::initializer_list<KeyValuePair> _l, Allocator & _alloc = defaultAllocator()) :
+        m_tree(_alloc)
+        {
+            insert(_l);
+        }
+
+        inline Map & operator = (std::initializer_list<KeyValuePair> _l)
+        {
+            clear();
+            insert(_l);
+            return *this;
+        }
+
         inline InsertResult insert(const KeyValuePair & _val)
         {
             auto res = m_tree.insert(_val);
             return {Iter(res.node, m_tree.rightMost()), res.inserted};
+        }
+
+        template<class InputIterT>
+        inline void insert(InputIterT _begin, InputIterT _end)
+        {
+            while(_begin != _end)
+            {
+                insert(*_begin);
+                ++_begin;
+            }
+        }
+
+        inline void insert(std::initializer_list<KeyValuePair> _l)
+        {
+            insert(_l.begin(), _l.end());
         }
 
         inline InsertResult insert(const KeyType & _key, const ValueType & _val)

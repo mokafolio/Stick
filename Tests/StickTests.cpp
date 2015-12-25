@@ -340,6 +340,18 @@ const Suite spec[] =
         it2 = map.remove("c");
         EXPECT(it == it2);
         EXPECT(map.elementCount() == 4);
+
+        Map<Int32, String> amap = {{3, "test"}, {2, "bla"}, {199, "blubb"}};
+        EXPECT(amap.elementCount() == 3);
+        auto tit = amap.find(3);
+        EXPECT(tit->key == 3);
+        EXPECT(tit->value == "test");
+        tit = amap.find(2);
+        EXPECT(tit->key == 2);
+        EXPECT(tit->value == "bla");
+        tit = amap.find(199);
+        EXPECT(tit->key == 199);
+        EXPECT(tit->value == "blubb");
     },
     SUITE("HashMap Tests")
     {
