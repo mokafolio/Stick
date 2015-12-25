@@ -5,16 +5,7 @@
 #include <Stick/StickHashMap.hpp>
 #include <Stick/StickError.hpp>
 #include <Stick/StickThread.hpp>
-#include <Stick/StickPrint.hpp>
-
-#include <iostream>
-
-#include <stdlib.h>
-#include <stdio.h>
-
-#define SUITE(...) if(printf("\n------ " __VA_ARGS__),puts(""),true)
-#define TEST(...)  (++tst,err+=!(ok=!!(__VA_ARGS__))),printf("[%s] %d %s \n",ok?" OK ":"FAIL",STICK_LINE,#__VA_ARGS__)
-unsigned tst = 0, err = 0, ok = atexit([] { SUITE("summary") { printf("[%s] %d tests = %d passed + %d errors\n", err ? "FAIL" : " OK ", tst, tst - err, err); }});
+#include <Stick/StickTest.hpp>
 
 using namespace stick;
 
@@ -40,12 +31,12 @@ public:
 
     SomeClass()
     {
-        std::cout<<"SomeClass()"<<std::endl;
+        std::cout << "SomeClass()" << std::endl;
     }
 
     ~SomeClass()
     {
-        std::cout<<"~SomeClass()"<<std::endl;
+        std::cout << "~SomeClass()" << std::endl;
     }
 };
 
@@ -67,95 +58,94 @@ struct DestructorTester
 int DestructorTester::destructionCount = 0;
 
 
-int main(int _argc, const char * _args[])
+const Suite spec[] =
 {
     SUITE("String Tests")
-    {   
+    {
         String a("test");
         String b("test");
         String c(String("different"));
-        TEST(a == b);
-        TEST(a != c);
-        TEST(b != c);
+        EXPECT(a == b);
+        EXPECT(a != c);
+        EXPECT(b != c);
 
         char expectedResults[] = {'t', 'e', 's', 't'};
 
         Int32 i = 0;
-        for(auto c : a)
+        for (auto c : a)
         {
-            TEST(c == expectedResults[i]);
+            EXPECT(c == expectedResults[i]);
             i++;
         }
 
         i = 3;
-        for(auto it = a.rbegin(); it != a.rend(); it++)
+        for (auto it = a.rbegin(); it != a.rend(); it++)
         {
-            TEST(*it == expectedResults[i]);
+            EXPECT(*it == expectedResults[i]);
             i--;
         }
 
         String d;
         d = a;
-        TEST(d == a);
-        TEST(d == "test");
+        EXPECT(d == a);
+        EXPECT(d == "test");
 
         d = "another one";
-        TEST(d == "another one");
+        EXPECT(d == "another one");
 
         String e;
-        TEST(e != d);
-    }
-
+        EXPECT(e != d);
+    },
     SUITE("DynamicArray Tests")
     {
         DynamicArray<Int32> a;
-        TEST(a.elementCount() == 0);
-        TEST(a.byteCount() == 0);
+        EXPECT(a.elementCount() == 0);
+        EXPECT(a.byteCount() == 0);
 
         a.resize(5);
-        TEST(a.elementCount() == 5);
-        TEST(a.byteCount() == 20);
+        EXPECT(a.elementCount() == 5);
+        EXPECT(a.byteCount() == 20);
 
-        for(Int32 i = 0; i < 5; ++i)
+        for (Int32 i = 0; i < 5; ++i)
         {
             a[i] = i;
         }
 
-        TEST(a[0] == 0);
-        TEST(a[1] == 1);
-        TEST(a[2] == 2);
-        TEST(a[3] == 3);
-        TEST(a[4] == 4);
+        EXPECT(a[0] == 0);
+        EXPECT(a[1] == 1);
+        EXPECT(a[2] == 2);
+        EXPECT(a[3] == 3);
+        EXPECT(a[4] == 4);
 
         a.append(10);
-        TEST(a.elementCount() == 6);
+        EXPECT(a.elementCount() == 6);
 
-        TEST(a[5] == 10);
-        TEST(a.back() == 10);
-        TEST(a.front() == 0);
+        EXPECT(a[5] == 10);
+        EXPECT(a.back() == 10);
+        EXPECT(a.front() == 0);
 
         a.removeBack();
-        TEST(a.back() == 4);
-        TEST(a.elementCount() == 5);
+        EXPECT(a.back() == 4);
+        EXPECT(a.elementCount() == 5);
 
         Int32 expectedResults[] = {0, 1, 2, 3, 4};
         Int32 i = 0;
-        for(auto e : a)
+        for (auto e : a)
         {
-            TEST(e == expectedResults[i]);
+            EXPECT(e == expectedResults[i]);
             ++i;
         }
 
         i = a.elementCount() - 1;
-        for(auto it = a.rbegin(); it != a.rend(); ++it)
+        for (auto it = a.rbegin(); it != a.rend(); ++it)
         {
-            TEST(*it == expectedResults[i]);
+            EXPECT(*it == expectedResults[i]);
             --i;
         }
 
         a.clear();
-        TEST(a.elementCount() == 0);
-        
+        EXPECT(a.elementCount() == 0);
+
         DynamicArray<Int32> b;
         Int32 arr[] = {1, 2, 3, 4};
         b.append(10);
@@ -163,30 +153,30 @@ int main(int _argc, const char * _args[])
         b.append(12);
         b.append(13);
         auto it = b.insert(b.end(), arr, arr + 4);
-        TEST(it == b.end() - 4);
-        TEST(it == b.begin() + 4);
-        TEST(*it == 1);
+        EXPECT(it == b.end() - 4);
+        EXPECT(it == b.begin() + 4);
+        EXPECT(*it == 1);
         auto it2 = b.insert(b.begin() + 2, 99);
-        TEST(it2 == b.begin() + 2);
-        TEST(*it2 == 99);
+        EXPECT(it2 == b.begin() + 2);
+        EXPECT(*it2 == 99);
 
         Int32 expectedArr[] = {10, 11, 99, 12, 13, 1, 2, 3, 4};
         i = 0;
-        for(auto v : b)
+        for (auto v : b)
         {
-            TEST(expectedArr[i] == v);
+            EXPECT(expectedArr[i] == v);
             i++;
         }
-        TEST(b.elementCount() == 9);
+        EXPECT(b.elementCount() == 9);
 
         auto it3 = b.remove(b.begin() + 2, b.begin() + 6);
-        TEST(it3 == b.begin() + 2);
-        TEST(*it3 == 2);
+        EXPECT(it3 == b.begin() + 2);
+        EXPECT(*it3 == 2);
         Int32 expectedArr2[] = {10, 11, 2, 3, 4};
-        i=0;
-        for(auto v : b)
+        i = 0;
+        for (auto v : b)
         {
-            TEST(expectedArr2[i] == v);
+            EXPECT(expectedArr2[i] == v);
             i++;
         }
 
@@ -199,27 +189,26 @@ int main(int _argc, const char * _args[])
         tt.append(DestructorTester());
         DestructorTester::reset();
         tt.remove(tt.begin(), tt.begin() + 2);
-        std::cout<<DestructorTester::destructionCount<<std::endl;
-        TEST(DestructorTester::destructionCount == 2);
+        EXPECT(DestructorTester::destructionCount == 2);
         tt.clear();
-        TEST(DestructorTester::destructionCount == 5);
+        EXPECT(DestructorTester::destructionCount == 5);
 
-        DynamicArray<Int32> ttt = {1, 2, 3, 4, 5};
-        TEST(ttt.elementCount() == 5);
-        for(auto i : ttt)
-        {
-            std::cout<<i<<std::endl;
-        }
-    }
-
+        DynamicArray<Int32> ttt({1, 2, 3, 4, 5});
+        EXPECT(ttt.elementCount() == 5);
+        EXPECT(ttt[0] == 1);
+        EXPECT(ttt[1] == 2);
+        EXPECT(ttt[2] == 3);
+        EXPECT(ttt[3] == 4);
+        EXPECT(ttt[4] == 5);
+    },
     SUITE("RBTree Tests")
     {
         RBTree<Int32> tree;
-        TEST(tree.elementCount() == 0);
+        EXPECT(tree.elementCount() == 0);
 
         tree.insert(6);
 
-        TEST(tree.root()->value == 6);
+        EXPECT(tree.root()->value == 6);
 
         tree.insert(5);
         tree.insert(7);
@@ -230,64 +219,63 @@ int main(int _argc, const char * _args[])
         tree.insert(2);
         tree.insert(3);
 
-        TEST(tree.elementCount() == 9);
+        EXPECT(tree.elementCount() == 9);
 
         auto n = tree.find(5);
         auto n2 = tree.find(2);
         auto n3 = tree.find(24);
 
-        TEST(n != nullptr);
-        TEST(n2 != nullptr);
-        TEST(n3 != nullptr);
+        EXPECT(n != nullptr);
+        EXPECT(n2 != nullptr);
+        EXPECT(n3 != nullptr);
 
-        TEST(n->value == 5);
-        TEST(n2->value == 2);
-        TEST(n3->value == 24);
+        EXPECT(n->value == 5);
+        EXPECT(n2->value == 2);
+        EXPECT(n3->value == 24);
 
         auto notFound = tree.find(199);
-        TEST(notFound == nullptr);
+        EXPECT(notFound == nullptr);
 
         tree.remove(1);
         tree.remove(8);
         tree.remove(24);
-        TEST(tree.elementCount() == 6);
+        EXPECT(tree.elementCount() == 6);
 
         auto n4 = tree.find(1);
         auto n5 = tree.find(8);
         auto n6 = tree.find(24);
 
-        TEST(n4 == nullptr);
-        TEST(n5 == nullptr);
-        TEST(n6 == nullptr);
-    }
-
+        EXPECT(n4 == nullptr);
+        EXPECT(n5 == nullptr);
+        EXPECT(n6 == nullptr);
+    },
     SUITE("Map Tests")
-    {   
+    {
         typedef Map<String, Int32> TestMapType;
         TestMapType map;
         auto res = map.insert("a", 1);
 
-        TEST(res.inserted == true);
-        TEST((*res.iterator).value == 1);
-        TEST(res.iterator->value == 1);
-        TEST(res.iterator->key == "a");
-        TEST(map.elementCount() == 1);
+        EXPECT(res.inserted == true);
+        EXPECT((*res.iterator).value == 1);
+        EXPECT(res.iterator->value == 1);
+        EXPECT(res.iterator->key == "a");
+        EXPECT(map.elementCount() == 1);
 
         auto res2 = map.insert("a", 2);
-        TEST(res2.inserted == false);
-        TEST(res2.iterator->value == 2);
-        TEST(map.elementCount() == 1);
-        
+        EXPECT(res2.inserted == false);
+        EXPECT(res2.iterator->value == 2);
+        EXPECT(map.elementCount() == 1);
+
         map.insert("b", 3);
         map.insert("c", 4);
-        TEST(map.elementCount() == 3);
+        EXPECT(map.elementCount() == 3);
 
         auto it = map.find("b");
-        TEST(it != map.end());
-        TEST(it->value == 3);
+        EXPECT(it != map.end());
+        EXPECT(it->value == 3);
 
         it = map.find("notThere");
-        TEST(it == map.end());
+        EXPECT(it == map.end());
 
         map.insert("d", 5);
         map.insert("e", 6);
@@ -295,9 +283,9 @@ int main(int _argc, const char * _args[])
         map["e"] = 7;
         map["f"] = 8;
         it = map.find("e");
-        TEST(it->value == 7);
-        TEST(map["f"] == 8);
-        TEST(map.elementCount() == 6);
+        EXPECT(it->value == 7);
+        EXPECT(map["f"] == 8);
+        EXPECT(map.elementCount() == 6);
 
         it = map.begin();
 
@@ -305,37 +293,37 @@ int main(int _argc, const char * _args[])
         auto lastVal = it->value;
 
         it++;
-        TEST(it->key != lastKey);
-        TEST(it->value != lastVal);
+        EXPECT(it->key != lastKey);
+        EXPECT(it->value != lastVal);
         --it;
-        TEST(it->key == lastKey);
-        TEST(it->value == lastVal);
+        EXPECT(it->key == lastKey);
+        EXPECT(it->value == lastVal);
 
 
         TestMapType::KeyType * expectedKeys = new TestMapType::KeyType[map.elementCount()];
         TestMapType::ValueType * expectedVals = new TestMapType::ValueType[map.elementCount()];
 
-        Size i=0;
-        for(const auto & kv : map)
+        Size i = 0;
+        for (const auto & kv : map)
         {
             expectedKeys[i] = kv.key;
             expectedVals[i] = kv.value;
             i++;
         }
 
-        TEST(i == map.elementCount());
+        EXPECT(i == map.elementCount());
 
         --i;
         Size j = 0;
-        for(auto rit = map.rbegin(); rit != map.rend(); ++rit)
+        for (auto rit = map.rbegin(); rit != map.rend(); ++rit)
         {
-            TEST(expectedKeys[i] == rit->key);
-            TEST(expectedVals[i] == rit->value);
+            EXPECT(expectedKeys[i] == rit->key);
+            EXPECT(expectedVals[i] == rit->value);
             ++j;
             --i;
         }
 
-        TEST(j == map.elementCount());
+        EXPECT(j == map.elementCount());
 
         delete [] expectedVals;
         delete [] expectedKeys;
@@ -344,40 +332,37 @@ int main(int _argc, const char * _args[])
         it = map.find("f");
         auto it3 = it + 1;
         auto it2 = map.remove(it);
-        TEST(it3 == it2);
-        TEST(map.elementCount() == 5);
+        EXPECT(it3 == it2);
+        EXPECT(map.elementCount() == 5);
 
         it = map.find("c");
         it++;
         it2 = map.remove("c");
-        TEST(it == it2);
-        TEST(map.elementCount() == 4);
-    }
-
+        EXPECT(it == it2);
+        EXPECT(map.elementCount() == 4);
+    },
     SUITE("HashMap Tests")
     {
         HashMap<String, Int32> hm(1);
 
         hm.insert("test", 1);
         hm.insert("test", 2);
-        TEST(hm.elementCount() == 1);
+        EXPECT(hm.elementCount() == 1);
         hm.insert("anotherKey", 3);
         auto res = hm.insert("blubb", 4);
-        TEST(hm.elementCount() == 3);
-        TEST(res.iterator->key == "blubb");
-        TEST(res.iterator->value == 4);
-        TEST(res.inserted == true);
+        EXPECT(hm.elementCount() == 3);
+        EXPECT(res.iterator->key == "blubb");
+        EXPECT(res.iterator->value == 4);
+        EXPECT(res.inserted == true);
         res = hm.insert("blubb", 5);
-        TEST(res.iterator->value == 5);
-        TEST(res.inserted == false);
+        EXPECT(res.iterator->value == 5);
+        EXPECT(res.inserted == false);
         auto it = hm.remove("anotherKey");
-        TEST(hm.elementCount() == 2);
+        EXPECT(hm.elementCount() == 2);
     }
+};
 
-    UInt64 i = 1274;
-    String str("da string testor");
-    const UInt32 & b = 24;
-    print(1, "test", i, &i, b, str);
-
-    return EXIT_SUCCESS;
+int main(int _argc, const char * _args[])
+{
+    return runTests(spec, _argc, _args);
 }

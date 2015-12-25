@@ -25,15 +25,17 @@ namespace stick
 
 
         DynamicArray(Allocator & _alloc = defaultAllocator()) :
-            m_data( {nullptr, 0}),
-                m_elementCount(0),
-                m_allocator(&_alloc)
+            m_data({nullptr, 0}),
+            m_elementCount(0),
+            m_allocator(&_alloc)
         {
 
         }
 
         DynamicArray(std::initializer_list<T> _il) :
-        m_allocator(&defaultAllocator())
+            m_data({nullptr, 0}),
+            m_allocator(&defaultAllocator()),
+            m_elementCount(0)
         {
             insert(end(), _il.begin(), _il.end());
         }
