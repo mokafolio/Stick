@@ -19,12 +19,12 @@
         _session.testCount++; \
         if(_expr) \
         { \
-            printf(ANSI_COLOR_GREEN "%s, OK\n" ANSI_COLOR_RESET, #_expr); \
+            printf(ANSI_COLOR_GREEN "Line: %u, %s, OK\n" ANSI_COLOR_RESET, STICK_LINE, #_expr); \
         } \
         else \
         { \
             _session.failCount++; \
-            printf(ANSI_COLOR_RED "%s, Failed\n" ANSI_COLOR_RESET, #_expr); \
+            printf(ANSI_COLOR_RED "Line: %u, %s, Failed\n" ANSI_COLOR_RESET, STICK_LINE, #_expr); \
         } \
     } while(false)
 

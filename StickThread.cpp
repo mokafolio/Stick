@@ -11,8 +11,8 @@ namespace stick
 
     Thread::~Thread()
     {
-        if(joinable())
-            join();
+        /*if(joinable())
+            join();*/
     }
 
     Error Thread::join()
@@ -37,8 +37,16 @@ namespace stick
         return m_threadID != 0;
     }
 
-    ThreadID Thread::id() const
+    ThreadID Thread::threadID() const
     {
         return m_threadID;
+    }
+
+    ThreadID Thread::currentThreadID()
+    {
+#ifdef STICK_PLATFORM_UNIX
+        pthread_t pt = pthread_self();
+        return detail::_pthreadID(pt);
+#endif //STICK_PLATFORM_UNIX
     }
 }

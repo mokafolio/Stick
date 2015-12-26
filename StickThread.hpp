@@ -9,6 +9,9 @@
 #include <new> //for std::nothrow
 #endif //STICK_PLATFORM_UNIX
 
+#include <iostream>
+#include <atomic>
+
 namespace stick
 {
     typedef Size ThreadID;
@@ -34,12 +37,15 @@ namespace stick
 
         bool joinable() const;
 
-        ThreadID id() const;
+        ThreadID threadID() const;
+
+        static ThreadID currentThreadID();
+
 
     private:
 
         NativeHandle m_handle;
-        ThreadID m_threadID;
+        std::atomic<ThreadID> m_threadID;
     };
 
 #ifdef STICK_PLATFORM_UNIX
@@ -47,15 +53,24 @@ namespace stick
     {
         struct PThreadDataBase
         {
+            PThreadDataBase(Thread * _t) :
+            t(_t)
+            {
+
+            }
+
             virtual ~PThreadDataBase() {}
 
             virtual void call() = 0;
+
+            Thread * t;
         };
 
         template<class F>
         struct PThreadData : public PThreadDataBase
         {
-            PThreadData(F _f) :
+            PThreadData(Thread * _t, F _f) :
+            PThreadDataBase(_t),
             func(_f)
             {
             }
@@ -68,11 +83,25 @@ namespace stick
             F func;
         };
 
+        inline Size _pthreadID(pthread_t _handle)
+        {
+            static_assert(sizeof(Size) >= sizeof(pthread_t), "pthread_t is bigger than Size.");
+            Size ret = 0;
+            for(UInt32 i = 0; i < sizeof(pthread_t); ++i)
+            {
+                char * from = reinterpret_cast<char*>(&_handle) + i;
+                char * to = reinterpret_cast<char*>(&ret) + i;
+                *to = *from;
+            }
+            return ret;
+        }
+
         inline void * _pthreadFunc(void * _data)
         {
             PThreadDataBase * data = reinterpret_cast<PThreadDataBase*>(_data);
             data->call();
             delete data;
+            return NULL;
         }
     }
 #endif //STICK_PLATFORM_UNIX
@@ -81,7 +110,7 @@ namespace stick
     inline Error Thread::run(F _func)
     {
 #ifdef STICK_PLATFORM_UNIX
-        detail::PThreadDataBase * data = new (std::nothrow) detail::PThreadData<F>(_func);
+        detail::PThreadDataBase * data = new (std::nothrow) detail::PThreadData<F>(this, _func);
         int res = pthread_create(&m_handle, NULL, &detail::_pthreadFunc, data);
         if(res != 0)
             return Error(ec::SystemErrorCode(res), "Could not create pthread", STICK_FILE, STICK_LINE);

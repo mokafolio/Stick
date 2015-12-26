@@ -371,6 +371,20 @@ const Suite spec[] =
         EXPECT(res.inserted == false);
         auto it = hm.remove("anotherKey");
         EXPECT(hm.elementCount() == 2);
+        //TODO: More
+    },
+    SUITE("Thread Tests")
+    {
+        Thread thread;
+        Error err = thread.join();
+        EXPECT(err.code() != 0);
+        std::atomic<bool> bJoinable(false);
+        err = thread.run([&](){ bJoinable = thread.joinable(); });
+        EXPECT(err.code() == 0);
+        EXPECT(bJoinable);
+        err = thread.join();
+        EXPECT(err.code() == 0);
+        EXPECT(!thread.joinable());
     }
 };
 
