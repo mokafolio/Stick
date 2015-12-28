@@ -40,7 +40,7 @@ namespace stick
         static ThreadID currentThreadID();
 
         static void sleepFor(const Duration & _dur);
-        
+
 
     private:
 
