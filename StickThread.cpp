@@ -3,8 +3,22 @@
 
 namespace stick
 {
+
+    void * Thread::_pthreadFunc(void * _data)
+    {
+        detail::PThreadDataBase * data = reinterpret_cast<detail::PThreadDataBase *>(_data);
+        data->call();
+        {
+            auto sl = lockScope(data->t->m_mutex);
+            data->t->m_bIsJoinable = false;
+        }
+        delete data;
+        return NULL;
+    }
+
     Thread::Thread() :
-    m_threadID(0)
+        m_threadID(0),
+        m_bIsJoinable(false)
     {
 
     }
@@ -20,7 +34,7 @@ namespace stick
 #ifdef STICK_PLATFORM_UNIX
         int res = pthread_join(m_handle, NULL);
         m_threadID = 0;
-        if(res != 0)
+        if (res != 0)
             return Error(ec::SystemErrorCode(res), "Could not join pthread", STICK_FILE, STICK_LINE);
 #endif //STICK_PLATFORM_UNIX
 
@@ -32,13 +46,15 @@ namespace stick
         return m_handle;
     }
 
-    bool Thread::joinable() const
+    bool Thread::isJoinable() const
     {
-        return m_threadID != 0;
+        auto sl = lockScope(m_mutex);
+        return m_bIsJoinable;
     }
 
     ThreadID Thread::threadID() const
     {
+        auto sl = lockScope(m_mutex);
         return m_threadID;
     }
 

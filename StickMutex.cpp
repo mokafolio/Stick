@@ -31,6 +31,14 @@ namespace stick
         if (res != 0)
             return Error(ec::SystemErrorCode(res), "Could not lock pthread_mutex", STICK_FILE, STICK_LINE);
 #endif //STICK_PLATFORM_UNIX
+        return Error();
+    }
+
+    bool Mutex::tryLock()
+    {
+#ifdef STICK_PLATFORM_UNIX
+        return pthread_mutex_trylock(&m_handle) == 0 ? true : false;
+#endif //STICK_PLATFORM_UNIX
     }
 
     void Mutex::unlock()

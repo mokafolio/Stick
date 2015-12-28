@@ -379,12 +379,14 @@ const Suite spec[] =
         Error err = thread.join();
         EXPECT(err.code() != 0);
         std::atomic<bool> bJoinable(false);
-        err = thread.run([&](){ bJoinable = thread.joinable(); });
+        std::atomic<bool> bValidThreadID(false);
+        err = thread.run([&]() { bValidThreadID = thread.threadID() != 0; bJoinable = thread.isJoinable(); });
         EXPECT(err.code() == 0);
-        EXPECT(bJoinable);
         err = thread.join();
+        EXPECT(bJoinable);
+        EXPECT(bValidThreadID);
         EXPECT(err.code() == 0);
-        EXPECT(!thread.joinable());
+        EXPECT(!thread.isJoinable());
     }
 };
 
