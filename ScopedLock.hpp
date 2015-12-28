@@ -27,6 +27,12 @@ namespace stick
                 m_bOwnsMutex = true;
         }
 
+        ~ScopedLock()
+        {
+            if(m_bOwnsMutex)
+                m_mutex->unlock();
+        }
+
         Error lock()
         {
             Error err = m_mutex->lock();
