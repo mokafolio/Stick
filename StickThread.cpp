@@ -9,7 +9,7 @@ namespace stick
         detail::PThreadDataBase * data = reinterpret_cast<detail::PThreadDataBase *>(_data);
         data->call();
         {
-            auto sl = lockScope(data->t->m_mutex);
+            ScopedLock<Mutex> lock(data->t->m_mutex);
             data->t->m_bIsJoinable = false;
         }
         delete data;
@@ -48,13 +48,13 @@ namespace stick
 
     bool Thread::isJoinable() const
     {
-        auto sl = lockScope(m_mutex);
+        ScopedLock<Mutex> lock(m_mutex);
         return m_bIsJoinable;
     }
 
     ThreadID Thread::threadID() const
     {
-        auto sl = lockScope(m_mutex);
+        ScopedLock<Mutex> lock(m_mutex);
         return m_threadID;
     }
 

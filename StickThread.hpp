@@ -2,13 +2,12 @@
 #define STICK_THREAD_HPP
 
 #include <Stick/StickMutex.hpp>
+#include <Stick/ScopedLock.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
 #include <new> //for std::nothrow
 #endif //STICK_PLATFORM_UNIX
-
-#include <iostream>
 
 namespace stick
 {
@@ -106,7 +105,7 @@ namespace stick
     inline Error Thread::run(F && _func)
     {
 #ifdef STICK_PLATFORM_UNIX
-        auto sl = lockScope(m_mutex);
+        ScopedLock<Mutex> lock(m_mutex);
         m_bIsJoinable = true;
         detail::PThreadDataBase * data = new (std::nothrow) detail::PThreadData<F>(this, forward<F>(_func));
         int res = pthread_create(&m_handle, NULL, &Thread::_pthreadFunc, data);

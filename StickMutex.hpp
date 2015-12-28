@@ -37,31 +37,6 @@ namespace stick
         NativeHandle m_handle;
         bool m_bIsInitialized;
     };
-
-    namespace detail
-    {
-        struct ScopedLock
-        {
-            ScopedLock(Mutex & _mutex) :
-                mutex(_mutex)
-            {
-                auto err = mutex.lock();
-                STICK_ASSERT(err.code() == 0);
-            }
-
-            ~ScopedLock()
-            {
-                mutex.unlock();
-            }
-
-            Mutex mutex;
-        };
-    }
-
-    inline detail::ScopedLock lockScope(Mutex & _mutex)
-    {
-        return detail::ScopedLock(_mutex);
-    }
 }
 
 #endif //STICK_MUTEX_HPP
