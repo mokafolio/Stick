@@ -1,9 +1,11 @@
 #include <Stick/StickThread.hpp>
 #include <Stick/StickErrorCodes.hpp>
+#include <time.h>
+
+#include <iostream>
 
 namespace stick
 {
-
     void * Thread::_pthreadFunc(void * _data)
     {
         detail::PThreadDataBase * data = reinterpret_cast<detail::PThreadDataBase *>(_data);
@@ -25,8 +27,7 @@ namespace stick
 
     Thread::~Thread()
     {
-        /*if(joinable())
-            join();*/
+        STICK_ASSERT(!isJoinable());
     }
 
     Error Thread::join()
@@ -56,6 +57,23 @@ namespace stick
     {
         ScopedLock<Mutex> lock(m_mutex);
         return m_threadID;
+    }
+
+    void Thread::sleepFor(const Duration & _dur)
+    {
+        auto dur = _dur.nanoseconds();
+
+        if(dur <= 0)
+            return;
+
+        timespec dr;
+        dr.tv_sec = 0;
+        while(dur > 0)
+        {
+            dr.tv_nsec = min((IntMax)999999999, (IntMax)dur);
+            while (nanosleep(&dr, &dr));
+            dur -= 999999999;
+        }
     }
 
     ThreadID Thread::currentThreadID()

@@ -46,6 +46,8 @@ namespace stick
     typedef int32_t Int32;
     typedef int64_t Int64;
     typedef size_t Size;
+    typedef intmax_t IntMax;
+    typedef uintmax_t UIntMax;
 
     typedef float Float32;
     typedef double Float64;

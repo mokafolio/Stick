@@ -3,7 +3,7 @@
 
 #include <Stick/StickError.hpp>
 #include <Stick/StickErrorCodes.hpp>
-#include <Stick/ScopedLock.hpp>
+#include <Stick/StickScopedLock.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
@@ -28,9 +28,9 @@ namespace stick
 
         ~ConditionVariable();
 
-        void notifyOne();
+        Error notifyOne();
 
-        void notifyAll();
+        Error notifyAll();
 
         Error wait(LockType & _lock);
 

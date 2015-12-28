@@ -89,7 +89,7 @@ namespace stick
         {
             m_bCallInDestructor = false;
         }
-
+        
     private:
 
         ScopeExit(const ScopeExit &) = delete;

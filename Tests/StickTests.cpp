@@ -5,7 +5,9 @@
 #include <Stick/StickHashMap.hpp>
 #include <Stick/StickError.hpp>
 #include <Stick/StickThread.hpp>
+#include <Stick/StickConditionVariable.hpp>
 #include <Stick/StickTest.hpp>
+#include <limits>
 
 using namespace stick;
 
@@ -387,6 +389,20 @@ const Suite spec[] =
         EXPECT(bValidThreadID);
         EXPECT(err.code() == 0);
         EXPECT(!thread.isJoinable());
+    },
+    SUITE("ConditionVariable Tests")
+    {
+        Thread thread;
+        ConditionVariable cond;
+        Mutex m;
+        Error err = thread.run([&]() { ScopedLock<Mutex> lock(m); cond.wait(lock); });
+        thread.sleepFor(Duration::fromSeconds(0.25));
+        EXPECT(err.code() == 0);
+        EXPECT(thread.isJoinable() == true); //the thread should still run as its blocking on the condition var
+        err = cond.notifyOne();
+        EXPECT(err.code() == 0);
+        err = thread.join();
+        EXPECT(err.code() == 0);
     }
 };
 

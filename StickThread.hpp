@@ -2,7 +2,8 @@
 #define STICK_THREAD_HPP
 
 #include <Stick/StickMutex.hpp>
-#include <Stick/ScopedLock.hpp>
+#include <Stick/StickScopedLock.hpp>
+#include <Stick/StickDuration.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
@@ -38,6 +39,8 @@ namespace stick
 
         static ThreadID currentThreadID();
 
+        static void sleepFor(const Duration & _dur);
+        
 
     private:
 
