@@ -29,7 +29,7 @@ namespace stick
 
         ~ScopedLock()
         {
-            if(m_bOwnsMutex)
+            if (m_bOwnsMutex)
                 m_mutex->unlock();
         }
 
@@ -52,6 +52,10 @@ namespace stick
             return m_bOwnsMutex;
         }
 
+        MutexType * mutex() const
+        {
+            return m_mutex;
+        }
 
     private:
 

@@ -96,6 +96,20 @@ namespace stick
         String description(const Error & _code) const;
     };
 
+     /**
+     * @brief The error category for the default errors.
+     * @see ErrorCategory
+     */
+    class MiscErrorCategory :
+        public ErrorCategory
+    {
+    public:
+
+        MiscErrorCategory();
+
+        String description(const Error & _code) const;
+    };
+
     /**
      * @brief The error category for the platform independent system errors.
      * @see ErrorCategory
@@ -116,8 +130,16 @@ namespace stick
 
         const SystemErrorCategory & systemErrorCategory();
 
+        const MiscErrorCategory & miscErrorCategory();
+
         template<>
         struct isErrorEnum<ec::SystemErrorCode>
+        {
+            static const bool value = true;
+        };
+
+        template<>
+        struct isErrorEnum<ec::MiscErrorCode>
         {
             static const bool value = true;
         };
@@ -126,6 +148,11 @@ namespace stick
     inline const ErrorCategory & errorCategory(ec::SystemErrorCode)
     {
         return detail::systemErrorCategory();
+    }
+
+    inline const ErrorCategory & errorCategory(ec::MiscErrorCode)
+    {
+        return detail::miscErrorCategory();
     }
 }
 

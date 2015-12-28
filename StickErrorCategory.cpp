@@ -49,6 +49,25 @@ namespace stick
         return "No Error";
     }
 
+    MiscErrorCategory::MiscErrorCategory() :
+        ErrorCategory("Misc")
+    {
+
+    }
+
+    String MiscErrorCategory::description(const Error & _code) const
+    {
+        switch (_code.code())
+        {
+        case ec::InvalidOperation:
+            return "Invalid operation.";
+            break;
+        case ec::NoError:
+        default:
+            return "No Error";
+        }
+    }
+
     SystemErrorCategory::SystemErrorCategory() :
         ErrorCategory("System")
     {
@@ -71,6 +90,12 @@ namespace stick
         const SystemErrorCategory & systemErrorCategory()
         {
             static SystemErrorCategory s_cat;
+            return s_cat;
+        }
+
+        const MiscErrorCategory & miscErrorCategory()
+        {
+            static MiscErrorCategory s_cat;
             return s_cat;
         }
     }

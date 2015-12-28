@@ -7,6 +7,12 @@ namespace stick
 {
     namespace ec
     {
+        enum MiscErrorCode
+        {
+            NoError = 0,
+            InvalidOperation
+        };
+
         /**
          * @brief System errors.
          *

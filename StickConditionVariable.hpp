@@ -1,6 +1,14 @@
 #ifndef STICK_CONDITIONVARIABLE_HPP
 #define STICK_CONDITIONVARIABLE_HPP
 
+#include <Stick/StickError.hpp>
+#include <Stick/StickErrorCodes.hpp>
+#include <Stick/ScopedLock.hpp>
+
+#ifdef STICK_PLATFORM_UNIX
+#include <pthread.h>
+#endif //STICK_PLATFORM_UNIX
+
 namespace stick
 {
     class Mutex;
@@ -13,17 +21,28 @@ namespace stick
         typedef pthread_cond_t NativeHandle;
 #endif //STICK_PLATFORM_UNIX
 
+        typedef ScopedLock<Mutex> LockType;
+
+
+        ConditionVariable();
+
+        ~ConditionVariable();
+
         void notifyOne();
 
         void notifyAll();
 
-        void wait(Mutex & _mutex);
+        Error wait(LockType & _lock);
+
+        template<class F>
+        Error wait(LockType & _lock, F && _predicate);
 
         NativeHandle nativeHandle() const;
 
     private:
 
         NativeHandle m_handle;
+        bool m_bIsInitialized;
     };
 }
 
