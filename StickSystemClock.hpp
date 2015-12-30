@@ -1,0 +1,9 @@
+#ifndef STICK_STICKSYSTEMCLOCK_HPP
+#define STICK_STICKSYSTEMCLOCK_HPP
+
+namespace stick
+{
+
+}
+
+#endif //STICK_STICKSYSTEMCLOCK_HPP

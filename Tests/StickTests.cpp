@@ -6,6 +6,7 @@
 #include <Stick/StickError.hpp>
 #include <Stick/StickThread.hpp>
 #include <Stick/StickConditionVariable.hpp>
+#include <Stick/StickHighResolutionClock.hpp>
 #include <Stick/StickTest.hpp>
 #include <limits>
 
@@ -396,7 +397,9 @@ const Suite spec[] =
         ConditionVariable cond;
         Mutex m;
         Error err = thread.run([&]() { ScopedLock<Mutex> lock(m); cond.wait(lock); });
-        thread.sleepFor(Duration::fromSeconds(0.25));
+        auto start = HighResolutionClock::now();
+        thread.sleepFor(Duration::fromSeconds(0.05));
+        std::cout<<(HighResolutionClock::now() - start).seconds()<<std::endl;
         EXPECT(err.code() == 0);
         EXPECT(thread.isJoinable() == true); //the thread should still run as its blocking on the condition var
         err = cond.notifyOne();
