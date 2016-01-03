@@ -133,6 +133,7 @@ const Suite spec[] =
         EXPECT(h[6] == 'f');
 
         {
+            //test append function
             String i;
             String j(" World!");
             i.append("Hello");
@@ -150,6 +151,40 @@ const Suite spec[] =
             EXPECT(i[9] == 'l');
             EXPECT(i[10] == 'd');
             EXPECT(i[11] == '!');
+
+            i.append('c');
+            EXPECT(i.length() == 13);
+            EXPECT(i[12] == 'c');
+
+            String k("fml");
+            String l(" not");
+            k.append(" test", l, 'c');
+            EXPECT(k.length() == 13);
+            EXPECT(k[0] == 'f');
+            EXPECT(k[1] == 'm');
+            EXPECT(k[2] == 'l');
+            EXPECT(k[3] == ' ');
+            EXPECT(k[4] == 't');
+            EXPECT(k[5] == 'e');
+            EXPECT(k[6] == 's');
+            EXPECT(k[7] == 't');
+            EXPECT(k[8] == ' ');
+            EXPECT(k[9] == 'n');
+            EXPECT(k[10] == 'o');
+            EXPECT(k[11] == 't');
+            EXPECT(k[12] == 'c');
+
+            //test variadic constructor
+            String m("abc", l, 'c');
+            EXPECT(m.length() == 8);
+            EXPECT(m[0] == 'a');
+            EXPECT(m[1] == 'b');
+            EXPECT(m[2] == 'c');
+            EXPECT(m[3] == ' ');
+            EXPECT(m[4] == 'n');
+            EXPECT(m[5] == 'o');
+            EXPECT(m[6] == 't');
+            EXPECT(m[7] == 'c');
         }
     },
     SUITE("DynamicArray Tests")

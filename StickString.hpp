@@ -6,12 +6,17 @@
 #include <Stick/StickUtility.hpp>
 #include <string.h>
 
-#include <iostream>
-
 namespace stick
 {
+    namespace detail
+    {
+        struct _StringCopier;
+    }
+
     class String
     {
+        friend class detail::_StringCopier;
+
     public:
 
         typedef char * Iter;
@@ -20,7 +25,7 @@ namespace stick
         typedef ReverseIterator<ConstIter> ReverseConstIter;
 
 
-        explicit String(Allocator & _alloc = defaultAllocator()) :
+        inline explicit String(Allocator & _alloc = defaultAllocator()) :
             m_cStr(nullptr),
             m_length(0),
             m_capacity(0),
@@ -29,31 +34,44 @@ namespace stick
 
         }
 
-        String(const char * _c, Allocator & _alloc = defaultAllocator()) :
-            m_allocator(&_alloc),
-            m_cStr(0),
-            m_capacity(0)
+        template<class ... Strings>
+        inline String(Allocator & _alloc, Strings ..._args);
+
+        template<class ... Strings>
+        inline String(Strings ..._args);
+
+        inline String(Size _size, Allocator & _alloc = defaultAllocator()) :
+            m_cStr(nullptr),
+            m_capacity(0),
+            m_allocator(&_alloc)
         {
-            std::cout<<"CA"<<std::endl;
+            resize(_size);
+        }
+
+        inline String(const char * _c, Allocator & _alloc = defaultAllocator()) :
+            m_cStr(nullptr),
+            m_capacity(0),
+            m_allocator(&_alloc)
+        {
             m_length = strlen(_c);
             reserve(m_length);
             strcpy(m_cStr, _c);
         }
 
-        String(const String & _other) :
+        inline String(const String & _other) :
+            m_cStr(nullptr),
             m_length(_other.m_length),
             m_capacity(0),
             m_allocator(_other.m_allocator)
         {
             if (_other.m_cStr)
             {
-                std::cout<<"A"<<std::endl;
                 reserve(_other.m_length);
                 strcpy(m_cStr, _other.m_cStr);
             }
         }
 
-        String(String && _other) :
+        inline String(String && _other) :
             m_cStr(move(_other.m_cStr)),
             m_length(move(_other.m_length)),
             m_capacity(move(_other.m_capacity)),
@@ -63,21 +81,20 @@ namespace stick
         }
 
         template<class InputIter>
-        String(InputIter _begin, InputIter _end, Allocator & _alloc = defaultAllocator()) :
-        m_length(0),
-        m_capacity(0),
-        m_allocator(&_alloc)
+        inline String(InputIter _begin, InputIter _end, Allocator & _alloc = defaultAllocator()) :
+            m_length(0),
+            m_capacity(0),
+            m_allocator(&_alloc)
         {
-            m_length = _end - _begin;
-            reserve(m_length);
+            resize(_end - _begin);
             Size index = 0;
-            for(; _begin != _end; ++_begin, ++index)
+            for (; _begin != _end; ++_begin, ++index)
             {
                 (*this)[index] = *_begin;
             }
         }
 
-        ~String()
+        inline ~String()
         {
             if (m_cStr)
             {
@@ -119,21 +136,8 @@ namespace stick
             return *this;
         }
 
-        inline void append(const String & _a)
-        {
-            Size ol = m_length;
-            m_length = m_length + _a.m_length;
-            reserve(m_length * 2);
-            strcpy(m_cStr + ol, _a.m_cStr);
-        }
-
-        inline void append(const char * _cstr)
-        {
-            Size ol = m_length;
-            m_length = m_length + strlen(_cstr);
-            reserve(m_length * 2);
-            strcpy(m_cStr + ol, _cstr);
-        }
+        template <class ... Strings>
+        inline void append(Strings ... _args);
 
         inline char operator [](Size _index) const
         {
@@ -202,7 +206,7 @@ namespace stick
         inline void resize(Size _count, char _c)
         {
             reserve(_count);
-            for(Size i=m_length; i < _count; ++i)
+            for (Size i = m_length; i < _count; ++i)
             {
                 (*this)[i] = _c;
             }
@@ -211,12 +215,13 @@ namespace stick
 
         inline void reserve(Size _count)
         {
-            if(_count <= m_capacity)
+            if (_count <= m_capacity)
                 return;
 
             char * old = m_cStr;
-            m_cStr = static_cast<char*>(m_allocator->allocate(_count + 1).ptr);
-            if(old)
+            m_cStr = static_cast<char *>(m_allocator->allocate(_count + 1).ptr);
+            STICK_ASSERT(m_cStr != nullptr);
+            if (old)
             {
                 strcpy(m_cStr, old);
                 m_allocator->deallocate({old, m_capacity + 1});
@@ -286,11 +291,98 @@ namespace stick
 
     private:
 
+        inline void preAppend(Size _newLen)
+        {
+            if (m_capacity < _newLen)
+                reserve(_newLen * 2);
+            m_length = _newLen;
+        }
+
         char * m_cStr;
         Size m_length;
         Size m_capacity;
         Allocator * m_allocator;
     };
+
+    namespace detail
+    {
+        struct _StringCopier
+        {
+            inline static Size strLen(const String & _str)
+            {
+                return _str.length();
+            }
+
+            inline static Size strLen(const char * _str)
+            {
+                return strlen(_str);
+            }
+
+            inline static Size strLen(char _c)
+            {
+                return 1;
+            }
+
+            inline static int performCopy(String & _dest, Size & _off, const String & _src)
+            {
+                strcpy(_dest.m_cStr + _off, _src.m_cStr);
+                _off += _src.length();
+                return 0;
+            }
+
+            inline static int performCopy(String & _dest, Size & _off, const char * _src)
+            {
+                strcpy(_dest.m_cStr + _off, _src);
+                _off += strlen(_src);
+                return 0;
+            }
+
+            inline static int performCopy(String & _dest, Size & _off, char _src)
+            {
+                _dest[_off] = _src;
+                ++_off;
+                return 0;
+            }
+        };
+    }
+
+    template <class ... Strings>
+    inline void String::append(Strings ... _args)
+    {
+        Size len = 0;
+        int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        Size off = m_length;
+        preAppend(m_length + len);
+        int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
+    }
+
+    template<class ... Strings>
+    inline String::String(Allocator & _alloc, Strings ..._args) :
+        m_cStr(nullptr),
+        m_length(0),
+        m_capacity(0),
+        m_allocator(&_alloc)
+    {
+        Size len = 0;
+        int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        Size off = 0;
+        preAppend(len);
+        int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
+    }
+
+    template<class ... Strings>
+    inline String::String(Strings ..._args) :
+        m_cStr(nullptr),
+        m_length(0),
+        m_capacity(0),
+        m_allocator(&defaultAllocator())
+    {
+        Size len = 0;
+        int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        Size off = 0;
+        preAppend(len);
+        int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
+    }
 }
 
 #endif //STICK_STRING_HPP
