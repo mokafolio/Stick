@@ -19,9 +19,14 @@ namespace stick
 
         }
 
-        Duration operator - (const TimePointT & _b)
+        inline Duration operator - (const TimePointT & _b)
         {
             return Duration::fromNanoseconds(m_value - _b.m_value);
+        }
+
+        inline Duration timeSinceEpoch() const
+        {
+            return m_value;
         }
 
     private:

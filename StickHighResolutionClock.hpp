@@ -3,10 +3,6 @@
 
 #include <Stick/StickTimePoint.hpp>
 
-#if STICK_PLATFORM == STICK_PLATFORM_OSX
-#include <mach/mach_time.h>
-#endif
-
 namespace stick
 {
     class HighResolutionClock

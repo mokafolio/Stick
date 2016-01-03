@@ -47,3 +47,4 @@ namespace stick
 }
 
 #endif //STICK_CONDITIONVARIABLE_HPP
+

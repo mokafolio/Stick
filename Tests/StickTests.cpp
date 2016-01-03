@@ -7,6 +7,7 @@
 #include <Stick/StickThread.hpp>
 #include <Stick/StickConditionVariable.hpp>
 #include <Stick/StickHighResolutionClock.hpp>
+#include <Stick/StickSystemClock.hpp>
 #include <Stick/StickTest.hpp>
 #include <limits>
 
@@ -98,6 +99,58 @@ const Suite spec[] =
 
         String e;
         EXPECT(e != d);
+
+        String f;
+        f.reserve(20);
+        EXPECT(f.capacity() == 20);
+        EXPECT(f.length() == 0);
+
+        String ff("bla");
+        ff.reserve(10);
+        EXPECT(ff[0] == 'b');
+        EXPECT(ff[1] == 'l');
+        EXPECT(ff[2] == 'a');
+        EXPECT(ff.length() == 3);
+
+        String g;
+        g.resize(10);
+        EXPECT(g.length() == 10);
+
+        String h("abcde");
+        EXPECT(h[0] == 'a');
+        EXPECT(h[1] == 'b');
+        EXPECT(h[2] == 'c');
+        EXPECT(h[3] == 'd');
+        EXPECT(h[4] == 'e');
+        h.resize(7, 'f');
+        EXPECT(h.length() == 7);
+        EXPECT(h[0] == 'a');
+        EXPECT(h[1] == 'b');
+        EXPECT(h[2] == 'c');
+        EXPECT(h[3] == 'd');
+        EXPECT(h[4] == 'e');
+        EXPECT(h[5] == 'f');
+        EXPECT(h[6] == 'f');
+
+        {
+            String i;
+            String j(" World!");
+            i.append("Hello");
+            i.append(j);
+            EXPECT(i.length() == 12);
+            EXPECT(i[0] == 'H');
+            EXPECT(i[1] == 'e');
+            EXPECT(i[2] == 'l');
+            EXPECT(i[3] == 'l');
+            EXPECT(i[4] == 'o');
+            EXPECT(i[5] == ' ');
+            EXPECT(i[6] == 'W');
+            EXPECT(i[7] == 'o');
+            EXPECT(i[8] == 'r');
+            EXPECT(i[9] == 'l');
+            EXPECT(i[10] == 'd');
+            EXPECT(i[11] == '!');
+        }
     },
     SUITE("DynamicArray Tests")
     {
@@ -252,7 +305,7 @@ const Suite spec[] =
         EXPECT(n5 == nullptr);
         EXPECT(n6 == nullptr);
     },
-    SUITE("Map Tests")
+    /*SUITE("Map Tests")
     {
         typedef Map<String, Int32> TestMapType;
         TestMapType map;
@@ -397,16 +450,18 @@ const Suite spec[] =
         ConditionVariable cond;
         Mutex m;
         Error err = thread.run([&]() { ScopedLock<Mutex> lock(m); cond.wait(lock); });
+        auto ss = SystemClock::now();
         auto start = HighResolutionClock::now();
         thread.sleepFor(Duration::fromSeconds(0.05));
         std::cout<<(HighResolutionClock::now() - start).seconds()<<std::endl;
+        std::cout<<(SystemClock::now() - ss).seconds()<<std::endl;
         EXPECT(err.code() == 0);
         EXPECT(thread.isJoinable() == true); //the thread should still run as its blocking on the condition var
         err = cond.notifyOne();
         EXPECT(err.code() == 0);
         err = thread.join();
         EXPECT(err.code() == 0);
-    }
+    }*/
 };
 
 int main(int _argc, const char * _args[])

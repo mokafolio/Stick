@@ -89,7 +89,7 @@ namespace stick
         {
             m_bCallInDestructor = false;
         }
-        
+
     private:
 
         ScopeExit(const ScopeExit &) = delete;
@@ -104,6 +104,32 @@ namespace stick
     ScopeExit<typename RemoveReference<F>::Type> makeScopeExit(F && _f)
     {
         return ScopeExit<typename RemoveReference<F>::Type>(forward<F>(_f));
+    }
+
+    template<class InputIter, class T>
+    InputIter find(InputIter _first, InputIter _last, const T & _value)
+    {
+        for (; _first != _last; ++_first)
+        {
+            if (*_first == _value)
+            {
+                return _first;
+            }
+        }
+        return _last;
+    }
+
+    template<class InputIter, class Pred>
+    InputIter findIf(InputIter _first, InputIter _last, Pred _p)
+    {
+        for (; _first != _last; ++_first)
+        {
+            if (_p(*_first))
+            {
+                return _first;
+            }
+        }
+        return _last;
     }
 }
 

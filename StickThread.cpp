@@ -67,13 +67,9 @@ namespace stick
             return;
 
         timespec dr;
-        dr.tv_sec = 0;
-        while(dur > 0)
-        {
-            dr.tv_nsec = min((IntMax)999999999, (IntMax)dur);
-            while (nanosleep(&dr, &dr));
-            dur -= 999999999;
-        }
+        dr.tv_sec = static_cast<Int64>(_dur.seconds());
+        dr.tv_nsec = dur - dr.tv_sec * 1000000000;
+        while (nanosleep(&dr, &dr));
     }
 
     ThreadID Thread::currentThreadID()

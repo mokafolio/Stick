@@ -60,7 +60,10 @@ namespace stick
         switch (_code.code())
         {
         case ec::InvalidOperation:
-            return "Invalid operation.";
+            return "Invalid operation";
+            break;
+        case ec::BadURI:
+            return "A URI could not be parsed/created";
             break;
         case ec::NoError:
         default:

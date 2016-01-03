@@ -24,7 +24,16 @@ StickTest.hpp
 StickThread.hpp
 StickUtility.hpp
 )
-set (STICKSRC StickError.cpp StickErrorCategory.cpp StickThread.cpp StickMutex.cpp StickConditionVariable.cpp StickHighResolutionClock.cpp)
+set (STICKSRC 
+StickError.cpp 
+StickErrorCategory.cpp 
+StickThread.cpp 
+StickMutex.cpp 
+StickConditionVariable.cpp 
+StickHighResolutionClock.cpp 
+StickSystemClock.cpp
+StickURI.cpp
+)
 
 add_library (Stick ${STICKSRC})
 install (TARGETS Stick DESTINATION /usr/local/lib)

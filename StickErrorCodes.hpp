@@ -10,7 +10,8 @@ namespace stick
         enum MiscErrorCode
         {
             NoError = 0,
-            InvalidOperation
+            InvalidOperation,
+            BadURI
         };
 
         /**

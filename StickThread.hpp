@@ -3,7 +3,7 @@
 
 #include <Stick/StickMutex.hpp>
 #include <Stick/StickScopedLock.hpp>
-#include <Stick/StickDuration.hpp>
+#include <Stick/StickTimePoint.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
@@ -41,6 +41,8 @@ namespace stick
 
         static void sleepFor(const Duration & _dur);
 
+        template<class C, class R>
+        static void sleepUntil(const TimePointT<C, R> & _tp);
 
     private:
 
@@ -120,6 +122,14 @@ namespace stick
         m_threadID = detail::_pthreadID(m_handle);
 #endif //STICK_PLATFORM_UNIX
         return Error();
+    }
+
+    template<class C, class R>
+    inline void Thread::sleepUntil(const TimePointT<C, R> & _tp)
+    {
+        Duration dur = _tp - C::now();
+        if(dur.nanoseconds() > 0)
+            sleepFor(dur);
     }
 }
 
