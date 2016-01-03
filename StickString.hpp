@@ -35,10 +35,10 @@ namespace stick
         }
 
         template<class ... Strings>
-        inline String(Allocator & _alloc, Strings ..._args);
+        inline static String concatWithAllocator(Allocator & _alloc, Strings ..._args);
 
         template<class ... Strings>
-        inline String(Strings ..._args);
+        inline static String concat(Strings ..._args);
 
         inline String(Size _size, Allocator & _alloc = defaultAllocator()) :
             m_cStr(nullptr),
@@ -357,31 +357,25 @@ namespace stick
     }
 
     template<class ... Strings>
-    inline String::String(Allocator & _alloc, Strings ..._args) :
-        m_cStr(nullptr),
-        m_length(0),
-        m_capacity(0),
-        m_allocator(&_alloc)
+    inline String String::concatWithAllocator(Allocator & _alloc, Strings ..._args)
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        String ret(len, _alloc);
         Size off = 0;
-        preAppend(len);
-        int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
+        int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
+        return ret;
     }
 
     template<class ... Strings>
-    inline String::String(Strings ..._args) :
-        m_cStr(nullptr),
-        m_length(0),
-        m_capacity(0),
-        m_allocator(&defaultAllocator())
+    inline String String::concat(Strings ..._args)
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        String ret(len);
         Size off = 0;
-        preAppend(len);
-        int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
+        int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
+        return ret;
     }
 }
 

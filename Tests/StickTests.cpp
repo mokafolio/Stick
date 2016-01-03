@@ -175,7 +175,7 @@ const Suite spec[] =
             EXPECT(k[12] == 'c');
 
             //test variadic constructor
-            String m("abc", l, 'c');
+            String m = String::concat("abc", l, 'c');
             EXPECT(m.length() == 8);
             EXPECT(m[0] == 'a');
             EXPECT(m[1] == 'b');
@@ -185,6 +185,9 @@ const Suite spec[] =
             EXPECT(m[5] == 'o');
             EXPECT(m[6] == 't');
             EXPECT(m[7] == 'c');
+
+            String n(12);
+            EXPECT(n.length() == 12);
         }
     },
     SUITE("DynamicArray Tests")
