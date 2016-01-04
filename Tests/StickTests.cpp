@@ -9,6 +9,7 @@
 #include <Stick/StickHighResolutionClock.hpp>
 #include <Stick/StickSystemClock.hpp>
 #include <Stick/StickTest.hpp>
+#include <Stick/StickStringConversion.hpp>
 #include <limits>
 
 using namespace stick;
@@ -187,8 +188,27 @@ const Suite spec[] =
             EXPECT(m[7] == 'c');
 
             String n(12);
-            EXPECT(n.length() == 12);
+            EXPECT(n.capacity() == 12);
         }
+    },
+    SUITE("toString Tests")
+    {
+        String s = toString(Int32(99));
+        EXPECT(s == "99");
+        EXPECT(toString(UInt32(12)) == "12");
+        EXPECT(toString(Int64(10248295198789512)) == "10248295198789512");
+        EXPECT(toString(UInt64(9128589127875)) == "9128589127875");
+        EXPECT(toString(Size(79485763)) == "79485763");
+        EXPECT(toHexString(847, 6, false, true) == "0x00034f");
+        EXPECT(toHexString(Int64(847), 6, true, false) == "00034F");
+        EXPECT(toHexString(-847, 0, true, false) == "-34F");
+        EXPECT(toHexString(Size(1245135), 0, true, false) == "12FFCF");
+        EXPECT(toHexString(UInt32(3), 0, true, true) == "0x3");
+        EXPECT(toHexString(UInt16(9), 0, true, true) == "0x9");
+        EXPECT(toHexString(UInt8(5), 0, true, true) == "0x5");
+        EXPECT(toHexString(Int32(3), 0, true, true) == "0x3");
+        EXPECT(toHexString(Int16(-9), 0, true, true) == "-0x9");
+        EXPECT(toHexString(Int8(5), 0, true, true) == "0x5");
     },
     SUITE("DynamicArray Tests")
     {

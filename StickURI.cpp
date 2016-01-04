@@ -267,7 +267,7 @@
 //             {
 //                 ret.append(c);
 //             }
-//             else if (_reserved.find(c) != String::npos || c <= 0x20 || c >= 0x7F)
+//             else if (_reserved.findIndex(c) != String::InvalidIndex || c <= 0x20 || c >= 0x7F)
 //             {
 //                 ret.append('%');
 //                 //ret.append(toHexString((unsigned)(UInt8)c, 2));
@@ -367,15 +367,12 @@
 //         String ret;
 //         if (!m_userInfo.isEmpty())
 //         {
-//             ret.append(m_userInfo);
-//             ret.append('@');
+//             ret.append(m_userInfo, '@');
 //         }
 //         //Ipv6
-//         if (m_host.find(':') != String::npos)
+//         if (m_host.findIndex(':') != String::InvalidIndex)
 //         {
-//             ret.append('[');
-//             ret.append(m_host);
-//             ret.append(']');
+//             ret.append('[', m_host, ']');
 //         }
 //         else
 //         {
@@ -384,8 +381,7 @@
 
 //         if (m_port && defaultPortForScheme(m_scheme) == 0)
 //         {
-//             ret.append(':');
-//             ret.append(toString(m_port));
+//             ret.append(':', toString(m_port));
 //         }
 //         return ret;
 //     }
@@ -444,9 +440,9 @@
 //     {
 //         String ret = encodedPath();
 //         if (m_query.length())
-//             ret += "?" + encodedQuery();
+//             ret.append("?", encodedQuery());
 //         if (m_fragment.length())
-//             ret += "#" + encodedFragment();
+//             ret.append("#", encodedFragment());
 //         return ret;
 //     }
 
@@ -465,34 +461,31 @@
 
 //     String toString(const URI & _uri)
 //     {
-//         String ret;
+//         String ret(64);
 //         String auth = _uri.authority();
 //         if (!_uri.scheme().isEmpty())
-//             ret += _uri.scheme() + ":";
+//             ret.append(_uri.scheme(), ":");
 //         if (!auth.isEmpty() || _uri.scheme() == "file")
 //         {
-//             ret += "//";
-//             ret += auth;
+//             ret.append("//", auth);
 //         }
 //         if (!_uri.path().isEmpty())
 //         {
 //             if (!auth.isEmpty() && _uri.path()[0] != '/')
-//                 ret += '/';
-//             ret += _uri.encodedPath();
+//                 ret.append('/');
+//             ret.append(_uri.encodedPath());
 //         }
 //         else if (!_uri.query().isEmpty() || !_uri.fragment().isEmpty())
 //         {
-//             ret += '/';
+//             ret.append('/');
 //         }
 //         if (!_uri.query().isEmpty())
 //         {
-//             ret += '?';
-//             ret += _uri.encodedQuery();
+//             ret.append('?', _uri.encodedQuery());
 //         }
 //         if (!_uri.fragment().isEmpty())
 //         {
-//             ret += '#';
-//             ret += _uri.encodedFragment();
+//             ret.append('#', _uri.encodedFragment());
 //         }
 //         return ret;
 //     }

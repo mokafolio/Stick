@@ -1,5 +1,6 @@
 #include <Stick/StickSystemClock.hpp>
 #include <sys/time.h>
+
 namespace stick
 {
     SystemClock::TimePoint SystemClock::now()

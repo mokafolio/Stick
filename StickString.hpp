@@ -6,6 +6,8 @@
 #include <Stick/StickUtility.hpp>
 #include <string.h>
 
+#include <iostream>
+
 namespace stick
 {
     namespace detail
@@ -23,6 +25,7 @@ namespace stick
         typedef const char * ConstIter;
         typedef ReverseIterator<Iter> ReverseIter;
         typedef ReverseIterator<ConstIter> ReverseConstIter;
+        static constexpr Size InvalidIndex = -1;
 
 
         inline explicit String(Allocator & _alloc = defaultAllocator()) :
@@ -42,6 +45,7 @@ namespace stick
 
         inline String(Size _size, Allocator & _alloc = defaultAllocator()) :
             m_cStr(nullptr),
+            m_length(0),
             m_capacity(0),
             m_allocator(&_alloc)
         {
@@ -50,11 +54,11 @@ namespace stick
 
         inline String(const char * _c, Allocator & _alloc = defaultAllocator()) :
             m_cStr(nullptr),
+            m_length(0),
             m_capacity(0),
             m_allocator(&_alloc)
         {
-            m_length = strlen(_c);
-            reserve(m_length);
+            resize(strlen(_c));
             strcpy(m_cStr, _c);
         }
 
@@ -229,6 +233,16 @@ namespace stick
             m_capacity = _count;
         }
 
+        inline Size findIndex(char _c, Size _startIndex = 0) const
+        {
+            for (; _startIndex < m_length; ++_startIndex)
+            {
+                if((*this)[_startIndex] == _c)
+                    return _startIndex;
+            }
+            return InvalidIndex;
+        }
+
         inline Size length() const
         {
             return m_length;
@@ -287,6 +301,109 @@ namespace stick
         inline bool isEmpty() const
         {
             return m_length == 0;
+        }
+
+        inline static String toString(Int32 _i, Allocator & _alloc = defaultAllocator())
+        {
+            String ret(_alloc);
+            Size len = snprintf(NULL, 0,"%i", _i);
+            ret.resize(len);
+            snprintf(ret.m_cStr, len + 1, "%i", _i);
+            return ret;
+        }
+
+        inline static String toString(Int64 _i, Allocator & _alloc = defaultAllocator())
+        {
+            String ret(_alloc);
+            Size len = snprintf(NULL, 0,"%lli", _i);
+            ret.resize(len);
+            snprintf(ret.m_cStr, len + 1, "%lli", _i);
+            return ret;
+        }
+
+        inline static String toString(UInt32 _i, Allocator & _alloc = defaultAllocator())
+        {
+            String ret(_alloc);
+            Size len = snprintf(NULL, 0,"%u", _i);
+            ret.resize(len);
+            snprintf(ret.m_cStr, len + 1, "%u", _i);
+            return ret;
+        }
+
+        inline static String toString(UInt64 _i, Allocator & _alloc = defaultAllocator())
+        {
+            String ret(_alloc);
+            Size len = snprintf(NULL, 0,"%llu", _i);
+            ret.resize(len);
+            snprintf(ret.m_cStr, len + 1, "%llu", _i);
+            return ret;
+        }
+
+        inline static String toString(Size _i, Allocator & _alloc = defaultAllocator())
+        {
+            return toString(static_cast<UInt64>(_i));
+        }
+
+        inline static String toString(Float64 _i, Allocator & _alloc = defaultAllocator())
+        {
+            String ret(_alloc);
+            Size len = snprintf(NULL, 0,"%f", _i);
+            ret.resize(len);
+            snprintf(ret.m_cStr, len + 1, "%f", _i);
+            return ret;
+        }
+
+        inline static String toString(Float32 _i, Allocator & _alloc = defaultAllocator())
+        {
+            return toString(static_cast<Float64>(_i), _alloc);
+        }
+
+        inline static String toHexString(UInt64 _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
+        {
+            String ret(_alloc);
+            //TODO: optimize fmt string generation
+            String fmtString(_alloc);
+            fmtString.reserve(64);
+            if(_bShowBase)
+                fmtString.append("0x");
+            fmtString.append("%0", toString(_width, _alloc));
+            if(_bUpperCase)
+                fmtString.append("X");
+            else
+                fmtString.append("x");
+
+            Size len = snprintf(NULL, 0, fmtString.cString(), _i);
+            ret.resize(len);
+            snprintf(ret.m_cStr, len + 1, fmtString.cString(), _i);
+            return ret;
+        }
+
+        inline static String toHexString(UInt32 _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
+        {
+            return String::toHexString(static_cast<UInt64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
+        }
+
+        inline static String toHexString(Size _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
+        {
+            return String::toHexString(static_cast<UInt64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
+        }
+
+        inline static String toHexString(Int64 _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
+        {
+            if(_i >= 0)
+            {
+                return String::toHexString(static_cast<UInt64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
+            }
+            else
+            {
+                //TODO: this could be easily made more efficient as this will still be two memory allocations
+                return String::concat("-", toHexString(static_cast<UInt64>(labs(_i)), _width, _bUpperCase, _bShowBase, _alloc));
+            }
+        }
+
+        inline static String toHexString(Int32 _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
+        {
+            return String::toHexString(static_cast<Int64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
         }
 
     private:
