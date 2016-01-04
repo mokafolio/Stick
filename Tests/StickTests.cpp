@@ -191,7 +191,7 @@ const Suite spec[] =
             EXPECT(n.capacity() == 12);
         }
     },
-    SUITE("toString Tests")
+    SUITE("String Conversion Tests")
     {
         String s = toString(Int32(99));
         EXPECT(s == "99");
@@ -209,6 +209,12 @@ const Suite spec[] =
         EXPECT(toHexString(Int32(3), 0, true, true) == "0x3");
         EXPECT(toHexString(Int16(-9), 0, true, true) == "-0x9");
         EXPECT(toHexString(Int8(5), 0, true, true) == "0x5");
+
+        EXPECT(toInt32("-3") == -3);
+        EXPECT(toUInt32("99993") == 99993);
+        EXPECT(toInt64("1234") == 1234);
+        EXPECT(toInt64("-1234") == -1234);
+        EXPECT(toInt16("-255") == -255);
     },
     SUITE("DynamicArray Tests")
     {
