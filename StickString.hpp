@@ -235,9 +235,22 @@ namespace stick
 
         inline Size findIndex(char _c, Size _startIndex = 0) const
         {
+            STICK_ASSERT(_startIndex < m_length);
             for (; _startIndex < m_length; ++_startIndex)
             {
-                if((*this)[_startIndex] == _c)
+                if ((*this)[_startIndex] == _c)
+                    return _startIndex;
+            }
+            return InvalidIndex;
+        }
+
+        inline Size rfindIndex(char _c, Size _startIndex = InvalidIndex) const
+        {
+            _startIndex = _startIndex == InvalidIndex ? m_length - 1 : _startIndex;
+            STICK_ASSERT(_startIndex < m_length);
+            for (; _startIndex > 0; --_startIndex)
+            {
+                if ((*this)[_startIndex] == _c)
                     return _startIndex;
             }
             return InvalidIndex;
@@ -306,7 +319,7 @@ namespace stick
         inline static String toString(Int32 _i, Allocator & _alloc = defaultAllocator())
         {
             String ret(_alloc);
-            Size len = snprintf(NULL, 0,"%i", _i);
+            Size len = snprintf(NULL, 0, "%i", _i);
             ret.resize(len);
             snprintf(ret.m_cStr, len + 1, "%i", _i);
             return ret;
@@ -315,7 +328,7 @@ namespace stick
         inline static String toString(Int64 _i, Allocator & _alloc = defaultAllocator())
         {
             String ret(_alloc);
-            Size len = snprintf(NULL, 0,"%lli", _i);
+            Size len = snprintf(NULL, 0, "%lli", _i);
             ret.resize(len);
             snprintf(ret.m_cStr, len + 1, "%lli", _i);
             return ret;
@@ -324,7 +337,7 @@ namespace stick
         inline static String toString(UInt32 _i, Allocator & _alloc = defaultAllocator())
         {
             String ret(_alloc);
-            Size len = snprintf(NULL, 0,"%u", _i);
+            Size len = snprintf(NULL, 0, "%u", _i);
             ret.resize(len);
             snprintf(ret.m_cStr, len + 1, "%u", _i);
             return ret;
@@ -333,7 +346,7 @@ namespace stick
         inline static String toString(UInt64 _i, Allocator & _alloc = defaultAllocator())
         {
             String ret(_alloc);
-            Size len = snprintf(NULL, 0,"%llu", _i);
+            Size len = snprintf(NULL, 0, "%llu", _i);
             ret.resize(len);
             snprintf(ret.m_cStr, len + 1, "%llu", _i);
             return ret;
@@ -347,7 +360,7 @@ namespace stick
         inline static String toString(Float64 _i, Allocator & _alloc = defaultAllocator())
         {
             String ret(_alloc);
-            Size len = snprintf(NULL, 0,"%f", _i);
+            Size len = snprintf(NULL, 0, "%f", _i);
             ret.resize(len);
             snprintf(ret.m_cStr, len + 1, "%f", _i);
             return ret;
@@ -364,10 +377,10 @@ namespace stick
             //TODO: optimize fmt string generation
             String fmtString(_alloc);
             fmtString.reserve(64);
-            if(_bShowBase)
+            if (_bShowBase)
                 fmtString.append("0x");
             fmtString.append("%0", toString(_width, _alloc));
-            if(_bUpperCase)
+            if (_bUpperCase)
                 fmtString.append("X");
             else
                 fmtString.append("x");
@@ -390,7 +403,7 @@ namespace stick
 
         inline static String toHexString(Int64 _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
         {
-            if(_i >= 0)
+            if (_i >= 0)
             {
                 return String::toHexString(static_cast<UInt64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
             }

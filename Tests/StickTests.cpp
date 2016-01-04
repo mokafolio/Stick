@@ -190,6 +190,22 @@ const Suite spec[] =
             String n(12);
             EXPECT(n.capacity() == 12);
         }
+        {
+            //find tests
+            String a("Hello World!");
+            Size i = a.findIndex('o');
+            EXPECT(i == 4);
+            i = a.findIndex('o', 6);
+            EXPECT(i == 7);
+            i = a.rfindIndex('o');
+            EXPECT(i == 7);
+            i = a.rfindIndex('o', 5);
+            EXPECT(i == 4);
+            i = a.rfindIndex('z');
+            EXPECT(i == String::InvalidIndex);
+            i = a.findIndex('z');
+            EXPECT(i == String::InvalidIndex);
+        }
     },
     SUITE("String Conversion Tests")
     {
