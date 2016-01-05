@@ -521,6 +521,9 @@ const Suite spec[] =
         EXPECT(n21 != nullptr);
         EXPECT(n22 != nullptr);
         EXPECT(n23 != nullptr);
+        EXPECT(n21->value == "yes");
+        EXPECT(n22->value == "no");
+        EXPECT(n23->value == "awesome");
 
         auto tree3 = move(tree2);
         auto n212 = tree3.find("yes");
@@ -531,6 +534,26 @@ const Suite spec[] =
         EXPECT(n21 == n212);
         EXPECT(n22 == n222);
         EXPECT(n23 == n232);
+
+        RBTree<String> bla2;
+        bla2.insert("hello");
+        bla2.insert("world");
+
+        RBTree<String> bla2Copy;
+        bla2Copy = bla2;
+        auto n31 = bla2Copy.find("hello");
+        auto n32 = bla2Copy.find("world");
+        EXPECT(n31 != nullptr);
+        EXPECT(n32 != nullptr);
+        EXPECT(n31->value == "hello");
+        EXPECT(n32->value == "world");
+
+        RBTree<String> bla3Copy;
+        bla3Copy = move(bla2Copy);
+        auto n312 = bla3Copy.find("hello");
+        auto n322 = bla3Copy.find("world");
+        EXPECT(n312 == n31);
+        EXPECT(n322 == n32);
     },
     /*SUITE("Map Tests")
     {

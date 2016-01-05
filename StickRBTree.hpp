@@ -123,6 +123,28 @@ namespace stick
             clear();
         }
 
+        RBTree & operator = (const RBTree & _other)
+        {
+            clear();
+            m_alloc = _other.m_alloc;
+            if(_other.m_rootNode)
+            {
+                m_rootNode = copyTree(_other.m_rootNode);
+                m_count = _other.m_count;
+            }
+            return *this;
+        }
+
+        RBTree & operator = (RBTree && _other)
+        {
+            clear();
+            m_alloc = move(_other.m_alloc);
+            m_rootNode = move(_other.m_rootNode);
+            m_count = move(_other.m_count);
+            _other.m_rootNode = nullptr;
+            return *this;
+        }
+
         template<class K>
         inline Node * find(const K & _val)
         {
@@ -169,7 +191,11 @@ namespace stick
         inline void clear()
         {
             if (m_rootNode)
+            {
                 deallocateTree(m_rootNode);
+                m_rootNode = nullptr;
+                m_count = 0;
+            }
         }
 
         inline Size count() const
