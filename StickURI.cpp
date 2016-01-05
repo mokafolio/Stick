@@ -1,5 +1,7 @@
 #include <Stick/StickURI.hpp>
 #include <Stick/StickStringConversion.hpp>
+#include <Stick/StickPath.hpp>
+#include <ctype.h> //for isalpha
 
 namespace stick
 {
@@ -77,13 +79,13 @@ namespace stick
                     {
                         if (!(*(m_path.rbegin()) == '/'))
                         {
-                            // StringArray tSegs = path::segments(m_path);
-                            // tSegs.pop_back();
-                            // m_path = path::join(path::fromSegments(tSegs, true), _relURI.path());
+                            StringArray tSegs = path::segments(m_path);
+                            tSegs.removeBack();
+                            m_path = path::join(path::fromSegments(tSegs, true), _relURI.path());
                         }
                         else
                         {
-                            //m_path = path::join(m_path, _relURI.path());
+                            m_path = path::join(m_path, _relURI.path());
                         }
                         normalize();
                     }
@@ -99,7 +101,7 @@ namespace stick
 
     void URI::normalize()
     {
-        //m_path = path::normalize(m_path, !isRelative());
+        m_path = path::normalize(m_path, !isRelative());
     }
 
     void URI::parse(const String & _uri, Error & _error)

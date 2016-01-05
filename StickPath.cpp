@@ -67,11 +67,15 @@ namespace stick
             ret.reserve(len);
             if (_bAddLeadingSeparator) ret.append('/');
             Size off = 0;
-            for (const String & seg : _segments)
-            {
-                ret.append(seg);
+            for (Size i=0; i < _segments.elementCount(); ++i)
+            {   
+                if(i < _segments.elementCount() - 1)
+                    ret.append(_segments[i], '/');
+                else
+                    ret.append(_segments[i]);
             }
             if (_bAddTrailingSeparator) ret.append('/');
+            return ret;
         }
 
         String normalize(const String & _path, bool _bRemoveLeading)

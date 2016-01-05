@@ -213,7 +213,9 @@ const Suite spec[] =
             String b = a.sub(2, 2);
             EXPECT(b == "at");
             String c = a.sub(7);
+            EXPECT(c.length() == 3);
             EXPECT(c == "Up!");
+            std::cout<<"DA C: "<<c.cString()<<std::endl;
         }
 
         //copy tests
@@ -398,7 +400,7 @@ const Suite spec[] =
         std::cout<<"END"<<std::endl;
     },
     SUITE("Path tests")
-    {
+    {   
         String path = "/Absolute/Path/";
         EXPECT(path::isAbsolute(path));
         EXPECT(!path::isRelative(path));
@@ -408,10 +410,12 @@ const Suite spec[] =
         EXPECT(pathSegments[0] == "Absolute");
         EXPECT(pathSegments[1] == "Path");
 
+        std::cout<<pathSegments[0].length()<<" "<<pathSegments[0].cString()<<std::endl;
+        std::cout<<pathSegments[1].length()<<" "<<pathSegments[1].cString()<<std::endl;
+
         String filePath = "../foo.txt";
         EXPECT(path::isRelative(filePath));
 
-        /*
         path::SplitResult sp = path::split(filePath);
 
         EXPECT(sp.left == "..");
@@ -432,7 +436,7 @@ const Suite spec[] =
         segs.append("Foo");
         segs.append("Bar");
         segs.append("Tar");
-        /*
+        
         String fs = path::fromSegments(segs);
 
         EXPECT(fs == "Foo/Bar/Tar");
@@ -456,7 +460,7 @@ const Suite spec[] =
         String dirdir = path::directoryName(dirdirdir);
         EXPECT(dirdir == "/foo/bar");
         String dir = path::directoryName(dirdir);
-        EXPECT(dir == "/foo");*/
+        EXPECT(dir == "/foo");
     },
     SUITE("RBTree Tests")
     {
