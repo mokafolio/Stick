@@ -186,7 +186,7 @@ namespace stick
             m_buckets(nullptr),
             m_bucketCount(_initialBucketCount),
             m_maxLoadFactor(1.0f),
-            m_elementCount(0)
+            m_count(0)
         {
             auto mem = m_alloc->allocate(sizeof(Bucket) * _initialBucketCount);
             m_buckets = new (mem.ptr) Bucket [_initialBucketCount];
@@ -230,7 +230,7 @@ namespace stick
                     prev->next = n;
                 else
                     b.first = n;
-                ++m_elementCount;
+                ++m_count;
             }
 
             Float32 lf = loadFactor();
@@ -280,7 +280,7 @@ namespace stick
             }
 
             destroyNode(n);
-            --m_elementCount;
+            --m_count;
             return ret;
         }
 
@@ -342,9 +342,9 @@ namespace stick
             return m_bucketCount;
         }
 
-        inline Size elementCount() const
+        inline Size count() const
         {
-            return m_elementCount;
+            return m_count;
         }
 
         inline Float32 maxLoadFactor() const
@@ -354,7 +354,7 @@ namespace stick
 
         inline Float32 loadFactor() const
         {
-            return (Float32)elementCount() / (Float32)bucketCount();
+            return (Float32)count() / (Float32)bucketCount();
         }
 
         inline Iter begin()
@@ -447,7 +447,7 @@ namespace stick
         Size m_bucketCount;
         Float32 m_maxLoadFactor;
         Hash m_hasher;
-        Size m_elementCount;
+        Size m_count;
     };
 }
 

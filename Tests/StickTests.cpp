@@ -264,11 +264,11 @@ const Suite spec[] =
     SUITE("DynamicArray Tests")
     {
         DynamicArray<Int32> a;
-        EXPECT(a.elementCount() == 0);
+        EXPECT(a.count() == 0);
         EXPECT(a.byteCount() == 0);
 
         a.resize(5);
-        EXPECT(a.elementCount() == 5);
+        EXPECT(a.count() == 5);
         EXPECT(a.byteCount() == 20);
 
         for (Int32 i = 0; i < 5; ++i)
@@ -283,7 +283,7 @@ const Suite spec[] =
         EXPECT(a[4] == 4);
 
         a.append(10);
-        EXPECT(a.elementCount() == 6);
+        EXPECT(a.count() == 6);
 
         EXPECT(a[5] == 10);
         EXPECT(a.back() == 10);
@@ -291,7 +291,7 @@ const Suite spec[] =
 
         a.removeBack();
         EXPECT(a.back() == 4);
-        EXPECT(a.elementCount() == 5);
+        EXPECT(a.count() == 5);
 
         Int32 expectedResults[] = {0, 1, 2, 3, 4};
         Int32 i = 0;
@@ -301,7 +301,7 @@ const Suite spec[] =
             ++i;
         }
 
-        i = a.elementCount() - 1;
+        i = a.count() - 1;
         for (auto it = a.rbegin(); it != a.rend(); ++it)
         {
             EXPECT(*it == expectedResults[i]);
@@ -309,7 +309,7 @@ const Suite spec[] =
         }
 
         a.clear();
-        EXPECT(a.elementCount() == 0);
+        EXPECT(a.count() == 0);
 
         DynamicArray<Int32> b;
         Int32 arr[] = {1, 2, 3, 4};
@@ -332,7 +332,7 @@ const Suite spec[] =
             EXPECT(expectedArr[i] == v);
             i++;
         }
-        EXPECT(b.elementCount() == 9);
+        EXPECT(b.count() == 9);
 
         auto it3 = b.remove(b.begin() + 2, b.begin() + 6);
         EXPECT(it3 == b.begin() + 2);
@@ -359,7 +359,7 @@ const Suite spec[] =
         EXPECT(DestructorTester::destructionCount == 5);
 
         DynamicArray<Int32> ttt({1, 2, 3, 4, 5});
-        EXPECT(ttt.elementCount() == 5);
+        EXPECT(ttt.count() == 5);
         EXPECT(ttt[0] == 1);
         EXPECT(ttt[1] == 2);
         EXPECT(ttt[2] == 3);
@@ -367,7 +367,7 @@ const Suite spec[] =
         EXPECT(ttt[4] == 5);
 
         DynamicArray<Int32> copy = ttt;
-        EXPECT(copy.elementCount() == 5);
+        EXPECT(copy.count() == 5);
         EXPECT(copy[0] == 1);
         EXPECT(copy[1] == 2);
         EXPECT(copy[2] == 3);
@@ -376,28 +376,26 @@ const Suite spec[] =
 
         DynamicArray<Int32> tttt = {0,52,1,3};
         copy = tttt;
-        EXPECT(copy.elementCount() == 4);
+        EXPECT(copy.count() == 4);
         EXPECT(copy[0] == 0);
         EXPECT(copy[1] == 52);
         EXPECT(copy[2] == 1);
         EXPECT(copy[3] == 3);
 
         DynamicArray<Int32> mcopy = move(copy);
-        EXPECT(mcopy.elementCount() == 4);
+        EXPECT(mcopy.count() == 4);
         EXPECT(mcopy[0] == 0);
         EXPECT(mcopy[1] == 52);
         EXPECT(mcopy[2] == 1);
         EXPECT(mcopy[3] == 3);
 
         mcopy = move(ttt);
-        EXPECT(mcopy.elementCount() == 5);
+        EXPECT(mcopy.count() == 5);
         EXPECT(mcopy[0] == 1);
         EXPECT(mcopy[1] == 2);
         EXPECT(mcopy[2] == 3);
         EXPECT(mcopy[3] == 4);
         EXPECT(mcopy[4] == 5);
-
-        std::cout<<"END"<<std::endl;
     },
     SUITE("Path tests")
     {   
@@ -406,12 +404,9 @@ const Suite spec[] =
         EXPECT(!path::isRelative(path));
 
         StringArray pathSegments = path::segments(path);
-        EXPECT(pathSegments.elementCount() == 2);
+        EXPECT(pathSegments.count() == 2);
         EXPECT(pathSegments[0] == "Absolute");
         EXPECT(pathSegments[1] == "Path");
-
-        std::cout<<pathSegments[0].length()<<" "<<pathSegments[0].cString()<<std::endl;
-        std::cout<<pathSegments[1].length()<<" "<<pathSegments[1].cString()<<std::endl;
 
         String filePath = "../foo.txt";
         EXPECT(path::isRelative(filePath));
@@ -464,8 +459,10 @@ const Suite spec[] =
     },
     SUITE("RBTree Tests")
     {
+        RBTree<Int32> emptyTree;
+
         RBTree<Int32> tree;
-        EXPECT(tree.elementCount() == 0);
+        EXPECT(tree.count() == 0);
 
         tree.insert(6);
 
@@ -480,7 +477,7 @@ const Suite spec[] =
         tree.insert(2);
         tree.insert(3);
 
-        EXPECT(tree.elementCount() == 9);
+        EXPECT(tree.count() == 9);
 
         auto n = tree.find(5);
         auto n2 = tree.find(2);
@@ -500,7 +497,7 @@ const Suite spec[] =
         tree.remove(1);
         tree.remove(8);
         tree.remove(24);
-        EXPECT(tree.elementCount() == 6);
+        EXPECT(tree.count() == 6);
 
         auto n4 = tree.find(1);
         auto n5 = tree.find(8);
@@ -509,6 +506,31 @@ const Suite spec[] =
         EXPECT(n4 == nullptr);
         EXPECT(n5 == nullptr);
         EXPECT(n6 == nullptr);
+
+        //copy construct
+        RBTree<String> bla;
+        bla.insert("yes");
+        bla.insert("no");
+        bla.insert("awesome");
+
+        auto tree2 = bla;
+        auto n21 = tree2.find("yes");
+        auto n22 = tree2.find("no");
+        auto n23 = tree2.find("awesome");
+
+        EXPECT(n21 != nullptr);
+        EXPECT(n22 != nullptr);
+        EXPECT(n23 != nullptr);
+
+        auto tree3 = move(tree2);
+        auto n212 = tree3.find("yes");
+        auto n222 = tree3.find("no");
+        auto n232 = tree3.find("awesome");
+
+        //after moving, the pointers from tree2 should now sit in tree3
+        EXPECT(n21 == n212);
+        EXPECT(n22 == n222);
+        EXPECT(n23 == n232);
     },
     /*SUITE("Map Tests")
     {
@@ -520,16 +542,16 @@ const Suite spec[] =
         EXPECT((*res.iterator).value == 1);
         EXPECT(res.iterator->value == 1);
         EXPECT(res.iterator->key == "a");
-        EXPECT(map.elementCount() == 1);
+        EXPECT(map.count() == 1);
 
         auto res2 = map.insert("a", 2);
         EXPECT(res2.inserted == false);
         EXPECT(res2.iterator->value == 2);
-        EXPECT(map.elementCount() == 1);
+        EXPECT(map.count() == 1);
 
         map.insert("b", 3);
         map.insert("c", 4);
-        EXPECT(map.elementCount() == 3);
+        EXPECT(map.count() == 3);
 
         auto it = map.find("b");
         EXPECT(it != map.end());
@@ -546,7 +568,7 @@ const Suite spec[] =
         it = map.find("e");
         EXPECT(it->value == 7);
         EXPECT(map["f"] == 8);
-        EXPECT(map.elementCount() == 6);
+        EXPECT(map.count() == 6);
 
         it = map.begin();
 
@@ -561,8 +583,8 @@ const Suite spec[] =
         EXPECT(it->value == lastVal);
 
 
-        TestMapType::KeyType * expectedKeys = new TestMapType::KeyType[map.elementCount()];
-        TestMapType::ValueType * expectedVals = new TestMapType::ValueType[map.elementCount()];
+        TestMapType::KeyType * expectedKeys = new TestMapType::KeyType[map.count()];
+        TestMapType::ValueType * expectedVals = new TestMapType::ValueType[map.count()];
 
         Size i = 0;
         for (const auto & kv : map)
@@ -572,7 +594,7 @@ const Suite spec[] =
             i++;
         }
 
-        EXPECT(i == map.elementCount());
+        EXPECT(i == map.count());
 
         --i;
         Size j = 0;
@@ -584,7 +606,7 @@ const Suite spec[] =
             --i;
         }
 
-        EXPECT(j == map.elementCount());
+        EXPECT(j == map.count());
 
         delete [] expectedVals;
         delete [] expectedKeys;
@@ -594,16 +616,16 @@ const Suite spec[] =
         auto it3 = it + 1;
         auto it2 = map.remove(it);
         EXPECT(it3 == it2);
-        EXPECT(map.elementCount() == 5);
+        EXPECT(map.count() == 5);
 
         it = map.find("c");
         it++;
         it2 = map.remove("c");
         EXPECT(it == it2);
-        EXPECT(map.elementCount() == 4);
+        EXPECT(map.count() == 4);
 
         Map<Int32, String> amap = {{3, "test"}, {2, "bla"}, {199, "blubb"}};
-        EXPECT(amap.elementCount() == 3);
+        EXPECT(amap.count() == 3);
         auto tit = amap.find(3);
         EXPECT(tit->key == 3);
         EXPECT(tit->value == "test");
@@ -620,10 +642,10 @@ const Suite spec[] =
 
         hm.insert("test", 1);
         hm.insert("test", 2);
-        EXPECT(hm.elementCount() == 1);
+        EXPECT(hm.count() == 1);
         hm.insert("anotherKey", 3);
         auto res = hm.insert("blubb", 4);
-        EXPECT(hm.elementCount() == 3);
+        EXPECT(hm.count() == 3);
         EXPECT(res.iterator->key == "blubb");
         EXPECT(res.iterator->value == 4);
         EXPECT(res.inserted == true);
@@ -631,7 +653,7 @@ const Suite spec[] =
         EXPECT(res.iterator->value == 5);
         EXPECT(res.inserted == false);
         auto it = hm.remove("anotherKey");
-        EXPECT(hm.elementCount() == 2);
+        EXPECT(hm.count() == 2);
         //TODO: More
     },
     SUITE("Thread Tests")

@@ -92,13 +92,33 @@ namespace stick
             bool inserted;
         };
 
-        RBTree(Allocator & _alloc = defaultAllocator()) :
+        inline RBTree(Allocator & _alloc = defaultAllocator()) :
             m_alloc(&_alloc),
-            m_elementCount(0)
+            m_count(0),
+            m_rootNode(nullptr)
         {
         }
 
-        ~RBTree()
+        inline RBTree(const RBTree & _other) :
+            m_alloc(_other.m_alloc),
+            m_rootNode(nullptr),
+            m_count(_other.m_count)
+        {
+            if(_other.m_rootNode)
+            {
+                m_rootNode = copyTree(_other.m_rootNode);
+            }
+        }
+
+        inline RBTree(RBTree && _other) :
+            m_alloc(move(_other.m_alloc)),
+            m_rootNode(move(_other.m_rootNode)),
+            m_count(move(_other.m_count))
+        {
+            _other.m_rootNode = nullptr;
+        }
+
+        inline ~RBTree()
         {
             clear();
         }
@@ -116,11 +136,11 @@ namespace stick
 
         inline InsertResult insert(const ValueType & _val)
         {
-            if (m_elementCount == 0)
+            if (m_count == 0)
             {
                 m_rootNode = createNode(_val);
                 m_rootNode->color = Color::Black;
-                m_elementCount++;
+                m_count++;
                 return {m_rootNode, true};
             }
             else
@@ -143,7 +163,7 @@ namespace stick
         inline void removeNode(Node * _n)
         {
             removeImpl(_n);
-            m_elementCount--;
+            m_count--;
         }
 
         inline void clear()
@@ -152,9 +172,9 @@ namespace stick
                 deallocateTree(m_rootNode);
         }
 
-        inline Size elementCount() const
+        inline Size count() const
         {
-            return m_elementCount;
+            return m_count;
         }
 
         inline Node * rightMost() const
@@ -183,6 +203,23 @@ namespace stick
                 deallocateTree(_node->right);
 
             destroyNode(_node);
+        }
+
+        inline Node * copyTree(Node * _nodeToCopy)
+        {
+            STICK_ASSERT(_nodeToCopy);
+            Node * newNode = createNode(_nodeToCopy->value);
+            if(_nodeToCopy->left)
+            {
+                newNode->left = copyTree(_nodeToCopy->left);
+                newNode->left->parent = newNode;
+            }
+            if(_nodeToCopy->right)
+            {
+                newNode->right = copyTree(_nodeToCopy->right);
+                newNode->right->parent = newNode;
+            }
+            return newNode;
         }
 
         inline Node * createNode(const ValueType & _val)
@@ -231,7 +268,7 @@ namespace stick
 
         inline void removeImpl(Node * _node)
         {
-            STICK_ASSERT(m_elementCount >= 0);
+            STICK_ASSERT(m_count >= 0);
 
             UInt8 nullChildrenCount = 0;
             if (!_node->left) nullChildrenCount++;
@@ -372,7 +409,7 @@ namespace stick
                         _currentNode->left = node;
                     else
                         _currentNode->right = node;
-                    m_elementCount++;
+                    m_count++;
 
                     //fix the balancing of the tree after creating the new node
                     insertFix(node);
@@ -474,7 +511,7 @@ namespace stick
 
         Allocator * m_alloc;
         Node * m_rootNode;
-        Size m_elementCount;
+        Size m_count;
     };
 }
 

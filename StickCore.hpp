@@ -384,27 +384,27 @@ namespace stick
 
             DynamicArray(Allocator & _alloc = defaultAllocator()) :
                 m_data( {nullptr, 0}),
-                    m_elementCount(0),
+                    m_count(0),
                     m_allocator(&_alloc)
             {
 
             }
 
             DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
-                m_elementCount(_size),
+                m_count(_size),
                 m_allocator(&_alloc)
             {
-                m_data = (T *)m_allocator->allocate(m_elementCount * sizeof(T));
+                m_data = (T *)m_allocator->allocate(m_count * sizeof(T));
             }
 
             DynamicArray(const DynamicArray & _other) :
-                m_elementCount(_other.m_elementCount),
+                m_count(_other.m_count),
                 m_allocator(_other.m_allocator)
             {
-                if (m_elementCount)
+                if (m_count)
                 {
-                    resize(m_elementCount);
-                    for (Size i = 0; i < m_elementCount; ++i)
+                    resize(m_count);
+                    for (Size i = 0; i < m_count; ++i)
                     {
                         *this[i] = _other[i];
                     }
@@ -413,17 +413,17 @@ namespace stick
 
             DynamicArray(DynamicArray && _other) :
                 m_data(move(_other.m_data)),
-                m_elementCount(move(_other.m_elementCount)),
+                m_count(move(_other.m_count)),
                 m_allocator(move(_other.m_allocator))
             {
             }
 
             inline DynamicArray & operator = (const DynamicArray & _other)
             {
-                m_elementCount = _other.m_elementCount;
+                m_count = _other.m_count;
                 m_allocator = _other.m_allocator;
-                resize(m_elementCount);
-                for (Size i = 0; i < m_elementCount; ++i)
+                resize(m_count);
+                for (Size i = 0; i < m_count; ++i)
                 {
                     *this[i] = _other[i];
                 }
@@ -434,7 +434,7 @@ namespace stick
             {
                 m_data = move(_other.m_data);
                 m_allocator = move(_other.m_allocator);
-                m_elementCount = move(_other.m_elementCount);
+                m_count = move(_other.m_count);
 
                 return *this;
             }
@@ -442,7 +442,7 @@ namespace stick
             inline void resize(Size _s)
             {
                 reserve(_s);
-                m_elementCount = _s;
+                m_count = _s;
             }
 
             inline void reserve(Size _s)
@@ -452,7 +452,7 @@ namespace stick
                     auto blk = m_allocator->allocate(_s * sizeof(T));
                     if (blk.ptr != m_data.ptr)
                     {
-                        for (Size i = 0; i < m_elementCount; ++i)
+                        for (Size i = 0; i < m_count; ++i)
                         {
                             reinterpret_cast<T *>(blk.ptr)[i] = reinterpret_cast<T *>(m_data.ptr)[i];
                         }
@@ -466,11 +466,11 @@ namespace stick
 
             inline void append(const T & _element)
             {
-                if (capacity() <= m_elementCount)
+                if (capacity() <= m_count)
                 {
-                    reserve(max((Size)1, m_elementCount * 2));
+                    reserve(max((Size)1, m_count * 2));
                 }
-                (*this)[m_elementCount++] = _element;
+                (*this)[m_count++] = _element;
             }
 
             template<class InputIter>
@@ -478,11 +478,11 @@ namespace stick
             {
                 Size idiff = _last - _first;
                 Size index = (_it - begin());
-                Size diff = m_elementCount - index;
+                Size diff = m_count - index;
 
-                if (capacity() < m_elementCount + idiff)
+                if (capacity() < m_count + idiff)
                 {
-                    reserve(max(idiff, m_elementCount * 2));
+                    reserve(max(idiff, m_count * 2));
                 }
 
                 Size fidx = index + diff - 1;
@@ -497,7 +497,7 @@ namespace stick
                     (*this)[index + i] = *_first;
                 }
 
-                m_elementCount += idiff;
+                m_count += idiff;
                 return begin() + index;
             }
 
@@ -511,20 +511,20 @@ namespace stick
                 Size diff = end() - _last;
                 Size idiff = _last - _first;
                 Size index = (_first - begin());
-                Size endIndex = m_elementCount - diff;
+                Size endIndex = m_count - diff;
 
                 for (Size i = 0; i < diff; ++i)
                 {
                     (*this)[index + i] = (*this)[endIndex + i];
                 }
-                m_elementCount -= idiff;
+                m_count -= idiff;
                 return begin() + index;
             }
 
             inline void removeBack()
             {
-                (reinterpret_cast<T *>(m_data.ptr)[m_elementCount - 1]).~T();
-                m_elementCount--;
+                (reinterpret_cast<T *>(m_data.ptr)[m_count - 1]).~T();
+                m_count--;
             }
 
             inline void clear()
@@ -533,7 +533,7 @@ namespace stick
                 {
                     el.~T();
                 }
-                m_elementCount = 0;
+                m_count = 0;
             }
 
             inline const T & operator [](Size _index) const
@@ -558,12 +558,12 @@ namespace stick
 
             inline Iter end()
             {
-                return (Iter)m_data.ptr + m_elementCount;
+                return (Iter)m_data.ptr + m_count;
             }
 
             inline ConstIter end() const
             {
-                return (ConstIter)m_data.ptr + m_elementCount;
+                return (ConstIter)m_data.ptr + m_count;
             }
 
             inline ReverseIter rbegin()
@@ -586,14 +586,14 @@ namespace stick
                 return ReverseConstIter(begin());
             }
 
-            inline Size elementCount() const
+            inline Size count() const
             {
-                return m_elementCount;
+                return m_count;
             }
 
             inline Size byteCount() const
             {
-                return m_elementCount * sizeof(T);
+                return m_count * sizeof(T);
             }
 
             inline const T * ptr() const
@@ -618,18 +618,18 @@ namespace stick
 
             inline T & back()
             {
-                return (*this)[m_elementCount - 1];
+                return (*this)[m_count - 1];
             }
 
             inline const T & back() const
             {
-                return (*this)[m_elementCount - 1];
+                return (*this)[m_count - 1];
             }
 
         private:
 
             Block m_data;
-            Size m_elementCount;
+            Size m_count;
             Allocator * m_allocator;
         };
 
@@ -1196,11 +1196,11 @@ int main(int _argc, const char * _args[])
     SUITE("DynamicArray Tests")
     {
         DynamicArray<Int32> a;
-        TEST(a.elementCount() == 0);
+        TEST(a.count() == 0);
         TEST(a.byteCount() == 0);
 
         a.resize(5);
-        TEST(a.elementCount() == 5);
+        TEST(a.count() == 5);
         TEST(a.byteCount() == 20);
 
         for (Int32 i = 0; i < 5; ++i)
@@ -1215,7 +1215,7 @@ int main(int _argc, const char * _args[])
         TEST(a[4] == 4);
 
         a.append(10);
-        TEST(a.elementCount() == 6);
+        TEST(a.count() == 6);
 
         TEST(a[5] == 10);
         TEST(a.back() == 10);
@@ -1223,7 +1223,7 @@ int main(int _argc, const char * _args[])
 
         a.removeBack();
         TEST(a.back() == 4);
-        TEST(a.elementCount() == 5);
+        TEST(a.count() == 5);
 
         Int32 expectedResults[] = {0, 1, 2, 3, 4};
         Int32 i = 0;
@@ -1233,7 +1233,7 @@ int main(int _argc, const char * _args[])
             ++i;
         }
 
-        i = a.elementCount() - 1;
+        i = a.count() - 1;
         for (auto it = a.rbegin(); it != a.rend(); ++it)
         {
             TEST(*it == expectedResults[i]);
@@ -1241,7 +1241,7 @@ int main(int _argc, const char * _args[])
         }
 
         a.clear();
-        TEST(a.elementCount() == 0);
+        TEST(a.count() == 0);
 
 
         DynamicArray<Int32> b;
@@ -1265,7 +1265,7 @@ int main(int _argc, const char * _args[])
             TEST(expectedArr[i] == v);
             i++;
         }
-        TEST(b.elementCount() == 9);
+        TEST(b.count() == 9);
 
         auto it3 = b.remove(b.begin() + 2, b.begin() + 6);
         TEST(it3 == b.begin() + 2);

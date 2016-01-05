@@ -392,9 +392,9 @@ namespace stick
             return ReverseConstIter(ConstIter());
         }
 
-        inline Size elementCount() const
+        inline Size count() const
         {
-            return m_tree.elementCount();
+            return m_tree.count();
         }
 
         inline void clear() const

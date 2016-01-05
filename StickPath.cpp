@@ -67,9 +67,9 @@ namespace stick
             ret.reserve(len);
             if (_bAddLeadingSeparator) ret.append('/');
             Size off = 0;
-            for (Size i=0; i < _segments.elementCount(); ++i)
+            for (Size i=0; i < _segments.count(); ++i)
             {   
-                if(i < _segments.elementCount() - 1)
+                if(i < _segments.count() - 1)
                     ret.append(_segments[i], '/');
                 else
                     ret.append(_segments[i]);
@@ -89,7 +89,7 @@ namespace stick
             StringArray segs = segments(_path);
             //to buffer the parsed segments
             StringArray tmp;
-            tmp.reserve(segs.elementCount());
+            tmp.reserve(segs.count());
             StringArray::Iter it = segs.begin();
             for (; it != segs.end(); ++it)
             {
