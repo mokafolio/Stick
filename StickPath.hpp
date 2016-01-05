@@ -2,9 +2,13 @@
 #define STICK_STICKPATH_HPP
 
 #include <Stick/StickString.hpp>
+#include <Stick/StickDynamicArray.hpp>
 
 namespace stick
 {
+    //TODO: Should this be somewhere else?
+    typedef DynamicArray<String> StringArray;
+
     namespace path
     {
         /**

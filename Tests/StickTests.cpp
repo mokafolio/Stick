@@ -10,6 +10,7 @@
 #include <Stick/StickSystemClock.hpp>
 #include <Stick/StickTest.hpp>
 #include <Stick/StickStringConversion.hpp>
+#include <Stick/StickPath.hpp>
 #include <limits>
 
 using namespace stick;
@@ -206,6 +207,32 @@ const Suite spec[] =
             i = a.findIndex('z');
             EXPECT(i == String::InvalidIndex);
         }
+        {
+            //substring tests
+            String a("What's Up!");
+            String b = a.sub(2, 2);
+            EXPECT(b == "at");
+            String c = a.sub(7);
+            EXPECT(c == "Up!");
+        }
+
+        //copy tests
+        {
+            String a("blubb");
+            String b(a);
+            EXPECT(a == b);
+            b = "fart";
+            EXPECT(b == "fart");
+            String c("weee");
+            b = c;
+            EXPECT(b == c);
+
+            String mc(move(b));
+            EXPECT(mc == c);
+
+            mc = move(c);
+            EXPECT(mc == "weee");
+        }
     },
     SUITE("String Conversion Tests")
     {
@@ -336,6 +363,100 @@ const Suite spec[] =
         EXPECT(ttt[2] == 3);
         EXPECT(ttt[3] == 4);
         EXPECT(ttt[4] == 5);
+
+        DynamicArray<Int32> copy = ttt;
+        EXPECT(copy.elementCount() == 5);
+        EXPECT(copy[0] == 1);
+        EXPECT(copy[1] == 2);
+        EXPECT(copy[2] == 3);
+        EXPECT(copy[3] == 4);
+        EXPECT(copy[4] == 5);
+
+        DynamicArray<Int32> tttt = {0,52,1,3};
+        copy = tttt;
+        EXPECT(copy.elementCount() == 4);
+        EXPECT(copy[0] == 0);
+        EXPECT(copy[1] == 52);
+        EXPECT(copy[2] == 1);
+        EXPECT(copy[3] == 3);
+
+        DynamicArray<Int32> mcopy = move(copy);
+        EXPECT(mcopy.elementCount() == 4);
+        EXPECT(mcopy[0] == 0);
+        EXPECT(mcopy[1] == 52);
+        EXPECT(mcopy[2] == 1);
+        EXPECT(mcopy[3] == 3);
+
+        mcopy = move(ttt);
+        EXPECT(mcopy.elementCount() == 5);
+        EXPECT(mcopy[0] == 1);
+        EXPECT(mcopy[1] == 2);
+        EXPECT(mcopy[2] == 3);
+        EXPECT(mcopy[3] == 4);
+        EXPECT(mcopy[4] == 5);
+
+        std::cout<<"END"<<std::endl;
+    },
+    SUITE("Path tests")
+    {
+        String path = "/Absolute/Path/";
+        EXPECT(path::isAbsolute(path));
+        EXPECT(!path::isRelative(path));
+
+        StringArray pathSegments = path::segments(path);
+        EXPECT(pathSegments.elementCount() == 2);
+        EXPECT(pathSegments[0] == "Absolute");
+        EXPECT(pathSegments[1] == "Path");
+
+        String filePath = "../foo.txt";
+        EXPECT(path::isRelative(filePath));
+
+        /*
+        path::SplitResult sp = path::split(filePath);
+
+        EXPECT(sp.left == "..");
+        EXPECT(sp.right == "foo.txt");
+        EXPECT(path::directoryName(filePath) == "..");
+        EXPECT(path::fileName(filePath) == "foo.txt");
+        EXPECT(path::extension(filePath) == ".txt");
+
+        path::SplitResult extsp = path::splitExtension(filePath);
+
+        EXPECT(extsp.left == "../foo");
+        EXPECT(extsp.right == ".txt");
+
+        String jp = path::join("/Foo", "Bar");
+        EXPECT(jp == "/Foo/Bar");
+
+        StringArray segs;
+        segs.append("Foo");
+        segs.append("Bar");
+        segs.append("Tar");
+        /*
+        String fs = path::fromSegments(segs);
+
+        EXPECT(fs == "Foo/Bar/Tar");
+
+        String fs2 = path::fromSegments(segs, true, true);
+
+        EXPECT(fs2 == "/Foo/Bar/Tar/");
+
+        //Path normalization
+        String doubleSlashPath = "/Foo//Bar";
+        EXPECT(path::normalize(doubleSlashPath) == "/Foo/Bar");
+
+        String weirdPath = "Foo/./Bar/../bazz.jpg";
+        EXPECT(path::normalize(weirdPath) == "Foo/bazz.jpg");
+        String weirdPathTwo = "../Bar/./bazz.jpg";
+        EXPECT(path::normalize(weirdPathTwo) == "Bar/bazz.jpg");
+        EXPECT(path::normalize(weirdPathTwo, false) == "../Bar/bazz.jpg");
+
+        //directory name
+        String dirdirdir("/foo/bar/bazz");
+        String dirdir = path::directoryName(dirdirdir);
+        EXPECT(dirdir == "/foo/bar");
+        String dir = path::directoryName(dirdir);
+        EXPECT(dir == "/foo");*/
     },
     SUITE("RBTree Tests")
     {

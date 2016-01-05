@@ -23,6 +23,7 @@ StickString.hpp
 StickTest.hpp
 StickThread.hpp
 StickUtility.hpp
+StickPath.hpp
 )
 set (STICKSRC 
 StickError.cpp 
@@ -33,6 +34,7 @@ StickConditionVariable.cpp
 StickHighResolutionClock.cpp 
 StickSystemClock.cpp
 StickURI.cpp
+StickPath.cpp
 )
 
 add_library (Stick ${STICKSRC})

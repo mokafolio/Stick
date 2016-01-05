@@ -6,8 +6,6 @@
 #include <Stick/StickUtility.hpp>
 #include <string.h>
 
-#include <iostream>
-
 namespace stick
 {
     namespace detail
@@ -86,6 +84,7 @@ namespace stick
 
         template<class InputIter>
         inline String(InputIter _begin, InputIter _end, Allocator & _alloc = defaultAllocator()) :
+            m_cStr(nullptr),
             m_length(0),
             m_capacity(0),
             m_allocator(&_alloc)
@@ -100,19 +99,16 @@ namespace stick
 
         inline ~String()
         {
-            if (m_cStr)
-            {
-                m_allocator->deallocate({m_cStr, m_capacity + 1});
-            }
+            deallocate();
         }
 
         inline String & operator = (const String & _other)
         {
-            m_length = _other.m_length;
+            deallocate();
             m_allocator = _other.m_allocator;
             if (_other.m_cStr)
             {
-                reserve(m_length);
+                resize(_other.m_length);
                 strcpy(m_cStr, _other.m_cStr);
             }
 
@@ -121,15 +117,19 @@ namespace stick
 
         inline String & operator = (String && _other)
         {
+            deallocate();
             m_cStr = move(_other.m_cStr);
             m_allocator = move(_other.m_allocator);
             m_length = move(_other.m_length);
+            m_capacity = move(_other.m_capacity);
             _other.m_cStr = nullptr;
             return *this;
         }
 
         inline String & operator = (const char * _other)
         {
+            deallocate();
+
             if (!m_allocator)
                 m_allocator = &defaultAllocator();
 
@@ -256,6 +256,11 @@ namespace stick
             return InvalidIndex;
         }
 
+        inline String sub(Size _pos, Size _length = InvalidIndex) const
+        {
+            return String(begin() + _pos, _length == InvalidIndex ? begin() + m_length : begin() + _pos + _length, *m_allocator);
+        }
+
         inline Size length() const
         {
             return m_length;
@@ -264,6 +269,26 @@ namespace stick
         inline Size capacity() const
         {
             return m_capacity;
+        }
+
+        inline void clear()
+        {
+            if (m_length)
+            {
+                memset(m_cStr, 0, m_length);
+                m_length = 0;
+            }
+        }
+
+        inline void deallocate()
+        {
+            if (m_cStr)
+            {
+                m_allocator->deallocate({m_cStr, m_capacity + 1});
+                m_capacity = 0;
+                m_length = 0;
+                m_cStr = nullptr;
+            }
         }
 
         inline Iter begin()

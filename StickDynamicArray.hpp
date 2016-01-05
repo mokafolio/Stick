@@ -25,7 +25,7 @@ namespace stick
 
 
         DynamicArray(Allocator & _alloc = defaultAllocator()) :
-            m_data({nullptr, 0}),
+            m_data( {nullptr, 0}),
             m_elementCount(0),
             m_allocator(&_alloc)
         {
@@ -34,13 +34,14 @@ namespace stick
 
         DynamicArray(std::initializer_list<T> _il) :
             m_data({nullptr, 0}),
-            m_allocator(&defaultAllocator()),
-            m_elementCount(0)
+            m_elementCount(0),
+            m_allocator(&defaultAllocator())
         {
             insert(end(), _il.begin(), _il.end());
         }
 
         DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
+            m_data( {nullptr, 0}),
             m_elementCount(_size),
             m_allocator(&_alloc)
         {
@@ -48,15 +49,16 @@ namespace stick
         }
 
         DynamicArray(const DynamicArray & _other) :
-            m_elementCount(_other.m_elementCount),
+            m_data( {nullptr, 0}),
+            m_elementCount(0),
             m_allocator(_other.m_allocator)
         {
-            if (m_elementCount)
+            if (_other.m_elementCount)
             {
-                resize(m_elementCount);
+                resize(_other.m_elementCount);
                 for (Size i = 0; i < m_elementCount; ++i)
                 {
-                    *this[i] = _other[i];
+                    (*this)[i] = _other[i];
                 }
             }
         }
@@ -67,28 +69,23 @@ namespace stick
             m_allocator(move(_other.m_allocator))
         {
             //we don't want other to deallocate anything
-            _other.m_elementCount = 0;
+            _other.m_data.ptr = nullptr;
         }
 
         ~DynamicArray()
         {
-            if (m_elementCount)
-            {
-                //call the destructors
-                clear();
-                //and release the memory
-                m_allocator->deallocate(m_data);
-            }
+            deallocate();
         }
 
         inline DynamicArray & operator = (const DynamicArray & _other)
         {
-            m_elementCount = _other.m_elementCount;
+            deallocate();
+            m_elementCount = 0;
             m_allocator = _other.m_allocator;
-            resize(m_elementCount);
+            resize(_other.m_elementCount);
             for (Size i = 0; i < m_elementCount; ++i)
             {
-                *this[i] = _other[i];
+                (*this)[i] = _other[i];
             }
             return *this;
         }
@@ -102,10 +99,11 @@ namespace stick
 
         inline DynamicArray & operator = (DynamicArray && _other)
         {
+            deallocate();
             m_data = move(_other.m_data);
             m_allocator = move(_other.m_allocator);
             m_elementCount = move(_other.m_elementCount);
-            _other.m_elementCount = 0;
+            _other.m_data.ptr = nullptr;
 
             return *this;
         }
@@ -121,14 +119,19 @@ namespace stick
             if (_s > capacity())
             {
                 auto blk = m_allocator->allocate(_s * sizeof(T));
-                if (blk.ptr != m_data.ptr)
+                T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
+                T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
+                //call placement new to run the constructors of all the new elements
+                for(Size i = 0; i < _s; ++i)
                 {
-                    for (Size i = 0; i < m_elementCount; ++i)
-                    {
-                        reinterpret_cast<T *>(blk.ptr)[i] = reinterpret_cast<T *>(m_data.ptr)[i];
-                    }
-                    m_allocator->deallocate(m_data);
+                    new (arrayPtr + i) T();
                 }
+                //move the existing elements over
+                for (Size i = 0; i < m_elementCount; ++i)
+                {
+                    arrayPtr[i] = move(sourcePtr[i]);
+                }
+                m_allocator->deallocate(m_data);
                 m_data = blk;
                 //TODO: do this for POD types?
                 //m_data = m_allocator->reallocate(m_data, _s * sizeof(T));
@@ -221,6 +224,23 @@ namespace stick
                 el.~T();
             }
             m_elementCount = 0;
+        }
+
+        inline void deallocate()
+        {
+            if (m_data.ptr)
+            {
+                //call the destructors
+                clear();
+                //and release the memory
+                m_allocator->deallocate(m_data);
+                m_data = {nullptr, 0};
+            }
+        }
+
+        inline bool isEmpty()
+        {
+            return m_elementCount == 0;
         }
 
         inline const T & operator [](Size _index) const
