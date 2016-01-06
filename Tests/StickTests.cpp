@@ -711,7 +711,37 @@ const Suite spec[] =
         EXPECT(res.inserted == false);
         auto it = hm.remove("anotherKey");
         EXPECT(hm.count() == 2);
-        //TODO: More
+
+        auto it2 = hm.find("blubb");
+        EXPECT(it2->key == "blubb");
+        EXPECT(it2->value == 5);
+        
+        //copy tests
+        auto cpy = hm;
+        EXPECT(cpy.count() == 2);
+        EXPECT(cpy["blubb"] == 5);
+        EXPECT(cpy["test"] == 2);
+
+        HashMap<String, Int32> copyMe;
+        copyMe["a"] = 1;
+        copyMe["b"] = 2;
+        copyMe["c"] = 3;
+        auto cpied = move(copyMe);
+        EXPECT(cpied.count() == 3);
+        EXPECT(cpied["a"] == 1);
+        EXPECT(cpied["b"] == 2);
+        EXPECT(cpied["c"] == 3);
+
+        cpied = cpy;
+        EXPECT(cpied.count() == 2);
+        EXPECT(cpied["blubb"] == 5);
+        EXPECT(cpied["test"] == 2);
+
+        HashMap<String, Int32> copyMe2;
+        copyMe2["d"] = 199;
+        cpy = move(copyMe2);
+        EXPECT(cpy.count() == 1);
+        EXPECT(cpy["d"] == 199);
     },
     SUITE("Thread Tests")
     {

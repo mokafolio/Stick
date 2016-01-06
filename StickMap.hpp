@@ -308,7 +308,7 @@ namespace stick
             return insert({_key, _val});
         }
 
-        ValueType & operator [] (const KeyType & _key)
+        inline ValueType & operator [] (const KeyType & _key)
         {
             Node * n = m_tree.find(_key);
             if (n)

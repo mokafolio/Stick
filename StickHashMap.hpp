@@ -31,6 +31,15 @@ namespace stick
         }
     };
 
+    template<>
+    struct DefaultHash<Size>
+    {
+        Size operator()(Size _i) const
+        {
+            return _i;
+        }
+    };
+
     template<class K, class V, template<class> class H = DefaultHash>
     class HashMap
     {
@@ -238,7 +247,7 @@ namespace stick
         inline HashMap & operator = (const HashMap & _other)
         {
             clear();
-            if(m_buckets)
+            if (m_buckets)
                 m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
 
             m_alloc = _other.m_alloc;
@@ -258,7 +267,7 @@ namespace stick
         inline HashMap & operator = (HashMap && _other)
         {
             clear();
-            if(m_buckets)
+            if (m_buckets)
                 m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
 
             m_alloc = move(_other.m_alloc);
@@ -317,6 +326,20 @@ namespace stick
                 return end();
             else
                 return Iter(*this, bi, n);
+        }
+
+        inline ValueType & operator [] (const KeyType & _key)
+        {
+            auto it = find(_key);
+            if (it != end())
+            {
+                return it->value;
+            }
+            else
+            {
+                auto res = insert(_key, ValueType());
+                return res.iterator->value;
+            }
         }
 
         inline Iter remove(const KeyType & _key)
@@ -514,7 +537,7 @@ namespace stick
 
         inline Node * copyNode(Node * _node)
         {
-            Node * ret = createNode(_node->key, _node->value);
+            Node * ret = createNode(_node->kv.key, _node->kv.value);
             if (_node->next)
                 ret->next = copyNode(_node->next);
             return ret;
