@@ -181,18 +181,46 @@ namespace stick
             bool inserted;
         };
 
-        HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
+        inline HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
             m_alloc(&_alloc),
             m_buckets(nullptr),
-            m_bucketCount(_initialBucketCount),
             m_maxLoadFactor(1.0f),
             m_count(0)
         {
-            auto mem = m_alloc->allocate(sizeof(Bucket) * _initialBucketCount);
-            m_buckets = new (mem.ptr) Bucket [_initialBucketCount];
+            m_buckets = allocateBuckets(_initialBucketCount);
+            STICK_ASSERT(m_buckets);
+            m_bucketCount = _initialBucketCount;
         }
 
-        ~HashMap()
+        inline HashMap(const HashMap & _other) :
+            m_alloc(_other.m_alloc),
+            m_buckets(nullptr),
+            m_bucketCount(0),
+            m_maxLoadFactor(_other.m_maxLoadFactor),
+            m_count(_other.m_count)
+        {
+            m_buckets = allocateBuckets(_other.m_bucketCount);
+            STICK_ASSERT(m_buckets);
+            m_bucketCount = _other.m_bucketCount;
+            //iterate over all the buckets and copy each linked list
+            for (Size i = 0; i < _other.m_bucketCount; ++i)
+            {
+                if (_other.m_buckets[i].first)
+                    m_buckets[i].first = copyNode(_other.m_buckets[i].first);
+            }
+        }
+
+        inline HashMap(HashMap && _other) :
+            m_alloc(move(_other.m_alloc)),
+            m_buckets(move(_other.m_buckets)),
+            m_bucketCount(move(_other.m_bucketCount)),
+            m_maxLoadFactor(move(_other.m_maxLoadFactor)),
+            m_count(move(_other.m_count))
+        {
+            _other.m_buckets = nullptr;
+        }
+
+        inline ~HashMap()
         {
             //deallocate buckets and nodes
             if (m_buckets)
@@ -205,6 +233,43 @@ namespace stick
 
                 m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
             }
+        }
+
+        inline HashMap & operator = (const HashMap & _other)
+        {
+            clear();
+            if(m_buckets)
+                m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+
+            m_alloc = _other.m_alloc;
+            m_bucketCount = _other.m_bucketCount;
+            m_count = _other.m_count;
+            m_maxLoadFactor = _other.m_maxLoadFactor;
+            m_buckets = allocateBuckets(m_bucketCount);
+            STICK_ASSERT(m_buckets);
+            for (Size i = 0; i < _other.m_bucketCount; ++i)
+            {
+                if (_other.m_buckets[i].first)
+                    m_buckets[i].first = copyNode(_other.m_buckets[i].first);
+            }
+            return *this;
+        }
+
+        inline HashMap & operator = (HashMap && _other)
+        {
+            clear();
+            if(m_buckets)
+                m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+
+            m_alloc = move(_other.m_alloc);
+            m_bucketCount = move(_other.m_bucketCount);
+            m_count = move(_other.m_count);
+            m_maxLoadFactor = move(_other.m_maxLoadFactor);
+            m_buckets = move(_other.m_buckets);
+
+            _other.m_buckets = nullptr;
+
+            return *this;
         }
 
         inline InsertResult insert(const KeyType & _key, const ValueType & _value)
@@ -302,8 +367,7 @@ namespace stick
 
         inline void rehash(Size _bucketCount)
         {
-            auto mem = m_alloc->allocate(sizeof(Bucket) * _bucketCount);
-            Bucket * newBuckets = new (mem.ptr) Bucket[_bucketCount];
+            Bucket * newBuckets = allocateBuckets(_bucketCount);
 
             for (Size i = 0; i < m_bucketCount; ++i)
             {
@@ -440,6 +504,20 @@ namespace stick
                 _prev = n;
                 n = n->next;
             }
+        }
+
+        inline Bucket * allocateBuckets(Size _i)
+        {
+            auto mem = m_alloc->allocate(sizeof(Bucket) * _i);
+            return new (mem.ptr) Bucket [_i];
+        }
+
+        inline Node * copyNode(Node * _node)
+        {
+            Node * ret = createNode(_node->key, _node->value);
+            if (_node->next)
+                ret->next = copyNode(_node->next);
+            return ret;
         }
 
         Allocator * m_alloc;

@@ -555,7 +555,7 @@ const Suite spec[] =
         EXPECT(n312 == n31);
         EXPECT(n322 == n32);
     },
-    /*SUITE("Map Tests")
+    SUITE("Map Tests")
     {
         typedef Map<String, Int32> TestMapType;
         TestMapType map;
@@ -658,6 +658,40 @@ const Suite spec[] =
         tit = amap.find(199);
         EXPECT(tit->key == 199);
         EXPECT(tit->value == "blubb");
+
+        //copy tests
+        Map<String, Int32> mapToCopy;
+        mapToCopy.insert("hello", 1);
+        mapToCopy.insert("world", 2);
+        auto copy = mapToCopy;
+        EXPECT(copy.count() == 2);
+        EXPECT(copy["hello"] == 1);
+        EXPECT(copy["world"] == 2);
+
+        auto copy2 = move(copy);
+        EXPECT(copy2.count() == 2);
+        EXPECT(copy2["hello"] == 1);
+        EXPECT(copy2["world"] == 2);
+
+        Map<String, Int32> mapToCopy2;
+        mapToCopy2.insert("a", 12);
+        mapToCopy2.insert("b", 21);
+        mapToCopy2.insert("c", 33);
+
+        copy2 = mapToCopy2;
+        EXPECT(copy2.count() == 3);
+        EXPECT(copy2["a"] == 12);
+        EXPECT(copy2["b"] == 21);
+        EXPECT(copy2["c"] == 33);
+
+        Map<String, Int32> mapToCopy3;
+        mapToCopy3.insert("arr", 5);
+        mapToCopy3.insert("gh", 6);
+
+        copy2 = move(mapToCopy3);
+        EXPECT(copy2.count() == 2);
+        EXPECT(copy2["arr"] == 5);
+        EXPECT(copy2["gh"] == 6);
     },
     SUITE("HashMap Tests")
     {
@@ -711,7 +745,7 @@ const Suite spec[] =
         EXPECT(err.code() == 0);
         err = thread.join();
         EXPECT(err.code() == 0);
-    }*/
+    }
 };
 
 int main(int _argc, const char * _args[])
