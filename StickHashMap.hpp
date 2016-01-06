@@ -4,9 +4,7 @@
 #include <Stick/StickAllocator.hpp>
 #include <Stick/StickString.hpp>
 #include <Stick/Detail/StickMurmurHash2.hpp>
-
-#include <iostream>
-#include <math.h>
+#include <initializer_list>
 
 namespace stick
 {
@@ -229,6 +227,19 @@ namespace stick
             _other.m_buckets = nullptr;
         }
 
+        inline HashMap(std::initializer_list<KeyValuePair> _l, Allocator & _alloc = defaultAllocator()) :
+            m_alloc(&_alloc),
+            m_buckets(nullptr),
+            m_bucketCount(0),
+            m_maxLoadFactor(1.0f),
+            m_count(0)
+        {
+            m_buckets = allocateBuckets(16);
+            m_bucketCount = 16;
+            STICK_ASSERT(m_buckets);
+            insert(_l);
+        }
+
         inline ~HashMap()
         {
             //deallocate buckets and nodes
@@ -281,25 +292,37 @@ namespace stick
             return *this;
         }
 
+        inline HashMap & operator = (std::initializer_list<KeyValuePair> _l)
+        {
+            clear();
+            insert(_l);
+            return *this;
+        }
+
         inline InsertResult insert(const KeyType & _key, const ValueType & _value)
         {
-            Size bi = bucketIndex(_key);
+            return insert({_key, _value});
+        }
+
+        inline InsertResult insert(const KeyValuePair & _val)
+        {
+            Size bi = bucketIndex(_val.key);
             Bucket & b = m_buckets[bi];
 
             //check if the key allready exists
             Node * n, *prev;
-            findHelper(b, _key, n, prev);
+            findHelper(b, _val.key, n, prev);
 
             //the key allready exists, change the value
             if (n)
             {
-                n->kv.value = _value;
+                n->kv.value = _val.value;
                 return {Iter(*this, bi, n), false};
             }
             else
             {
                 //otherwise create the node n stuff
-                n = createNode(_key, _value);
+                n = createNode(_val.key, _val.value);
                 if (prev)
                     prev->next = n;
                 else
@@ -314,6 +337,21 @@ namespace stick
             }
 
             return {Iter(*this, bi, n), true};
+        }
+
+        template<class InputIterT>
+        inline void insert(InputIterT _begin, InputIterT _end)
+        {
+            while (_begin != _end)
+            {
+                insert(*_begin);
+                ++_begin;
+            }
+        }
+
+        inline void insert(std::initializer_list<KeyValuePair> _l)
+        {
+            insert(_l.begin(), _l.end());
         }
 
         inline Iter find(const KeyType & _key)
@@ -386,6 +424,7 @@ namespace stick
                 }
                 b.first = nullptr;
             }
+            m_count = 0;
         }
 
         inline void rehash(Size _bucketCount)

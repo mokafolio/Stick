@@ -658,6 +658,16 @@ const Suite spec[] =
         tit = amap.find(199);
         EXPECT(tit->key == 199);
         EXPECT(tit->value == "blubb");
+        amap.insert({{80, "wooo"}, {77, "hoo"}});
+        EXPECT(amap[80] == "wooo");
+        EXPECT(amap[77] == "hoo");
+        EXPECT(amap.count() == 5);
+
+        amap = {{3, "test"}, {2, "bla"}, {199, "blubb"}};
+        EXPECT(amap.count() == 3);
+        EXPECT(amap[3] == "test");
+        EXPECT(amap[2] == "bla");
+        EXPECT(amap[199] == "blubb");
 
         //copy tests
         Map<String, Int32> mapToCopy;
@@ -742,6 +752,24 @@ const Suite spec[] =
         cpy = move(copyMe2);
         EXPECT(cpy.count() == 1);
         EXPECT(cpy["d"] == 199);
+
+        //initializer list tests
+        HashMap<String, String> foo = {{"apple", "green"}, {"banana", "yellow"}};
+        EXPECT(foo.count() == 2);
+        EXPECT(foo["apple"] == "green");
+        EXPECT(foo["banana"] == "yellow");
+
+        foo.insert({{"strawberry", "red"}, {"spaceberry", "rainbow"}});
+        EXPECT(foo.count() == 4);
+        EXPECT(foo["apple"] == "green");
+        EXPECT(foo["banana"] == "yellow");
+        EXPECT(foo["strawberry"] == "red");
+        EXPECT(foo["spaceberry"] == "rainbow");
+
+        foo = {{"we", "are"}, {"done", "now"}};
+        EXPECT(foo.count() == 2);
+        EXPECT(foo["we"] == "are");
+        EXPECT(foo["done"] == "now");
     },
     SUITE("Thread Tests")
     {

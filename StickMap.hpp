@@ -397,7 +397,7 @@ namespace stick
             return m_tree.count();
         }
 
-        inline void clear() const
+        inline void clear()
         {
             m_tree.clear();
         }
