@@ -785,6 +785,19 @@ const Suite spec[] =
         EXPECT(bValidThreadID);
         EXPECT(err.code() == 0);
         EXPECT(!thread.isJoinable());
+
+        //move test
+        Thread t2;
+        t2.run([&]() { Thread::sleepFor(Duration::fromSeconds(0.1f)); });
+        Thread t3 = move(t2);
+        EXPECT(t2.isJoinable() == false);
+        t3.join();
+
+        Thread t4;
+        t4.run([&]() { Thread::sleepFor(Duration::fromSeconds(0.1f)); });
+        t3 = move(t4);
+        EXPECT(t4.isJoinable() == false);
+        t3.join();
     },
     SUITE("ConditionVariable Tests")
     {
@@ -794,7 +807,7 @@ const Suite spec[] =
         Error err = thread.run([&]() { ScopedLock<Mutex> lock(m); cond.wait(lock); });
         auto ss = SystemClock::now();
         auto start = HighResolutionClock::now();
-        thread.sleepFor(Duration::fromSeconds(0.05));
+        Thread::sleepFor(Duration::fromSeconds(0.05));
         std::cout<<(HighResolutionClock::now() - start).seconds()<<std::endl;
         std::cout<<(SystemClock::now() - ss).seconds()<<std::endl;
         EXPECT(err.code() == 0);

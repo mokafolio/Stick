@@ -21,6 +21,11 @@ namespace stick
 
         Mutex();
 
+        Mutex(const Mutex & _other) = delete;
+        Mutex(Mutex && _other) = delete;
+        Mutex & operator = (const Mutex & _other) = delete;
+        Mutex & operator = (Mutex && _other) = delete;
+
         ~Mutex();
 
         Error lock();

@@ -24,6 +24,13 @@ namespace stick
 
         Thread();
 
+        Thread(Thread && _other);
+
+        Thread(const Thread & _other) = delete;
+        Thread & operator = (const Thread & _other) = delete;
+
+        Thread & operator = (Thread && _other);
+
         ~Thread();
 
         template<class F>

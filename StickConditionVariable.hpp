@@ -25,6 +25,11 @@ namespace stick
 
 
         ConditionVariable();
+        
+        ConditionVariable(const ConditionVariable & _other) = delete;
+        ConditionVariable(ConditionVariable && _other) = delete;
+        ConditionVariable & operator = (const ConditionVariable & _other) = delete;
+        ConditionVariable & operator = (ConditionVariable && _other) = delete;
 
         ~ConditionVariable();
 
