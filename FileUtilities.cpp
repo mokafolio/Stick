@@ -1,4 +1,4 @@
-#include <Stick/StickFileUtilities.hpp>
+#include <Stick/FileUtilities.hpp>
 #include <stdio.h>
 
 namespace stick

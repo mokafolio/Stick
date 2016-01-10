@@ -1,17 +1,17 @@
-#include <Stick/StickString.hpp>
-#include <Stick/StickDynamicArray.hpp>
-#include <Stick/StickRBTree.hpp>
-#include <Stick/StickMap.hpp>
-#include <Stick/StickHashMap.hpp>
-#include <Stick/StickError.hpp>
-#include <Stick/StickThread.hpp>
-#include <Stick/StickConditionVariable.hpp>
-#include <Stick/StickHighResolutionClock.hpp>
-#include <Stick/StickSystemClock.hpp>
-#include <Stick/StickTest.hpp>
-#include <Stick/StickStringConversion.hpp>
-#include <Stick/StickPath.hpp>
-#include <Stick/StickFileUtilities.hpp>
+#include <Stick/String.hpp>
+#include <Stick/DynamicArray.hpp>
+#include <Stick/RBTree.hpp>
+#include <Stick/Map.hpp>
+#include <Stick/HashMap.hpp>
+#include <Stick/Error.hpp>
+#include <Stick/Thread.hpp>
+#include <Stick/ConditionVariable.hpp>
+#include <Stick/HighResolutionClock.hpp>
+#include <Stick/SystemClock.hpp>
+#include <Stick/Test.hpp>
+#include <Stick/StringConversion.hpp>
+#include <Stick/Path.hpp>
+#include <Stick/FileUtilities.hpp>
 #include <limits>
 
 using namespace stick;

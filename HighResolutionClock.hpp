@@ -1,7 +1,7 @@
 #ifndef STICK_HIGHRESOLUTIONCLOCK_HPP
 #define STICK_HIGHRESOLUTIONCLOCK_HPP
 
-#include <Stick/StickTimePoint.hpp>
+#include <Stick/TimePoint.hpp>
 
 namespace stick
 {

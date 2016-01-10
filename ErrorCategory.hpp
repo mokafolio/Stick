@@ -1,8 +1,8 @@
 #ifndef STICK_STICKERRORCATEGORY_HPP
 #define STICK_STICKERRORCATEGORY_HPP
 
-#include <Stick/StickError.hpp>
-#include <Stick/StickErrorCodes.hpp>
+#include <Stick/Error.hpp>
+#include <Stick/ErrorCodes.hpp>
 
 namespace stick
 {

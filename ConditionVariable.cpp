@@ -1,5 +1,5 @@
-#include <Stick/StickConditionVariable.hpp>
-#include <Stick/StickMutex.hpp>
+#include <Stick/ConditionVariable.hpp>
+#include <Stick/Mutex.hpp>
 
 namespace stick
 {

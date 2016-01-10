@@ -1,4 +1,4 @@
-#include <Stick/StickMutex.hpp>
+#include <Stick/Mutex.hpp>
 
 namespace stick
 {

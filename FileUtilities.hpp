@@ -1,10 +1,10 @@
 #ifndef STICK_STICKFILEUTILITIES_HPP
 #define STICK_STICKFILEUTILITIES_HPP
 
-#include <Stick/StickString.hpp>
-#include <Stick/StickDynamicArray.hpp>
-#include <Stick/StickURI.hpp>
-#include <Stick/StickResult.hpp>
+#include <Stick/String.hpp>
+#include <Stick/DynamicArray.hpp>
+#include <Stick/URI.hpp>
+#include <Stick/Result.hpp>
 
 namespace stick
 {

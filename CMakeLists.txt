@@ -5,39 +5,44 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set (STICKDEPS pthread)
 set (STICKINC 
-StickAllocator.hpp
-StickConditionVariable.hpp
-StickDynamicArray.hpp
-StickError.hpp
-StickErrorCategory.hpp
-StickErrorCodes.hpp
-StickHashMap.hpp
-StickIterator.hpp
-StickMap.hpp
-StickMutex.hpp
-StickPlatform.hpp
-StickPrint.hpp
-StickRBTree.hpp
-StickScopedLock.hpp
-StickString.hpp
-StickTest.hpp
-StickThread.hpp
-StickUtility.hpp
-StickPath.hpp
-StickResult.hpp
-StickFileUtilities.hpp
+Allocator.hpp
+ConditionVariable.hpp
+Duration.hpp
+DynamicArray.hpp
+Error.hpp
+ErrorCategory.hpp
+ErrorCodes.hpp
+FileUtilities.hpp
+HashMap.hpp
+HighResolutionClock.hpp
+Iterator.hpp
+Map.hpp
+Mutex.hpp
+Path.hpp
+Platform.hpp
+Print.hpp
+RBTree.hpp
+Result.hpp
+ScopedLock.hpp
+String.hpp
+SystemClock.hpp
+Test.hpp
+Thread.hpp
+TimePoint.hpp
+URI.hpp
+Utility.hpp
 )
 set (STICKSRC 
-StickError.cpp 
-StickErrorCategory.cpp 
-StickThread.cpp 
-StickMutex.cpp 
-StickConditionVariable.cpp 
-StickHighResolutionClock.cpp 
-StickSystemClock.cpp
-StickURI.cpp
-StickPath.cpp
-StickFileUtilities.cpp
+ConditionVariable.cpp
+Error.cpp 
+ErrorCategory.cpp
+FileUtilities.cpp
+HighResolutionClock.cpp 
+Mutex.cpp 
+Path.cpp
+SystemClock.cpp
+Thread.cpp 
+URI.cpp
 )
 
 add_library (Stick ${STICKSRC})

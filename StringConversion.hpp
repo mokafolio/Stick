@@ -2,7 +2,7 @@
 #define STICK_STICKSTRINGCONVERSION_HPP
 
 #include <stdio.h>
-#include <Stick/StickString.hpp>
+#include <Stick/String.hpp>
 
 namespace stick
 {

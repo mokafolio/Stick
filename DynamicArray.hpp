@@ -1,9 +1,9 @@
 #ifndef STICK_DYNAMICARRAY_HPP
 #define STICK_DYNAMICARRAY_HPP
 
-#include <Stick/StickAllocator.hpp>
-#include <Stick/StickIterator.hpp>
-#include <Stick/StickUtility.hpp>
+#include <Stick/Allocator.hpp>
+#include <Stick/Iterator.hpp>
+#include <Stick/Utility.hpp>
 #include <initializer_list>
 #include <new>
 

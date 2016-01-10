@@ -1,9 +1,9 @@
 #ifndef STICK_STRING_HPP
 #define STICK_STRING_HPP
 
-#include <Stick/StickAllocator.hpp>
-#include <Stick/StickIterator.hpp>
-#include <Stick/StickUtility.hpp>
+#include <Stick/Allocator.hpp>
+#include <Stick/Iterator.hpp>
+#include <Stick/Utility.hpp>
 #include <string.h>
 
 namespace stick

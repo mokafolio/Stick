@@ -1,5 +1,5 @@
-#include <Stick/StickThread.hpp>
-#include <Stick/StickErrorCodes.hpp>
+#include <Stick/Thread.hpp>
+#include <Stick/ErrorCodes.hpp>
 #include <time.h>
 
 #include <iostream>

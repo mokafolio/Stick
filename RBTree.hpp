@@ -1,9 +1,9 @@
 #ifndef STICK_STICKRBTREE_HPP
 #define STICK_STICKRBTREE_HPP
 
-#include <Stick/StickAllocator.hpp>
-#include <Stick/StickIterator.hpp>
-#include <Stick/StickUtility.hpp>
+#include <Stick/Allocator.hpp>
+#include <Stick/Iterator.hpp>
+#include <Stick/Utility.hpp>
 #include <new> //for placement new
 
 #include <iostream>

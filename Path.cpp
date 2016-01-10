@@ -1,4 +1,4 @@
-#include <Stick/StickPath.hpp>
+#include <Stick/Path.hpp>
 
 namespace stick
 {

@@ -1,8 +1,8 @@
 #ifndef STICK_STICKERROR_HPP
 #define STICK_STICKERROR_HPP
 
-#include <Stick/StickString.hpp>
-#include <Stick/StickUtility.hpp>
+#include <Stick/String.hpp>
+#include <Stick/Utility.hpp>
 
 namespace stick
 {
@@ -131,7 +131,7 @@ namespace stick
     inline const ErrorCategory & errorCategory(T);
 }
 
-#include <Stick/StickErrorCategory.hpp>
+#include <Stick/ErrorCategory.hpp>
 
 namespace stick
 {

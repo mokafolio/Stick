@@ -1,8 +1,8 @@
 #ifndef STICK_TEST_HPP
 #define STICK_TEST_HPP
 
-#include <Stick/StickDynamicArray.hpp>
-#include <Stick/StickPrint.hpp>
+#include <Stick/DynamicArray.hpp>
+#include <Stick/Print.hpp>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"

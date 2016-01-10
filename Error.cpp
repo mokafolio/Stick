@@ -1,4 +1,4 @@
-#include <Stick/StickErrorCategory.hpp>
+#include <Stick/ErrorCategory.hpp>
 
 namespace stick
 {

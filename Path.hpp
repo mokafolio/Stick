@@ -1,8 +1,8 @@
 #ifndef STICK_STICKPATH_HPP
 #define STICK_STICKPATH_HPP
 
-#include <Stick/StickString.hpp>
-#include <Stick/StickDynamicArray.hpp>
+#include <Stick/String.hpp>
+#include <Stick/DynamicArray.hpp>
 
 namespace stick
 {

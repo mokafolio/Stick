@@ -1,8 +1,8 @@
 #ifndef STICK_MAP_HPP
 #define STICK_MAP_HPP
 
-#include <Stick/StickRBTree.hpp>
-#include <Stick/StickIterator.hpp>
+#include <Stick/RBTree.hpp>
+#include <Stick/Iterator.hpp>
 #include <initializer_list>
 
 namespace stick

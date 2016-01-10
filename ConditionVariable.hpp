@@ -1,9 +1,9 @@
 #ifndef STICK_CONDITIONVARIABLE_HPP
 #define STICK_CONDITIONVARIABLE_HPP
 
-#include <Stick/StickError.hpp>
-#include <Stick/StickErrorCodes.hpp>
-#include <Stick/StickScopedLock.hpp>
+#include <Stick/Error.hpp>
+#include <Stick/ErrorCodes.hpp>
+#include <Stick/ScopedLock.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>

@@ -1,7 +1,7 @@
 #ifndef STICK_DURATION_HPP
 #define STICK_DURATION_HPP
 
-#include <Stick/StickPlatform.hpp>
+#include <Stick/Platform.hpp>
 
 namespace stick
 {

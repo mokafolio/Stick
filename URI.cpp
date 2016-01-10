@@ -1,6 +1,6 @@
-#include <Stick/StickURI.hpp>
-#include <Stick/StickStringConversion.hpp>
-#include <Stick/StickPath.hpp>
+#include <Stick/URI.hpp>
+#include <Stick/StringConversion.hpp>
+#include <Stick/Path.hpp>
 #include <ctype.h> //for isalpha
 
 #include <iostream>
@@ -337,8 +337,9 @@ namespace stick
                 }
 
                 String tmp2 = String::concat(hi, lo);
+                errno = 0;
                 tmp = strtol(tmp2.cString(), NULL, 16);
-                if(tmp == LONG_MIN || tmp == LONG_MAX)
+                if(errno != 0)
                 {
                     _error = Error(ec::BadURI, "Error extracting char from hex digits!", STICK_FILE, STICK_LINE);
                     return ret;

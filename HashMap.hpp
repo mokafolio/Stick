@@ -1,8 +1,8 @@
 #ifndef STICK_STICKHASHMAP_HPP
 #define STICK_STICKHASHMAP_HPP
 
-#include <Stick/StickAllocator.hpp>
-#include <Stick/StickString.hpp>
+#include <Stick/Allocator.hpp>
+#include <Stick/String.hpp>
 #include <Stick/Detail/StickMurmurHash2.hpp>
 #include <initializer_list>
 

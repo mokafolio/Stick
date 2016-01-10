@@ -1,9 +1,9 @@
 #ifndef STICK_THREAD_HPP
 #define STICK_THREAD_HPP
 
-#include <Stick/StickMutex.hpp>
-#include <Stick/StickScopedLock.hpp>
-#include <Stick/StickTimePoint.hpp>
+#include <Stick/Mutex.hpp>
+#include <Stick/ScopedLock.hpp>
+#include <Stick/TimePoint.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>

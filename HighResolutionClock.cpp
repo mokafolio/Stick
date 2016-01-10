@@ -1,4 +1,4 @@
-#include <Stick/StickHighResolutionClock.hpp>
+#include <Stick/HighResolutionClock.hpp>
 
 #if STICK_PLATFORM == STICK_PLATFORM_OSX
 #include <mach/mach_time.h>

@@ -1,5 +1,5 @@
-#include <Stick/StickErrorCategory.hpp>
-#include <Stick/StickErrorCodes.hpp>
+#include <Stick/ErrorCategory.hpp>
+#include <Stick/ErrorCodes.hpp>
 #include <string.h> //for strerror
 
 namespace stick

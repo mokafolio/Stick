@@ -1,4 +1,4 @@
-#include <Stick/StickSystemClock.hpp>
+#include <Stick/SystemClock.hpp>
 #include <sys/time.h>
 
 namespace stick

@@ -1,8 +1,8 @@
 #ifndef STICK_STICKURI_HPP
 #define STICK_STICKURI_HPP
 
-#include <Stick/StickString.hpp>
-#include <Stick/StickError.hpp>
+#include <Stick/String.hpp>
+#include <Stick/Error.hpp>
 
 namespace stick
 {

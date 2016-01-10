@@ -1,7 +1,7 @@
 #ifndef STICK_STICKTIMEPOINT_HPP
 #define STICK_STICKTIMEPOINT_HPP
 
-#include <Stick/StickDuration.hpp>
+#include <Stick/Duration.hpp>
 
 namespace stick
 {

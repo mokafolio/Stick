@@ -1,7 +1,7 @@
 #ifndef STICK_STICKSYSTEMCLOCK_HPP
 #define STICK_STICKSYSTEMCLOCK_HPP
 
-#include <Stick/StickTimePoint.hpp>
+#include <Stick/TimePoint.hpp>
 
 namespace stick
 {

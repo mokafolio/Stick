@@ -1,9 +1,9 @@
 #ifndef STICK_MUTEX_HPP
 #define STICK_MUTEX_HPP
 
-#include <Stick/StickError.hpp>
-#include <Stick/StickErrorCodes.hpp>
-#include <Stick/StickUtility.hpp>
+#include <Stick/Error.hpp>
+#include <Stick/ErrorCodes.hpp>
+#include <Stick/Utility.hpp>
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
