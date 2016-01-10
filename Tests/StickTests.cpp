@@ -11,6 +11,7 @@
 #include <Stick/StickTest.hpp>
 #include <Stick/StickStringConversion.hpp>
 #include <Stick/StickPath.hpp>
+#include <Stick/StickFileUtilities.hpp>
 #include <limits>
 
 using namespace stick;
@@ -63,11 +64,19 @@ struct DestructorTester
 
 int DestructorTester::destructionCount = 0;
 
+struct Tester
+{
+    DynamicArray<char> a;
+};
 
 const Suite spec[] =
 {
     SUITE("String Tests")
     {
+        String es;
+        EXPECT(es.length() == 0);
+        EXPECT(es == "");
+
         String a("test");
         String b("test");
         String c(String("different"));
@@ -215,7 +224,7 @@ const Suite spec[] =
             String c = a.sub(7);
             EXPECT(c.length() == 3);
             EXPECT(c == "Up!");
-            std::cout<<"DA C: "<<c.cString()<<std::endl;
+            std::cout << "DA C: " << c.cString() << std::endl;
         }
 
         //copy tests
@@ -374,7 +383,7 @@ const Suite spec[] =
         EXPECT(copy[3] == 4);
         EXPECT(copy[4] == 5);
 
-        DynamicArray<Int32> tttt = {0,52,1,3};
+        DynamicArray<Int32> tttt = {0, 52, 1, 3};
         copy = tttt;
         EXPECT(copy.count() == 4);
         EXPECT(copy[0] == 0);
@@ -396,9 +405,12 @@ const Suite spec[] =
         EXPECT(mcopy[2] == 3);
         EXPECT(mcopy[3] == 4);
         EXPECT(mcopy[4] == 5);
+
+        Tester ta;
+        ta.a.reserve(20);
     },
     SUITE("Path tests")
-    {   
+    {
         String path = "/Absolute/Path/";
         EXPECT(path::isAbsolute(path));
         EXPECT(!path::isRelative(path));
@@ -431,7 +443,7 @@ const Suite spec[] =
         segs.append("Foo");
         segs.append("Bar");
         segs.append("Tar");
-        
+
         String fs = path::fromSegments(segs);
 
         EXPECT(fs == "Foo/Bar/Tar");
@@ -456,6 +468,100 @@ const Suite spec[] =
         EXPECT(dirdir == "/foo/bar");
         String dir = path::directoryName(dirdir);
         EXPECT(dir == "/foo");
+    },
+    SUITE("URITests")
+    {
+        URI empty;
+        EXPECT(empty.isEmpty());
+
+        URI test("http://www.foo.org/test/index.html?bar=0#bazz");
+        EXPECT(test.scheme() == "http");
+        EXPECT(test.host() == "www.foo.org");
+        EXPECT(test.port() == 80);
+        EXPECT(test.path() == "/test/index.html");
+        EXPECT(test.query() == "bar=0");
+        EXPECT(test.fragment() == "bazz");
+        EXPECT(test.userInfo() == "");
+        EXPECT(toString(test) == "http://www.foo.org/test/index.html?bar=0#bazz");
+
+        URI IP6URI("ftp://[::1]:1234/foo");
+        EXPECT(IP6URI.scheme() == "ftp");
+        EXPECT(IP6URI.host() == "::1");
+        EXPECT(IP6URI.port() == 1234);
+        EXPECT(IP6URI.path() == "/foo");
+        EXPECT(IP6URI.query() == "");
+        EXPECT(IP6URI.fragment() == "");
+
+        URI justAPath("testPath");
+        EXPECT(justAPath.isRelative());
+        EXPECT(justAPath.scheme() == "");
+        EXPECT(justAPath.host() == "");
+        EXPECT(justAPath.port() == 0);
+        std::cout << "DA PORT: " << justAPath.port() << std::endl;
+        EXPECT(justAPath.path() == "testPath");
+        EXPECT(justAPath.query() == "");
+        EXPECT(justAPath.fragment() == "");
+
+        URI absPath("/testPath");
+        EXPECT(absPath.isRelative());
+
+        URI mailtoURI("mailto:foo@bar.com");
+        EXPECT(mailtoURI.scheme() == "mailto");
+        EXPECT(mailtoURI.host() == "");
+        EXPECT(mailtoURI.port() == 0);
+        EXPECT(mailtoURI.path() == "foo@bar.com");
+        EXPECT(mailtoURI.query() == "");
+        EXPECT(mailtoURI.fragment() == "");
+
+        URI HTTPPortURI("http://foo.org:8080?test=0");
+        EXPECT(HTTPPortURI.scheme() == "http");
+        EXPECT(HTTPPortURI.host() == "foo.org");
+        EXPECT(HTTPPortURI.port() == 8080);
+        EXPECT(HTTPPortURI.path() == "");
+        EXPECT(HTTPPortURI.query() == "test=0");
+        EXPECT(HTTPPortURI.fragment() == "");
+
+        URI userInfoURI("http://foo@bar.com/");
+        EXPECT(userInfoURI.scheme() == "http");
+        EXPECT(userInfoURI.host() == "bar.com");
+        EXPECT(userInfoURI.port() == 80);
+        EXPECT(userInfoURI.userInfo() == "foo");
+        EXPECT(userInfoURI.path() == "/");
+        EXPECT(toString(userInfoURI) == "http://foo@bar.com/");
+
+        URI telURI("tel:+1-816-555-1212");
+        EXPECT(telURI.scheme() == "tel");
+        EXPECT(telURI.path() == "+1-816-555-1212");
+
+        //a bad uri should not parse
+        URI bad;
+        Error err = bad.parse("ftp://[::01");
+        EXPECT(err == ec::BadURI);
+
+        URI dt("dörthe is dancing");
+        String encoded = toString(dt);
+        EXPECT(encoded == "d%C3%B6rthe%20is%20dancing");
+
+        //decode it again
+        URI dt2(encoded);
+        //and check if the unencoded path matches the input
+        EXPECT(dt2.path() == "dörthe is dancing");
+
+        URI encodedQuery("?förde=0");
+        EXPECT(encodedQuery.encodedQuery() == "f%C3%B6rde=0");
+
+        URI encodedFragment("#förde=0");
+        EXPECT(encodedFragment.encodedFragment() == "f%C3%B6rde=0");
+
+        //check if bad encodings throw
+        URI bad2;
+        err = bad2.parse("http://www.foo.org/%0");
+        EXPECT(err == ec::BadURI);
+
+        URI bad3;
+        err = bad3.parse("%öa");
+        std::cout<<toString(bad3).cString()<<std::endl;
+        EXPECT(err == ec::BadURI);
     },
     SUITE("RBTree Tests")
     {
@@ -725,7 +831,7 @@ const Suite spec[] =
         auto it2 = hm.find("blubb");
         EXPECT(it2->key == "blubb");
         EXPECT(it2->value == 5);
-        
+
         //copy tests
         auto cpy = hm;
         EXPECT(cpy.count() == 2);
@@ -808,14 +914,25 @@ const Suite spec[] =
         auto ss = SystemClock::now();
         auto start = HighResolutionClock::now();
         Thread::sleepFor(Duration::fromSeconds(0.05));
-        std::cout<<(HighResolutionClock::now() - start).seconds()<<std::endl;
-        std::cout<<(SystemClock::now() - ss).seconds()<<std::endl;
+        std::cout << (HighResolutionClock::now() - start).seconds() << std::endl;
+        std::cout << (SystemClock::now() - ss).seconds() << std::endl;
         EXPECT(err.code() == 0);
         EXPECT(thread.isJoinable() == true); //the thread should still run as its blocking on the condition var
         err = cond.notifyOne();
         EXPECT(err.code() == 0);
         err = thread.join();
         EXPECT(err.code() == 0);
+    },
+    SUITE("FileUtilities Tests")
+    {
+        URI uri("../../Tests/TestFiles/SomeTextFile.txt");
+        auto err = saveTextFile("This is some text", uri);
+        EXPECT(!err);
+        auto result = loadTextFile(uri);
+        EXPECT(result);
+        EXPECT(result.data == "This is some text");
+        auto result2 = loadTextFile(URI("I/do/not/exist"));
+        EXPECT(!result2);
     }
 };
 

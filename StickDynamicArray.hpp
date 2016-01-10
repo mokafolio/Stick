@@ -5,9 +5,12 @@
 #include <Stick/StickIterator.hpp>
 #include <Stick/StickUtility.hpp>
 #include <initializer_list>
+#include <new>
 
 namespace stick
-{
+{   
+    //TODO: Make this append etc. work for types that are not default constructible/copy constructible
+    //i.e. with the appropriate move versions.
     template<class T>
     class DynamicArray
     {
@@ -114,6 +117,8 @@ namespace stick
             m_count = _s;
         }
 
+        //TODO: make a version that uses move rather than copy
+        //for types of T that are move constructible
         inline void reserve(Size _s)
         {
             if (_s > capacity())
@@ -121,15 +126,15 @@ namespace stick
                 auto blk = m_allocator->allocate(_s * sizeof(T));
                 T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
                 T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
-                //call placement new to run the constructors of all the new elements
-                for(Size i = 0; i < _s; ++i)
-                {
-                    new (arrayPtr + i) T();
-                }
+
                 //move the existing elements over
                 for (Size i = 0; i < m_count; ++i)
                 {
-                    arrayPtr[i] = move(sourcePtr[i]);
+                    new (arrayPtr + i) T(move(sourcePtr[i]));
+                }
+                for(Size i = m_count; i < _s; ++i)
+                {
+                    new (arrayPtr + i) T();
                 }
                 m_allocator->deallocate(m_data);
                 m_data = blk;

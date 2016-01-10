@@ -4,14 +4,19 @@
 #include <Stick/StickString.hpp>
 #include <Stick/StickDynamicArray.hpp>
 #include <Stick/StickURI.hpp>
+#include <Stick/StickResult.hpp>
 
 namespace stick
 {
     typedef DynamicArray<char> ByteArray;
 
-    ByteArray loadBinaryFile();
+    Result<ByteArray> loadBinaryFile(const URI & _uri);
 
-    String loadTexFile();
+    Result<String> loadTextFile(const URI & _uri);
+
+    Error saveBinaryFile(const ByteArray & _data, const URI & _uri);
+
+    Error saveTextFile(const String & _text, const URI & _uri);
 }
 
 #endif //STICK_STICKFILEUTILITIES_HPP

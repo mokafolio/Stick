@@ -21,6 +21,13 @@ namespace stick
         URI();
 
         /**
+         * @brief TODO
+         */
+        URI(const String & _str);
+
+        ~URI();
+
+        /**
          * @brief Parse the URI from a percent encoded UTF-8 string.
          */
         Error parse(const String & _str);

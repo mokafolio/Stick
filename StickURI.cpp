@@ -3,16 +3,28 @@
 #include <Stick/StickPath.hpp>
 #include <ctype.h> //for isalpha
 
+#include <iostream>
+
 namespace stick
 {
-    String URI::s_reservedPath = "?#";
-    String URI::s_reservedQuery = "#";
-    String URI::s_reservedFragment = "";
+    String URI::s_reservedPath("?#");
+    String URI::s_reservedQuery("#");
+    String URI::s_reservedFragment("");
 
     URI::URI() :
         m_port(0)
     {
+    }
 
+    URI::URI(const String & _str) :
+    m_port(0)
+    {
+        auto err = parse(_str);
+        STICK_ASSERT(!err);
+    }
+
+    URI::~URI()
+    {
     }
 
     Error URI::parse(const String & _str)
@@ -151,8 +163,7 @@ namespace stick
 
         //path
         String::ConstIter pathBegin = authorityEnd;
-        String::ConstIter pathEnd = findIf(schemeEnd, URIEnd, isPathEnd);
-
+        String::ConstIter pathEnd = findIf(authorityEnd, URIEnd, isPathEnd);
         m_path = decode(String(pathBegin, pathEnd), _error);
 
         if (_error)
@@ -290,9 +301,9 @@ namespace stick
         for (; it != _str.end(); ++it)
         {
             char c = *it;
-            Int32 tmp;
+            Int64 tmp;
             if (c == '%')
-            {   
+            {
                 //std::stringstream strstr;
                 it++;
                 if (it == _str.end())
@@ -312,20 +323,19 @@ namespace stick
 
                 char lo = *it;
 
-                /*
-                if (!(strstr << std::hex << hi << lo))
+                if(!isxdigit(hi) || !isxdigit(lo))
                 {
                     _error = Error(ec::BadURI, "The high or low digit is not a valid hex digit!", STICK_FILE, STICK_LINE);
                     return ret;
                 }
 
-                if (!(strstr >> tmp))
+                String tmp2 = String::concat(hi, lo);
+                tmp = strtol(tmp2.cString(), NULL, 16);
+                if(tmp == LONG_MIN || tmp == LONG_MAX)
                 {
                     _error = Error(ec::BadURI, "Error extracting char from hex digits!", STICK_FILE, STICK_LINE);
                     return ret;
-                }*/
-                String tmp2 = String::concat(hi, lo);
-                tmp = strtol(tmp2.cString(), NULL, 16);
+                }
                 ret.append((char) tmp);
             }
             else

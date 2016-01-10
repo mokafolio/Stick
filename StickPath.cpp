@@ -1,7 +1,5 @@
 #include <Stick/StickPath.hpp>
 
-#include <iostream>
-
 namespace stick
 {
     namespace path
@@ -34,14 +32,11 @@ namespace stick
             String currentSegment;
             while (it != _path.end())
             {
-                std::cout<<*it<<std::endl;
                 if (*it == '/')
                 {
                     if (!currentSegment.isEmpty())
                     {
-                        std::cout<<"CS: "<<currentSegment.cString()<<std::endl;
                         ret.append(currentSegment);
-                        std::cout<<"POST APPEND: "<<currentSegment.cString()<<std::endl;
                         currentSegment.clear();
                     }
                 }
@@ -84,7 +79,7 @@ namespace stick
                 return String();
 
             bool bHasLeadingSep = _path[0] == '/';
-            bool bHasTrailingSep = _path[_path.length() - 1] == '/';
+            bool bHasTrailingSep = _path[_path.length() - 1] == '/' && _path.length() > 1;
 
             StringArray segs = segments(_path);
             //to buffer the parsed segments

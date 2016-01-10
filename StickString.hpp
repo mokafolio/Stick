@@ -47,7 +47,7 @@ namespace stick
             m_capacity(0),
             m_allocator(&_alloc)
         {
-            resize(_size);
+            reserve(_size);
         }
 
         inline String(const char * _c, Allocator & _alloc = defaultAllocator()) :
@@ -56,8 +56,12 @@ namespace stick
             m_capacity(0),
             m_allocator(&_alloc)
         {
-            resize(strlen(_c));
-            strcpy(m_cStr, _c);
+            Size l = strlen(_c);
+            if (l)
+            {
+                resize(l);
+                strcpy(m_cStr, _c);
+            }
         }
 
         inline String(const String & _other) :
@@ -133,8 +137,7 @@ namespace stick
             if (!m_allocator)
                 m_allocator = &defaultAllocator();
 
-            m_length = strlen(_other);
-            reserve(m_length);
+            resize(strlen(_other));
             strcpy(m_cStr, _other);
 
             return *this;
@@ -156,6 +159,7 @@ namespace stick
         inline bool operator == (const String & _b) const
         {
             if (!m_cStr && !_b.m_cStr) return true;
+            else if (!m_cStr && !strlen(_b.m_cStr)) return true;
             else if (!m_cStr) return false;
             return strcmp(m_cStr, _b.m_cStr) == 0;
         }
@@ -168,6 +172,7 @@ namespace stick
         inline bool operator == (const char * _str) const
         {
             if (!m_cStr && !_str) return true;
+            else if (!m_cStr && !strlen(_str)) return true;
             else if (!m_cStr) return false;
             return strcmp(m_cStr, _str) == 0;
         }
@@ -180,12 +185,14 @@ namespace stick
         inline bool operator < (const String & _str) const
         {
             if (!m_cStr) return true;
+            if (!_str.m_cStr) return false;
             return strcmp(m_cStr, _str.m_cStr) < 0;
         }
 
         inline bool operator > (const String & _str) const
         {
             if (!m_cStr) return false;
+            if (!_str.m_cStr) return true;
             return strcmp(m_cStr, _str.m_cStr) > 0;
         }
 
@@ -484,8 +491,11 @@ namespace stick
 
             inline static int performCopy(String & _dest, Size & _off, const String & _src)
             {
-                strcpy(_dest.m_cStr + _off, _src.m_cStr);
-                _off += _src.length();
+                if (_src.m_cStr)
+                {
+                    strcpy(_dest.m_cStr + _off, _src.m_cStr);
+                    _off += _src.length();
+                }
                 return 0;
             }
 
@@ -520,7 +530,8 @@ namespace stick
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
-        String ret(len, _alloc);
+        String ret(_alloc);
+        ret.resize(len);
         Size off = 0;
         int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
         return ret;
@@ -531,7 +542,8 @@ namespace stick
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
-        String ret(len);
+        String ret;
+        ret.resize(len);
         Size off = 0;
         int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
         return ret;
