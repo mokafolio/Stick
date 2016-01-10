@@ -23,6 +23,13 @@ namespace stick
         STICK_ASSERT(!err);
     }
 
+    URI::URI(const char * _cStr) :
+    m_port(0)
+    {
+        auto err = parse(_cStr);
+        STICK_ASSERT(!err);
+    }
+
     URI::~URI()
     {
     }

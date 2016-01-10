@@ -25,6 +25,8 @@ namespace stick
          */
         URI(const String & _str);
 
+        URI(const char * _cStr);
+
         ~URI();
 
         /**

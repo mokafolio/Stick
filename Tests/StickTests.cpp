@@ -931,8 +931,21 @@ const Suite spec[] =
         auto result = loadTextFile(uri);
         EXPECT(result);
         EXPECT(result.data == "This is some text");
-        auto result2 = loadTextFile(URI("I/do/not/exist"));
+        auto result2 = loadTextFile("I/do/not/exist");
         EXPECT(!result2);
+
+        URI uri2("../../Tests/TestFiles/SomeBinaryData.dat");
+        ByteArray data = {1, 2, 127, 3, 4};
+        err = saveBinaryFile(data, uri2);
+        EXPECT(!err);
+        auto result3 = loadBinaryFile(uri2);
+        EXPECT(result3);
+        EXPECT(result3.data.count() == 5);
+        EXPECT(result3.data[0] == 1);
+        EXPECT(result3.data[1] == 2);
+        EXPECT(result3.data[2] == 127);
+        EXPECT(result3.data[3] == 3);
+        EXPECT(result3.data[4] == 4);
     }
 };
 
