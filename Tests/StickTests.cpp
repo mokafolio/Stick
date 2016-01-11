@@ -12,6 +12,7 @@
 #include <Stick/StringConversion.hpp>
 #include <Stick/Path.hpp>
 #include <Stick/FileUtilities.hpp>
+#include <Stick/TypeInfo.hpp>
 #include <limits>
 
 using namespace stick;
@@ -946,6 +947,11 @@ const Suite spec[] =
         EXPECT(result3.data[2] == 127);
         EXPECT(result3.data[3] == 3);
         EXPECT(result3.data[4] == 4);
+    },
+    SUITE("TypeInfo Tests")
+    {
+        //test if type ID's are the same across shared library bounds
+        EXPECT(TypeInfoT<Int32>::typeID() == detail::__typeIDInt32SharedLibBoundsTestFunction());
     }
 };
 

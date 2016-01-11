@@ -269,7 +269,12 @@ namespace stick
 
         inline String sub(Size _pos, Size _length = InvalidIndex) const
         {
-            return String(begin() + _pos, _length == InvalidIndex ? begin() + m_length : begin() + _pos + _length, *m_allocator);
+            return sub(_pos, _length, allocator());
+        }
+
+        inline String sub(Size _pos, Size _length, Allocator & _alloc) const
+        {
+            return String(begin() + _pos, _length == InvalidIndex ? begin() + m_length : begin() + _pos + _length, _alloc);
         }
 
         inline Size length() const
@@ -350,6 +355,12 @@ namespace stick
         inline bool isEmpty() const
         {
             return m_length == 0;
+        }
+
+        inline Allocator & allocator() const
+        {
+            STICK_ASSERT(m_allocator);
+            return *m_allocator;
         }
 
         inline static String toString(Int32 _i, Allocator & _alloc = defaultAllocator())

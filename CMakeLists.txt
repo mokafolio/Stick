@@ -4,6 +4,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 set (STICKDEPS pthread)
+
 set (STICKINC 
 Allocator.hpp
 ConditionVariable.hpp
@@ -29,9 +30,11 @@ SystemClock.hpp
 Test.hpp
 Thread.hpp
 TimePoint.hpp
+TypeInfo.hpp
 URI.hpp
 Utility.hpp
 )
+
 set (STICKSRC 
 ConditionVariable.cpp
 Error.cpp 
@@ -42,10 +45,12 @@ Mutex.cpp
 Path.cpp
 SystemClock.cpp
 Thread.cpp 
+TypeInfo.cpp
 URI.cpp
 )
 
-add_library (Stick ${STICKSRC})
+add_library (Stick SHARED ${STICKSRC})
+add_library (StickStatic STATIC ${STICKSRC})
 install (TARGETS Stick DESTINATION /usr/local/lib)
 install (FILES ${STICKINC} DESTINATION /usr/local/include/Stick)
 add_subdirectory (Tests)

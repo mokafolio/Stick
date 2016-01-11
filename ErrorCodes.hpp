@@ -11,6 +11,8 @@ namespace stick
         {
             NoError = 0,
             InvalidOperation,
+            ParseFailed,
+            ComposeFailed,
             BadURI
         };
 

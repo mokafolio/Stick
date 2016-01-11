@@ -31,6 +31,10 @@
 #define STICK_LINE __LINE__
 #define STICK_FILE __FILE__
 
+//visibility
+#define STICK_API  __attribute__ ((visibility("default")))
+#define STICK_LOCAL __attribute__ ((visibility("hidden")))
+
 #include <stdint.h>
 #include <stdio.h>
 

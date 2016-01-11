@@ -62,6 +62,12 @@ namespace stick
         case ec::InvalidOperation:
             return "Invalid operation";
             break;
+        case ec::ParseFailed:
+            return "Parse failed";
+            break;
+        case ec::ComposeFailed:
+            return "Compose failed";
+            break;
         case ec::BadURI:
             return "A URI could not be parsed/created";
             break;

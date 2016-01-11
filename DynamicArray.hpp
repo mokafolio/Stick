@@ -8,7 +8,7 @@
 #include <new>
 
 namespace stick
-{   
+{
     //TODO: Make this append etc. work for types that are not default constructible/copy constructible
     //i.e. with the appropriate move versions.
     template<class T>
@@ -29,32 +29,32 @@ namespace stick
 
         DynamicArray(Allocator & _alloc = defaultAllocator()) :
             m_data( {nullptr, 0}),
-            m_count(0),
-            m_allocator(&_alloc)
+                m_count(0),
+                m_allocator(&_alloc)
         {
 
         }
 
         DynamicArray(std::initializer_list<T> _il) :
-            m_data({nullptr, 0}),
-            m_count(0),
-            m_allocator(&defaultAllocator())
+            m_data( {nullptr, 0}),
+        m_count(0),
+        m_allocator(&defaultAllocator())
         {
             insert(end(), _il.begin(), _il.end());
         }
 
         DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
             m_data( {nullptr, 0}),
-            m_count(_size),
-            m_allocator(&_alloc)
+        m_count(_size),
+        m_allocator(&_alloc)
         {
             m_data = (T *)m_allocator->allocate(m_count * sizeof(T));
         }
 
         DynamicArray(const DynamicArray & _other) :
             m_data( {nullptr, 0}),
-            m_count(0),
-            m_allocator(_other.m_allocator)
+        m_count(0),
+        m_allocator(_other.m_allocator)
         {
             if (_other.m_count)
             {
@@ -132,7 +132,7 @@ namespace stick
                 {
                     new (arrayPtr + i) T(move(sourcePtr[i]));
                 }
-                for(Size i = m_count; i < _s; ++i)
+                for (Size i = m_count; i < _s; ++i)
                 {
                     new (arrayPtr + i) T();
                 }
@@ -241,6 +241,12 @@ namespace stick
                 m_allocator->deallocate(m_data);
                 m_data = {nullptr, 0};
             }
+        }
+
+        inline Allocator & allocator() const
+        {
+            STICK_ASSERT(m_allocator);
+            return *m_allocator;
         }
 
         inline bool isEmpty()
