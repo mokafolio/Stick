@@ -10,9 +10,9 @@ namespace stick
 {
     typedef DynamicArray<char> ByteArray;
 
-    Result<ByteArray> loadBinaryFile(const URI & _uri);
+    Result<ByteArray> loadBinaryFile(const URI & _uri, Allocator & _alloc = defaultAllocator());
 
-    Result<String> loadTextFile(const URI & _uri);
+    Result<String> loadTextFile(const URI & _uri, Allocator & _alloc = defaultAllocator());
 
     Error saveBinaryFile(const ByteArray & _data, const URI & _uri);
 

@@ -61,19 +61,18 @@ namespace stick
         {
         case ec::InvalidOperation:
             return "Invalid operation";
-            break;
         case ec::ParseFailed:
             return "Parse failed";
-            break;
         case ec::ComposeFailed:
             return "Compose failed";
-            break;
         case ec::BadURI:
             return "A URI could not be parsed/created";
-            break;
+        case ec::Unsupported:
+            return "An operation is not supported";
         case ec::NoError:
+           return "No Error";
         default:
-            return "No Error";
+            return "Misc Error";
         }
     }
 

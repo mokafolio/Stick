@@ -13,7 +13,8 @@ namespace stick
             InvalidOperation,
             ParseFailed,
             ComposeFailed,
-            BadURI
+            BadURI,
+            Unsupported
         };
 
         /**

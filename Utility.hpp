@@ -1,7 +1,6 @@
 #ifndef STICK_UTILITY_HPP
 #define STICK_UTILITY_HPP
 
-#include <Stick/Allocator.hpp>
 #include <Stick/Iterator.hpp>
 
 namespace stick

@@ -3,9 +3,9 @@
 
 namespace stick
 {
-    Result<ByteArray> loadBinaryFile(const URI & _uri)
+    Result<ByteArray> loadBinaryFile(const URI & _uri, Allocator & _alloc)
     {
-        ByteArray ba;
+        ByteArray ba(_alloc);
         FILE * fp = fopen(toString(_uri).cString(), "rb");
         if (!fp)
         {
@@ -41,9 +41,9 @@ namespace stick
         return {ba, Error()};
     }
 
-    Result<String> loadTextFile(const URI & _uri)
+    Result<String> loadTextFile(const URI & _uri, Allocator & _alloc)
     {
-        String str;
+        String str(_alloc);
         FILE * fp = fopen(toString(_uri).cString(), "r");
         if (!fp)
         {
@@ -81,7 +81,6 @@ namespace stick
 
     Error saveBinaryFile(const ByteArray & _data, const URI & _uri)
     {
-        String str;
         FILE * fp = fopen(toString(_uri).cString(), "wb");
         if (!fp)
         {
@@ -101,7 +100,6 @@ namespace stick
 
     Error saveTextFile(const String & _text, const URI & _uri)
     {
-        String str;
         FILE * fp = fopen(toString(_uri).cString(), "w");
         if (!fp)
         {
