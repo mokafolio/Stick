@@ -13,6 +13,12 @@ namespace stick
         typedef C Clock;
         typedef T Rep;
 
+        inline TimePointT() :
+        m_value(0)
+        {
+
+        }
+
         inline TimePointT(const Rep & _val) :
             m_value(_val)
         {
