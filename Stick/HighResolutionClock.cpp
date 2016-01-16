@@ -2,7 +2,9 @@
 
 #if STICK_PLATFORM == STICK_PLATFORM_OSX
 #include <mach/mach_time.h>
-#endif //STICK_PLATFORM == STICK_PLATFORM_OSX
+#elif STICK_PLATFORM == STICK_PLATFORM_LINUX
+#include <time.h>
+#endif //STICK_PLATFORM
 
 namespace stick
 {
@@ -28,5 +30,19 @@ namespace stick
         return TimePoint(mach_absolute_time() * s_machHelper.factor);
     }
 
-#endif //STICK_PLATFORM == STICK_PLATFORM_OSX
+#elif STICK_PLATFORM == STICK_PLATFORM_LINUX
+
+    HighResolutionClock::TimePoint HighResolutionClock::now()
+    {
+        timespec ts;
+        if(clock_gettime(CLOCK_MONOTONIC, &ts) == 0)
+        {
+            return TimePoint(ts.tv_sec * 1000000000 + ts.tv_nsec);
+        }
+        return TimePoint();
+    }
+
+#endif //STICK_PLATFORM
+
+
 }

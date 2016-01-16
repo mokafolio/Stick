@@ -11,7 +11,9 @@ namespace stick
 
 #if STICK_PLATFORM == STICK_PLATFORM_OSX
         typedef uint64_t NativeRep;
-#endif //STICK_PLATFORM == STICK_PLATFORM_OSX
+#elif STICK_PLATFORM == STICK_PLATFORM_LINUX
+        typedef uint64_t NativeRep;
+#endif //STICK_PLATFORM
 
         typedef TimePointT<SystemClock, NativeRep> TimePoint;
 
