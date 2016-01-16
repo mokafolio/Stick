@@ -399,11 +399,6 @@ namespace stick
             return ret;
         }
 
-        inline static String toString(Size _i, Allocator & _alloc = defaultAllocator())
-        {
-            return toString(static_cast<UInt64>(_i));
-        }
-
         inline static String toString(Float64 _i, Allocator & _alloc = defaultAllocator())
         {
             String ret(_alloc);
@@ -439,11 +434,6 @@ namespace stick
         }
 
         inline static String toHexString(UInt32 _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
-        {
-            return String::toHexString(static_cast<UInt64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
-        }
-
-        inline static String toHexString(Size _i, UInt32 _width = 0, bool _bUpperCase = true, bool _bShowBase = false, Allocator & _alloc = defaultAllocator())
         {
             return String::toHexString(static_cast<UInt64>(_i), _width, _bUpperCase, _bShowBase, _alloc);
         }
