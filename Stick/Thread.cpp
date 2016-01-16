@@ -57,6 +57,10 @@ namespace stick
     Error Thread::join()
     {
 #ifdef STICK_PLATFORM_UNIX
+#if STICK_PLATFORM == STICK_PLATFORM_LINUX
+        if(!isJoinable())
+            return Error(ec::InvalidOperation, "The pthread is not joinable", STICK_FILE, STICK_LINE);
+#endif
         int res = pthread_join(m_handle, NULL);
         m_threadID = 0;
         if (res != 0)

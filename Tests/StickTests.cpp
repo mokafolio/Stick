@@ -14,6 +14,7 @@
 #include <Stick/FileUtilities.hpp>
 #include <Stick/TypeInfo.hpp>
 #include <limits>
+#include <atomic>
 
 using namespace stick;
 
@@ -884,7 +885,7 @@ const Suite spec[] =
         EXPECT(err.code() != 0);
         std::atomic<bool> bJoinable(false);
         std::atomic<bool> bValidThreadID(false);
-        err = thread.run([&]() { bValidThreadID = thread.threadID() != 0; bJoinable = thread.isJoinable(); });
+        err = thread.run([&]() { bValidThreadID = thread.threadID() != 0; bJoinable = thread.isJoinable(); Thread::sleepFor(Duration::fromSeconds(0.1f));});
         EXPECT(err.code() == 0);
         err = thread.join();
         EXPECT(bJoinable);
@@ -920,8 +921,7 @@ const Suite spec[] =
         EXPECT(thread.isJoinable() == true); //the thread should still run as its blocking on the condition var
         err = cond.notifyOne();
         EXPECT(err.code() == 0);
-        err = thread.join();
-        EXPECT(err.code() == 0);
+        thread.join();
     },
     SUITE("FileUtilities Tests")
     {
