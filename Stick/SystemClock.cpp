@@ -7,7 +7,7 @@
 
 namespace stick
 {
-#if STICK_PLATFORM == STICK_PLATFORM_OSX || STICK_PLATFORM == STICK_PLATFORM_LINUX
+#if STICK_PLATFORM == STICK_PLATFORM_OSX
 
     SystemClock::TimePoint SystemClock::now()
     {
@@ -15,6 +15,19 @@ namespace stick
         gettimeofday(&val, 0);
         return TimePoint(val.tv_sec * 1000000000 + val.tv_usec * 1000);
     }
-    
+
+#elif STICK_PLATFORM == STICK_PLATFORM_LINUX
+
+    SystemClock::TimePoint SystemClock::now()
+    {
+        timespec ts;
+        if (clock_gettime(CLOCK_REALTIME, &ts) == 0)
+        {
+            return TimePoint(ts.tv_sec * 1000000000 + ts.tv_nsec);
+        }
+
+        return TimePoint();
+    }
+
 #endif //STICK_PLATFORM
 }
