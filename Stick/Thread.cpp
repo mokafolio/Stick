@@ -58,7 +58,7 @@ namespace stick
     {
 #ifdef STICK_PLATFORM_UNIX
 #if STICK_PLATFORM == STICK_PLATFORM_LINUX
-        if(!isJoinable())
+        if (!isJoinable())
             return Error(ec::InvalidOperation, "The pthread is not joinable", STICK_FILE, STICK_LINE);
 #endif
         int res = pthread_join(m_handle, NULL);
@@ -91,7 +91,7 @@ namespace stick
     {
         auto dur = _dur.nanoseconds();
 
-        if(dur <= 0)
+        if (dur <= 0)
             return;
 
         timespec dr;

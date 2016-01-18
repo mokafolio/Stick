@@ -13,6 +13,7 @@
 #include <Stick/Path.hpp>
 #include <Stick/FileUtilities.hpp>
 #include <Stick/TypeInfo.hpp>
+#include <Stick/UniquePtr.hpp>
 #include <limits>
 #include <atomic>
 
@@ -951,6 +952,31 @@ const Suite spec[] =
     {
         //test if type ID's are the same across shared library bounds
         EXPECT(TypeInfoT<Int32>::typeID() == detail::__typeIDInt32SharedLibBoundsTestFunction());
+    },
+    SUITE("UniquePtr Tests")
+    {
+        DestructorTester::reset();
+        UniquePtr<DestructorTester> a(defaultAllocator().create<DestructorTester>());
+        a.reset();
+        EXPECT(DestructorTester::destructionCount == 1);
+        {
+            UniquePtr<DestructorTester> b(defaultAllocator().create<DestructorTester>());
+        }
+        EXPECT(DestructorTester::destructionCount == 2);
+        a = UniquePtr<DestructorTester>(defaultAllocator().create<DestructorTester>());
+        a.reset();
+        EXPECT(DestructorTester::destructionCount == 3);
+        {
+            UniquePtr<DestructorTester> e(defaultAllocator().create<DestructorTester>());
+            UniquePtr<DestructorTester> d(move(e));
+        }
+        EXPECT(DestructorTester::destructionCount == 4);
+
+        UniquePtr<Int32> f(new Int32(10));
+        EXPECT(*f == 10);
+        EXPECT(f);
+        UniquePtr<Int32> g;
+        EXPECT(!g);
     }
 };
 

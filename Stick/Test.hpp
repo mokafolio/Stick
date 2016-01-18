@@ -2,7 +2,7 @@
 #define STICK_TEST_HPP
 
 #include <Stick/DynamicArray.hpp>
-#include <Stick/Print.hpp>
+#include <Stick/String.hpp>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -11,7 +11,7 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 #define SUITE(_title) \
-    _title, [](detail::TestSession & _session)
+    _title, [](stick::detail::TestSession & _session)
 
 #define EXPECT(_expr) \
     do \

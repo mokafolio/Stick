@@ -57,7 +57,7 @@ namespace stick
          */
         static constexpr TypeID typeID()
         {
-            return reinterpret_cast<TypeID>(&s_helper);
+            return (TypeID)&s_helper;
         }
     };
 
