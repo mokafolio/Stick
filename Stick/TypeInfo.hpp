@@ -8,7 +8,7 @@ namespace stick
     /**
     * @brief An integer representing a type id.
     */
-    typedef Size TypeID;
+    typedef void* TypeID;
 
     /**
      * @brief A TypeInfo is a utility class to get a TypeID of type T and to compare
