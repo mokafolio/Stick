@@ -18,6 +18,7 @@ Stick/HashMap.hpp
 Stick/HighResolutionClock.hpp
 Stick/Iterator.hpp
 Stick/Map.hpp
+Stick/Maybe.hpp
 Stick/Mutex.hpp
 Stick/Path.hpp
 Stick/Platform.hpp

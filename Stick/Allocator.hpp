@@ -7,13 +7,13 @@
 
 namespace stick
 {
-    struct Block
+    struct STICK_API Block
     {
         void * ptr;
         Size byteCount;
     };
 
-    struct Allocator
+    struct STICK_API Allocator
     {
         virtual Block allocate(Size _byteCount) = 0;
 
@@ -29,7 +29,7 @@ namespace stick
         }
     };
 
-    struct Mallocator : public Allocator
+    struct STICK_API Mallocator : public Allocator
     {
         inline Block allocate(Size _byteCount) override
         {
@@ -47,14 +47,14 @@ namespace stick
         }
     };
 
-    inline Allocator & defaultAllocator()
+    inline STICK_API Allocator & defaultAllocator()
     {
         static Mallocator s_mallocator;
         return s_mallocator;
     }
 
     template<class T>
-    inline void destroy(T * _obj, Allocator & _alloc = defaultAllocator())
+    inline STICK_API void destroy(T * _obj, Allocator & _alloc = defaultAllocator())
     {
         if (_obj)
         {

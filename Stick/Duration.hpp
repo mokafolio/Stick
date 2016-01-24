@@ -5,7 +5,7 @@
 
 namespace stick
 {
-    class Duration
+    class STICK_API Duration
     {
     public:
 

@@ -15,7 +15,7 @@ namespace stick
      * different types.
      */
     template<class T>
-    class TypeInfoT
+    class STICK_API TypeInfoT
     {
     public:
 

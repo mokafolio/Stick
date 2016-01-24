@@ -13,7 +13,7 @@ namespace stick
 {
     class Mutex;
 
-    class ConditionVariable
+    class STICK_API ConditionVariable
     {
     public:
 

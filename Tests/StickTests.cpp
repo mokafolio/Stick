@@ -14,6 +14,7 @@
 #include <Stick/FileUtilities.hpp>
 #include <Stick/TypeInfo.hpp>
 #include <Stick/UniquePtr.hpp>
+#include <Stick/Maybe.hpp>
 #include <limits>
 #include <atomic>
 
@@ -67,9 +68,25 @@ struct DestructorTester
 
 int DestructorTester::destructionCount = 0;
 
-struct Tester
+struct NoMove
 {
-    DynamicArray<char> a;
+    NoMove()
+    {
+
+    }
+
+    NoMove(const NoMove & _other)
+    {
+
+    }
+
+    NoMove & operator = (const NoMove & _other)
+    {
+        return *this;
+    }
+
+    NoMove(NoMove && _other) = delete;
+    NoMove & operator = (NoMove && _other) = delete;
 };
 
 const Suite spec[] =
@@ -272,6 +289,31 @@ const Suite spec[] =
         EXPECT(toInt64("-1234") == -1234);
         EXPECT(toInt16("-255") == -255);
     },
+    SUITE("Maybe Tests")
+    {
+        /*Maybe<Int32> val;
+        EXPECT(!val);
+        val = 3;
+        EXPECT(val);
+        EXPECT(*val == 3);
+
+        Int32 v = 10;
+        val = move(v);
+        EXPECT(*val == 10);
+
+        Int32 v2 = -99;
+        Maybe<Int32> val2 = move(v2);
+        EXPECT(val2);
+        EXPECT(*val2 == -99);
+
+        Maybe<NoMove> val3;
+        NoMove bla;
+        val3 = bla;*/
+
+        Maybe<String> mstr("blaaaa");
+
+        mstr = String("tits");
+    },
     SUITE("DynamicArray Tests")
     {
         DynamicArray<Int32> a;
@@ -407,9 +449,6 @@ const Suite spec[] =
         EXPECT(mcopy[2] == 3);
         EXPECT(mcopy[3] == 4);
         EXPECT(mcopy[4] == 5);
-
-        Tester ta;
-        ta.a.reserve(20);
     },
     SUITE("Path tests")
     {
