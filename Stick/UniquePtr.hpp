@@ -58,7 +58,8 @@ namespace stick
 
         inline ~UniquePtr()
         {
-            reset();
+            if (m_obj)
+                m_cleanup(m_obj);
         }
 
         UniquePtr(const UniquePtr & _other) = delete;

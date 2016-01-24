@@ -1,6 +1,8 @@
 #ifndef STICK_STICKRESULT_HPP
 #define STICK_STICKRESULT_HPP
 
+#include <Stick/Maybe.hpp>
+
 #define STICK_RESULT_HOLDER(_name, _holderName) \
 template<class T> \
 struct _name \
@@ -11,18 +13,27 @@ struct _name \
     } \
  \
     _name(const T & _data) : \
-        _holderName(_data) \
+        m_value(_data) \
     { \
  \
     } \
  \
     _name(T && _data) : \
-        _holderName(move(_data)) \
+        m_value(move(_data)) \
     { \
  \
     } \
  \
-    T _holderName; \
+    T & _holderName() \
+    { \
+        return *m_value; \
+    } \
+ \
+    const T & _holderName() const \
+    { \
+        return *m_value; \
+    } \
+    stick::Maybe<T> m_value; \
 } \
 
 namespace stick
@@ -30,8 +41,10 @@ namespace stick
     STICK_RESULT_HOLDER(DefaultResultHolder, data);
 
     template<class T, template<class> class ResultHolder = DefaultResultHolder>
-    struct Result : public ResultHolder<T>
+    class Result : public ResultHolder<T>
     {
+    public:
+
         typedef ResultHolder<T> ResultHolderType;
 
         inline Result()
@@ -39,26 +52,47 @@ namespace stick
 
         }
 
-        inline Result(const T & _result, const Error & _error) :
-            ResultHolderType(_result),
-            error(_error)
+        inline Result(const T & _result) :
+            ResultHolderType(_result)
         {
 
         }
 
-        inline Result(T && _result, const Error & _error) :
-            ResultHolderType(move(_result)),
-            error(_error)
+        inline Result(T && _result) :
+            ResultHolderType(move(_result))
+        {
+
+        }
+
+        inline Result(const Error & _error) :
+        m_error(_error)
         {
 
         }
 
         inline operator bool() const
         {
-            return !static_cast<bool>(error);
+            return !static_cast<bool>(m_error);
         }
 
-        Error error;
+        inline const Error & error() const
+        {
+            return m_error;
+        }
+
+        inline void setError(const Error & _error)
+        {
+            m_error = _error;
+        }
+
+        inline void setError(Error && _error)
+        {
+            m_error = move(_error);
+        }
+
+    private:
+
+        Error m_error;
     };
 }
 

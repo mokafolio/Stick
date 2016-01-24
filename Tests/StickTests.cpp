@@ -244,7 +244,6 @@ const Suite spec[] =
             String c = a.sub(7);
             EXPECT(c.length() == 3);
             EXPECT(c == "Up!");
-            std::cout << "DA C: " << c.cString() << std::endl;
         }
 
         //copy tests
@@ -291,28 +290,18 @@ const Suite spec[] =
     },
     SUITE("Maybe Tests")
     {
-        /*Maybe<Int32> val;
-        EXPECT(!val);
-        val = 3;
-        EXPECT(val);
-        EXPECT(*val == 3);
-
-        Int32 v = 10;
-        val = move(v);
-        EXPECT(*val == 10);
-
-        Int32 v2 = -99;
-        Maybe<Int32> val2 = move(v2);
-        EXPECT(val2);
-        EXPECT(*val2 == -99);
-
-        Maybe<NoMove> val3;
-        NoMove bla;
-        val3 = bla;*/
-
-        Maybe<String> mstr("blaaaa");
-
-        mstr = String("tits");
+        DestructorTester::reset();
+        {
+            Maybe<DestructorTester> a;
+        }
+        EXPECT(DestructorTester::destructionCount == 0);
+        {
+            DestructorTester dt;
+            Maybe<DestructorTester> b(dt);
+            b.reset();
+            EXPECT(DestructorTester::destructionCount == 1);
+        }
+        EXPECT(DestructorTester::destructionCount == 2);
     },
     SUITE("DynamicArray Tests")
     {
@@ -538,7 +527,6 @@ const Suite spec[] =
         EXPECT(justAPath.scheme() == "");
         EXPECT(justAPath.host() == "");
         EXPECT(justAPath.port() == 0);
-        std::cout << "DA PORT: " << justAPath.port() << std::endl;
         EXPECT(justAPath.path() == "testPath");
         EXPECT(justAPath.query() == "");
         EXPECT(justAPath.fragment() == "");
@@ -601,7 +589,6 @@ const Suite spec[] =
 
         URI bad3;
         err = bad3.parse("%öa");
-        std::cout<<toString(bad3).cString()<<std::endl;
         EXPECT(err == ec::BadURI);
     },
     SUITE("RBTree Tests")
@@ -970,7 +957,7 @@ const Suite spec[] =
         EXPECT(!err);
         auto result = loadTextFile(uri);
         EXPECT(result);
-        EXPECT(result.data == "This is some text");
+        EXPECT(result.data() == "This is some text");
         auto result2 = loadTextFile("I/do/not/exist");
         EXPECT(!result2);
 
@@ -980,12 +967,12 @@ const Suite spec[] =
         EXPECT(!err);
         auto result3 = loadBinaryFile(uri2);
         EXPECT(result3);
-        EXPECT(result3.data.count() == 5);
-        EXPECT(result3.data[0] == 1);
-        EXPECT(result3.data[1] == 2);
-        EXPECT(result3.data[2] == 127);
-        EXPECT(result3.data[3] == 3);
-        EXPECT(result3.data[4] == 4);
+        EXPECT(result3.data().count() == 5);
+        EXPECT(result3.data()[0] == 1);
+        EXPECT(result3.data()[1] == 2);
+        EXPECT(result3.data()[2] == 127);
+        EXPECT(result3.data()[3] == 3);
+        EXPECT(result3.data()[4] == 4);
     },
     SUITE("TypeInfo Tests")
     {
@@ -1010,12 +997,6 @@ const Suite spec[] =
             UniquePtr<DestructorTester> d(move(e));
         }
         EXPECT(DestructorTester::destructionCount == 4);
-
-        UniquePtr<Int32> f(new Int32(10));
-        EXPECT(*f == 10);
-        EXPECT(f);
-        UniquePtr<Int32> g;
-        EXPECT(!g);
     }
 };
 
