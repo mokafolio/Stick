@@ -132,14 +132,8 @@ namespace stick
                 {
                     new (arrayPtr + i) T(move(sourcePtr[i]));
                 }
-                for (Size i = m_count; i < _s; ++i)
-                {
-                    new (arrayPtr + i) T();
-                }
                 m_allocator->deallocate(m_data);
                 m_data = blk;
-                //TODO: do this for POD types?
-                //m_data = m_allocator->reallocate(m_data, _s * sizeof(T));
             }
         }
 
@@ -154,7 +148,7 @@ namespace stick
             {
                 reserve(max((Size)1, m_count * 2));
             }
-            (*this)[m_count++] = _element;
+            new (reinterpret_cast<T*>(m_data.ptr) + m_count++) T(_element);
         }
 
         template<class InputIter>
@@ -178,7 +172,7 @@ namespace stick
 
             for (Size i = 0; _first != _last; ++_first, ++i)
             {
-                (*this)[index + i] = *_first;
+                new (reinterpret_cast<T*>(m_data.ptr) + index + i) T(*_first);
             }
 
             m_count += idiff;
