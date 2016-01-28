@@ -65,7 +65,7 @@ namespace stick
         }
 
         inline Result(const Error & _error) :
-        m_error(_error)
+            m_error(_error)
         {
 
         }
@@ -88,6 +88,20 @@ namespace stick
         inline void setError(Error && _error)
         {
             m_error = move(_error);
+        }
+
+        inline const T & ensure()
+        {
+            if (!this->m_value)
+            {
+                printf("Called ensure on an empty result.\n");
+                if (m_error)
+                {
+                    printf("The result holds the following error message: %s.\nThe generic error description is: %s.\n", m_error.message().cString(), m_error.description().cString());
+                }
+                exit(EXIT_FAILURE);
+            }
+            return *(this->m_value);
         }
 
     private:

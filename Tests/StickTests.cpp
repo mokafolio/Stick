@@ -958,6 +958,8 @@ const Suite spec[] =
         auto result = loadTextFile(uri);
         EXPECT(result);
         EXPECT(result.data() == "This is some text");
+        String str = result.ensure();
+        EXPECT(str == "This is some text");
         auto result2 = loadTextFile("I/do/not/exist");
         EXPECT(!result2);
 
