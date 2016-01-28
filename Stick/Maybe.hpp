@@ -154,7 +154,81 @@ namespace stick
     private:
 
         bool m_bHasValue;
-        unsigned char m_data[sizeof(T)];
+        alignas(T) unsigned char m_data[sizeof(T)];
+    };
+
+    template<class T>
+    class Maybe<T&>
+    {
+    public:
+
+        typedef T ValueType;
+
+
+        inline Maybe() :
+        m_ptr(nullptr)
+        {
+
+        }
+
+        inline Maybe(T & _value) :
+        m_ptr(&_value)
+        {
+        }
+
+        inline Maybe(const Maybe & _other) :
+        m_ptr(_other.m_ptr)
+        {
+        }
+
+        inline T & value()
+        {
+            return *m_ptr;
+        }
+
+        inline const T & value() const
+        {
+            return *m_ptr;
+        }
+
+        inline void reset()
+        {
+            m_ptr = nullptr;
+        }
+
+        /**
+        * @brief Implicit conversion to bool.
+        */
+        inline explicit operator bool() const
+        {
+            return m_ptr;
+        }
+
+        inline Maybe & operator = (T & _value)
+        {
+            m_ptr = &_value;
+            return *this;
+        }
+
+        inline Maybe & operator = (const Maybe & _other)
+        {
+            m_ptr = _other.m_ptr;
+            return *this;
+        }
+
+        inline T & operator*()
+        {
+            return *m_ptr;
+        }
+
+        inline T & operator*() const
+        {
+            return *m_ptr;
+        }
+
+    private:
+
+        T * m_ptr;
     };
 }
 

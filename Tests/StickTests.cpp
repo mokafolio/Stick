@@ -999,6 +999,8 @@ const Suite spec[] =
             UniquePtr<DestructorTester> d(move(e));
         }
         EXPECT(DestructorTester::destructionCount == 4);
+
+        Maybe<Int32&> blubb;
     }
 };
 
