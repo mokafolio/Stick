@@ -58,7 +58,7 @@ namespace stick
 
         inline const T & value() const
         {
-            return *reinterpret_cast<T *>(m_data);
+            return *reinterpret_cast<const T *>(m_data);
         }
 
         inline void reset()
@@ -151,6 +151,21 @@ namespace stick
             return value();
         }
 
+        inline const T & ensure() const
+        {
+            if (!m_bHasValue)
+            {
+                printf("Called ensure on emtpy Maybe type.\n");
+                exit(EXIT_FAILURE);
+            }
+            return value();
+        }
+
+        inline T & ensure()
+        {
+            return const_cast<T &>(const_cast<const Maybe &>(*this).ensure());
+        }
+
     private:
 
         bool m_bHasValue;
@@ -158,7 +173,7 @@ namespace stick
     };
 
     template<class T>
-    class Maybe<T&>
+    class Maybe<T &>
     {
     public:
 
@@ -166,18 +181,18 @@ namespace stick
 
 
         inline Maybe() :
-        m_ptr(nullptr)
+            m_ptr(nullptr)
         {
 
         }
 
         inline Maybe(T & _value) :
-        m_ptr(&_value)
+            m_ptr(&_value)
         {
         }
 
         inline Maybe(const Maybe & _other) :
-        m_ptr(_other.m_ptr)
+            m_ptr(_other.m_ptr)
         {
         }
 
@@ -224,6 +239,21 @@ namespace stick
         inline T & operator*() const
         {
             return *m_ptr;
+        }
+
+        inline const T & ensure() const
+        {
+            if (!m_ptr)
+            {
+                printf("Called ensure on emtpy Maybe type.\n");
+                exit(EXIT_FAILURE);
+            }
+            return value();
+        }
+
+        inline T & ensure()
+        {
+            return const_cast<T &>(const_cast<const Maybe &>(*this).ensure());
         }
 
     private:
