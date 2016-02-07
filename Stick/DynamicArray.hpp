@@ -148,7 +148,16 @@ namespace stick
             {
                 reserve(max((Size)1, m_count * 2));
             }
-            new (reinterpret_cast<T*>(m_data.ptr) + m_count++) T(_element);
+            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(_element);
+        }
+
+        inline void append(T && _element)
+        {
+            if (capacity() <= m_count)
+            {
+                reserve(max((Size)1, m_count * 2));
+            }
+            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(move(_element));
         }
 
         template<class InputIter>
@@ -172,7 +181,7 @@ namespace stick
 
             for (Size i = 0; _first != _last; ++_first, ++i)
             {
-                new (reinterpret_cast<T*>(m_data.ptr) + index + i) T(*_first);
+                new (reinterpret_cast<T *>(m_data.ptr) + index + i) T(*_first);
             }
 
             m_count += idiff;
