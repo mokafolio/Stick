@@ -1,11 +1,13 @@
 #ifndef STICK_STICKERRORCATEGORY_HPP
 #define STICK_STICKERRORCATEGORY_HPP
 
-#include <Stick/Error.hpp>
+#include <Stick/String.hpp>
 #include <Stick/ErrorCodes.hpp>
 
 namespace stick
 {
+    class Error;
+
     /**
      * @brief An ErrorCategory allows you to easily group error codes.
      *
@@ -17,7 +19,7 @@ namespace stick
      *
      * @see Error
      */
-    class ErrorCategory
+    class STICK_API ErrorCategory
     {
     public:
 
@@ -33,7 +35,7 @@ namespace stick
         /**
          * @brief Virtual Destructor. You derive from this class to create a new ErrorCategory.
          */
-        virtual ~ErrorCategory(){}
+        virtual ~ErrorCategory() {}
 
         /**
          * @brief Returns true if the other ErrorCategory is this.
@@ -96,10 +98,10 @@ namespace stick
         String description(const Error & _code) const;
     };
 
-     /**
-     * @brief The error category for the default errors.
-     * @see ErrorCategory
-     */
+    /**
+    * @brief The error category for the default errors.
+    * @see ErrorCategory
+    */
     class MiscErrorCategory :
         public ErrorCategory
     {
@@ -126,33 +128,21 @@ namespace stick
 
     namespace detail
     {
-        const NoErrorCategory & noErrorCategory();
+        STICK_API const NoErrorCategory & noErrorCategory();
 
-        const SystemErrorCategory & systemErrorCategory();
+        STICK_API const SystemErrorCategory & systemErrorCategory();
 
-        const MiscErrorCategory & miscErrorCategory();
+        STICK_API const MiscErrorCategory & miscErrorCategory();
 
-        template<>
-        struct isErrorEnum<ec::SystemErrorCode>
+        inline const ErrorCategory & errorCategory(ec::SystemErrorCode)
         {
-            static const bool value = true;
-        };
+            return detail::systemErrorCategory();
+        }
 
-        template<>
-        struct isErrorEnum<ec::MiscErrorCode>
+        inline const ErrorCategory & errorCategory(ec::MiscErrorCode)
         {
-            static const bool value = true;
-        };
-    }
-
-    inline const ErrorCategory & errorCategory(ec::SystemErrorCode)
-    {
-        return detail::systemErrorCategory();
-    }
-
-    inline const ErrorCategory & errorCategory(ec::MiscErrorCode)
-    {
-        return detail::miscErrorCategory();
+            return detail::miscErrorCategory();
+        }
     }
 }
 

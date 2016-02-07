@@ -2,7 +2,10 @@
 #define STICK_STICKRESULT_HPP
 
 #include <Stick/Maybe.hpp>
+#include <Stick/Error.hpp>
 
+// TODO: make different specializations of Result and STICK_RESULT_HOLDER
+// for references so that the default one can implement move semantics, too
 #define STICK_RESULT_HOLDER(_name, _holderName) \
 template<class T> \
 struct _name \
@@ -14,12 +17,6 @@ struct _name \
  \
     _name(const T & _data) : \
         m_value(_data) \
-    { \
- \
-    } \
- \
-    _name(T && _data) : \
-        m_value(move(_data)) \
     { \
  \
     } \
@@ -58,11 +55,11 @@ namespace stick
 
         }
 
-        inline Result(T && _result) :
+        /*inline Result(T && _result) :
             ResultHolderType(move(_result))
         {
 
-        }
+        }*/
 
         inline Result(const Error & _error) :
             m_error(_error)

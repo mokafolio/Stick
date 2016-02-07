@@ -3,19 +3,11 @@
 
 #include <Stick/String.hpp>
 #include <Stick/Utility.hpp>
+#include <Stick/ErrorCodes.hpp>
 
 namespace stick
 {
     class ErrorCategory;
-
-    namespace detail
-    {
-        template<class T>
-        struct isErrorEnum
-        {
-            static const bool value = false;
-        };
-    }
 
     /**
      * @brief An Error describes an error condition: http://en.wikipedia.org/wiki/Error_code
@@ -126,9 +118,6 @@ namespace stick
         String m_file;
         UInt32 m_line;
     };
-
-    template<class T>
-    inline const ErrorCategory & errorCategory(T);
 }
 
 #include <Stick/ErrorCategory.hpp>
@@ -137,7 +126,7 @@ namespace stick
 {
     template<class ErrorEnum>
     Error::Error(ErrorEnum _code, const String & _message, const char * _file, UInt32 _line, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type *) :
-    m_category(&errorCategory(_code)),
+    m_category(&detail::errorCategory(_code)),
     m_code(_code),
     m_message(_message),
     m_file(_file),
@@ -149,7 +138,7 @@ namespace stick
     template<class ErrorEnum>
     typename EnableIf<detail::isErrorEnum<ErrorEnum>::value, Error>::Type & Error::operator = (ErrorEnum _code)
     {
-        m_category = &errorCategory(_code);
+        m_category = &detail::errorCategory(_code);
         m_code = _code;
         return *this;
     }

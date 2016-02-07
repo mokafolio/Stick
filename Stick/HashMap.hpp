@@ -3,7 +3,7 @@
 
 #include <Stick/Allocator.hpp>
 #include <Stick/String.hpp>
-#include <Stick/Detail/StickMurmurHash2.hpp>
+#include <Stick/Detail/MurmurHash2.hpp>
 #include <initializer_list>
 
 namespace stick

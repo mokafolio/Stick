@@ -1,7 +1,9 @@
 #ifndef STICK_MAYBE_HPP
 #define STICK_MAYBE_HPP
 
+#include <Stick/Utility.hpp>
 #include <new>
+#include <stdlib.h>
 
 namespace stick
 {

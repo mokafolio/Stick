@@ -1,3 +1,4 @@
+#include <Stick/Error.hpp>
 #include <Stick/ErrorCategory.hpp>
 
 namespace stick

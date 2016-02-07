@@ -102,6 +102,27 @@ namespace stick
             WrongProtocolType = EPROTOTYPE
         };
     }
+
+    namespace detail
+    {
+        template<class T>
+        struct isErrorEnum
+        {
+            static const bool value = false;
+        };
+
+        template<>
+        struct isErrorEnum<ec::SystemErrorCode>
+        {
+            static const bool value = true;
+        };
+
+        template<>
+        struct isErrorEnum<ec::MiscErrorCode>
+        {
+            static const bool value = true;
+        };
+    }
 }
 
 #endif //STICK_ERRORCODES_HPP

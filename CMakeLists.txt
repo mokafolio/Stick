@@ -37,6 +37,10 @@ Stick/URI.hpp
 Stick/Utility.hpp
 )
 
+set (STICKDETAILINC
+Stick/Detail/MurmurHash2.hpp
+)
+
 set (STICKSRC 
 Stick/ConditionVariable.cpp
 Stick/Error.cpp 
@@ -55,4 +59,5 @@ add_library (Stick SHARED ${STICKSRC})
 add_library (StickStatic STATIC ${STICKSRC})
 install (TARGETS Stick StickStatic DESTINATION /usr/local/lib)
 install (FILES ${STICKINC} DESTINATION /usr/local/include/Stick)
+install (FILES ${STICKDETAILINC} DESTINATION /usr/local/include/Stick/Detail)
 add_subdirectory (Tests)
