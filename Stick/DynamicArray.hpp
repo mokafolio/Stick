@@ -58,11 +58,12 @@ namespace stick
         {
             if (_other.m_count)
             {
-                resize(_other.m_count);
+                /*resize(_other.m_count);
                 for (Size i = 0; i < m_count; ++i)
                 {
                     (*this)[i] = _other[i];
-                }
+                }*/
+                insert(end(), _other.begin(), _other.end());
             }
         }
 
@@ -211,7 +212,7 @@ namespace stick
             {
                 for (Size i = 0; i < diff; ++i)
                 {
-                    (*this)[index + i] = (*this)[endIndex + i];
+                    (*this)[index + i] = move((*this)[endIndex + i]);
                 }
             }
 
@@ -223,6 +224,11 @@ namespace stick
         {
             (reinterpret_cast<T *>(m_data.ptr)[m_count - 1]).~T();
             m_count--;
+        }
+
+        inline Iter remove(Iter _it)
+        {
+            return remove(_it, _it + 1);
         }
 
         inline void clear()
