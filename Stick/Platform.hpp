@@ -35,6 +35,18 @@
 #define STICK_API  __attribute__ ((visibility("default")))
 #define STICK_LOCAL __attribute__ ((visibility("hidden")))
 
+// helper to define enum class and circumvent bug in gcc < version 6.0
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=43407#c6
+#ifdef __GNUC__ < 6
+#define STICK_ENUM_CLASS_WITH_BASE(_attribute, _name, _base) enum class _name : _base _attribute
+#define STICK_ENUM_WITH_BASE(_attribute, _name, _base) enum _name : _base _attribute
+#else
+#define STICK_ENUM_CLASS_WITH_BASE(_attribute, _name, _base) enum class _attribute _name : _base
+#define STICK_ENUM_WITH_BASE(_attribute, _name, _base) enum _attribute _name : _base
+#endif
+#define STICK_API_ENUM_CLASS(_name) STICK_ENUM_CLASS_WITH_BASE(STICK_API, _name, stick::Int32)
+#define STICK_LOCAL_ENUM_CLASS(_name) STICK_ENUM_CLASS_WITH_BASE(STICK_LOCAL, _name, stick::Int32)
+
 #include <stdint.h>
 #include <stdio.h>
 
