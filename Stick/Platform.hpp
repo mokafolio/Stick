@@ -37,7 +37,7 @@
 
 // helper to define enum class and circumvent bug in gcc < version 6.0
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=43407#c6
-#ifdef __GNUC__ < 6
+#if defined(__GNUC__) && __GNUC__ < 6 && !defined(__clang__)
 #define STICK_ENUM_CLASS_WITH_BASE(_attribute, _name, _base) enum class _name : _base _attribute
 #define STICK_ENUM_WITH_BASE(_attribute, _name, _base) enum _name : _base _attribute
 #else

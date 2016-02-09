@@ -117,6 +117,7 @@ namespace stick
         String m_message;
         String m_file;
         UInt32 m_line;
+
     };
 }
 

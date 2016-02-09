@@ -58,11 +58,6 @@ namespace stick
         {
             if (_other.m_count)
             {
-                /*resize(_other.m_count);
-                for (Size i = 0; i < m_count; ++i)
-                {
-                    (*this)[i] = _other[i];
-                }*/
                 insert(end(), _other.begin(), _other.end());
             }
         }
