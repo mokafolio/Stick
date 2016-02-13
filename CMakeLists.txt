@@ -27,6 +27,7 @@ Stick/RBTree.hpp
 Stick/Result.hpp
 Stick/ScopedLock.hpp
 Stick/String.hpp
+Stick/StringConversion.hpp
 Stick/SystemClock.hpp
 Stick/Test.hpp
 Stick/Thread.hpp
