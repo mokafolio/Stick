@@ -113,6 +113,20 @@ namespace stick
             m_count = _s;
         }
 
+        inline void resize(Size _s, const T & _initial)
+        {
+            Size oldSize = m_count;
+            resize(_s);
+            if(oldSize < m_count)
+            {
+                if(oldSize > 0) oldSize -= 1;
+                for(Size i = oldSize; i<m_count; ++i)
+                {
+                    (*this)[i] = _initial;
+                }
+            }
+        }
+
         //TODO: make a version that uses move rather than copy
         //for types of T that are move constructible
         inline void reserve(Size _s)
