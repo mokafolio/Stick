@@ -104,7 +104,7 @@ namespace stick
             m_rootNode(nullptr),
             m_count(_other.m_count)
         {
-            if(_other.m_rootNode)
+            if (_other.m_rootNode)
             {
                 m_rootNode = copyTree(_other.m_rootNode);
             }
@@ -127,7 +127,7 @@ namespace stick
         {
             clear();
             m_alloc = _other.m_alloc;
-            if(_other.m_rootNode)
+            if (_other.m_rootNode)
             {
                 m_rootNode = copyTree(_other.m_rootNode);
                 m_count = _other.m_count;
@@ -147,6 +147,12 @@ namespace stick
 
         template<class K>
         inline Node * find(const K & _val)
+        {
+            return m_rootNode ? findImpl(m_rootNode, _val) : nullptr;
+        }
+
+        template<class K>
+        inline const Node * find(const K & _val) const
         {
             return m_rootNode ? findImpl(m_rootNode, _val) : nullptr;
         }
@@ -211,6 +217,16 @@ namespace stick
             return nullptr;
         }
 
+        inline Allocator & allocator()
+        {
+            return *m_alloc;
+        }
+
+        inline const Allocator & allocator() const
+        {
+            return *m_alloc;
+        }
+
     private:
 
         inline Node * recurseRight(Node * _node) const
@@ -235,12 +251,12 @@ namespace stick
         {
             STICK_ASSERT(_nodeToCopy);
             Node * newNode = createNode(_nodeToCopy->value);
-            if(_nodeToCopy->left)
+            if (_nodeToCopy->left)
             {
                 newNode->left = copyTree(_nodeToCopy->left);
                 newNode->left->parent = newNode;
             }
-            if(_nodeToCopy->right)
+            if (_nodeToCopy->right)
             {
                 newNode->right = copyTree(_nodeToCopy->right);
                 newNode->right->parent = newNode;
@@ -262,7 +278,7 @@ namespace stick
         }
 
         template<class K>
-        inline Node * findImpl(Node * _currentNode, const K & _val)
+        inline Node * findImpl(Node * _currentNode, const K & _val) const
         {
             if (_currentNode->value == _val)
             {

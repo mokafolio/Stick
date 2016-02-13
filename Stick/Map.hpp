@@ -73,12 +73,12 @@ namespace stick
 
         typedef typename Representation::Node Node;
 
-        template<class T>
+        template<class T, class NT, class VT>
         struct IterT
         {
-            typedef typename T::Node NodeType;
+            typedef NT NodeType;
 
-            typedef typename T::KeyValuePair ValueType;
+            typedef VT ValueType;
 
             typedef ValueType & ReferenceType;
 
@@ -234,12 +234,12 @@ namespace stick
                 return ret;
             }
 
-            inline KeyValuePair & operator * () const
+            inline ValueType & operator * () const
             {
                 return current->value;
             }
 
-            inline KeyValuePair  * operator -> () const
+            inline ValueType  * operator -> () const
             {
                 return &current->value;
             }
@@ -248,9 +248,9 @@ namespace stick
             NodeType * last;
         };
 
-        typedef IterT<Map> Iter;
+        typedef IterT<Map, Node, KeyValuePair> Iter;
 
-        typedef IterT<const Map> ConstIter;
+        typedef const IterT<const Map, const Node, const KeyValuePair> ConstIter;
 
         typedef ReverseIterator<Iter> ReverseIter;
 
@@ -400,6 +400,16 @@ namespace stick
         inline void clear()
         {
             m_tree.clear();
+        }
+
+        inline Allocator & allocator()
+        {
+            return m_tree.allocator();
+        }
+
+        inline const Allocator & allocator() const
+        {
+            return m_tree.allocator();
         }
 
     private:
