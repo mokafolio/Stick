@@ -235,6 +235,18 @@ const Suite spec[] =
             EXPECT(i == String::InvalidIndex);
             i = a.findIndex('z');
             EXPECT(i == String::InvalidIndex);
+            i = a.findIndex("World");
+            EXPECT(i == 6);
+            i = a.findIndex("World", 7);
+            EXPECT(i == String::InvalidIndex);
+            i = a.findIndex("World!22");
+            EXPECT(i == String::InvalidIndex);
+            i = a.rfindIndex("llo ");
+            EXPECT(i == 2);
+            i = a.rfindIndex("World", 3);
+            EXPECT(i == String::InvalidIndex);
+            i = a.rfindIndex("World!");
+            EXPECT(i == 6);
         }
         {
             //substring tests

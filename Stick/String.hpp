@@ -267,6 +267,47 @@ namespace stick
             return InvalidIndex;
         }
 
+        inline Size findIndex(const String & _str, Size _startIndex = 0) const
+        {
+            STICK_ASSERT(_startIndex < m_length);
+            for (; _startIndex < m_length - _str.m_length; ++_startIndex)
+            {
+                bool bBreak = false;
+                for (Size i = 0; i < _str.m_length; ++i)
+                {
+                    if (_str[i] != (*this)[_startIndex + i])
+                    {
+                        bBreak = true;
+                        break;
+                    }
+                }
+                if (!bBreak)
+                    return _startIndex;
+            }
+            return InvalidIndex;
+        }
+
+        inline Size rfindIndex(const String & _str, Size _startIndex = InvalidIndex) const
+        {
+            _startIndex = _startIndex == InvalidIndex ? m_length - _str.m_length : _startIndex;
+            STICK_ASSERT(_startIndex < m_length);
+            for (; _startIndex > 0; --_startIndex)
+            {
+                bool bBreak = false;
+                for (Size i = 0; i < _str.m_length; ++i)
+                {
+                    if (_str[i] != (*this)[_startIndex + i])
+                    {
+                        bBreak = true;
+                        break;
+                    }
+                }
+                if (!bBreak)
+                    return _startIndex;
+            }
+            return InvalidIndex;
+        }
+
         inline String sub(Size _pos, Size _length = InvalidIndex) const
         {
             return sub(_pos, _length, allocator());
