@@ -49,9 +49,9 @@ namespace stick
         /**
          * @brief Returns all the segments/portions of a path as individual strings.
          */
-        StringArray segments(const String & _path);
+        StringArray segments(const String & _path, char _separator = '/');
 
-        StringArray segments(const String & _path, Allocator & _allocator);
+        StringArray segments(const String & _path, Allocator & _allocator, char _separator = '/');
 
         /**
          * @brief Creates a path string from individual path segments.

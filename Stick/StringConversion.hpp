@@ -54,6 +54,16 @@ namespace stick
         return atoll(_str.cString());
     }
 
+    inline Float32 toFloat32(const String & _str)
+    {
+        return atof(_str.cString());
+    }
+
+    inline Float64 toFloat64(const String & _str)
+    {
+        return atof(_str.cString());
+    }
+
     template<class T>
     inline String toString(T _i, Allocator & _alloc = defaultAllocator())
     {

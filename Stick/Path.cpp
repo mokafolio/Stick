@@ -39,12 +39,12 @@ namespace stick
             return splitExtension(_path, _alloc).right;
         }
 
-        StringArray segments(const String & _path)
+        StringArray segments(const String & _path, char _separator)
         {
-            return segments(_path, _path.allocator());
+            return segments(_path, _path.allocator(), _separator);
         }
 
-        StringArray segments(const String & _path, Allocator & _alloc)
+        StringArray segments(const String & _path, Allocator & _alloc, char _separator)
         {
             StringArray ret(_alloc);
             ret.reserve(4);
@@ -52,7 +52,7 @@ namespace stick
             String currentSegment(_alloc);
             while (it != _path.end())
             {
-                if (*it == '/')
+                if (*it == _separator)
                 {
                     if (!currentSegment.isEmpty())
                     {
