@@ -13,6 +13,8 @@ namespace stick
         struct _StringCopier;
     }
 
+    struct AppendVariadicFlag {};
+
     class String
     {
         friend class detail::_StringCopier;
@@ -144,7 +146,36 @@ namespace stick
         }
 
         template <class ... Strings>
-        inline void append(Strings ... _args);
+        inline void append(AppendVariadicFlag _flag, Strings ... _args);
+
+        inline void append(const String & _str)
+        {
+            if(!_str.m_length) return;
+            Size off = m_length;
+            preAppend(m_length + _str.length());
+            strcpy(m_cStr + off, _str.m_cStr);
+        }
+
+        inline void append(const char * _cStr)
+        {
+            Size off = m_length;
+            preAppend(m_length + strlen(_cStr));
+            strcpy(m_cStr + off, _cStr);
+        }
+
+        inline void append(const char * _cStr, Size _count)
+        {
+            Size off = m_length;
+            preAppend(m_length + _count);
+            memcpy(m_cStr + off, _cStr, _count);
+        }
+
+        inline void append(char _c)
+        {
+            Size off = m_length;
+            preAppend(m_length + 1);
+            (*this)[off] = _c;
+        }
 
         inline char operator [](Size _index) const
         {
@@ -462,7 +493,7 @@ namespace stick
             fmtString.reserve(64);
             if (_bShowBase)
                 fmtString.append("0x");
-            fmtString.append("%0", toString(_width, _alloc));
+            fmtString.append(AppendVariadicFlag(), "%0", toString(_width, _alloc));
             if (_bUpperCase)
                 fmtString.append("X");
             else
@@ -558,7 +589,7 @@ namespace stick
     }
 
     template <class ... Strings>
-    inline void String::append(Strings ... _args)
+    inline void String::append(AppendVariadicFlag _flag, Strings ... _args)
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};

@@ -189,7 +189,7 @@ const Suite spec[] =
 
             String k("fml");
             String l(" not");
-            k.append(" test", l, 'c');
+            k.append(AppendVariadicFlag(), " test", l, 'c');
             EXPECT(k.length() == 13);
             EXPECT(k[0] == 'f');
             EXPECT(k[1] == 'm');

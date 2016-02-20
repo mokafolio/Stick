@@ -90,7 +90,7 @@ namespace stick
             for (Size i = 0; i < _segments.count(); ++i)
             {
                 if (i < _segments.count() - 1)
-                    ret.append(_segments[i], '/');
+                    ret.append(AppendVariadicFlag(), _segments[i], '/');
                 else
                     ret.append(_segments[i]);
             }

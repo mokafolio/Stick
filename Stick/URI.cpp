@@ -290,7 +290,7 @@ namespace stick
             else if (_reserved.findIndex(c) != String::InvalidIndex || c <= 0x20 || c >= 0x7F)
             {
                 ret.append('%');
-                ret.append(toHexString((unsigned)(UInt8)c, 2));
+                ret.append(AppendVariadicFlag(), toHexString((unsigned)(UInt8)c, 2));
             }
             else
             {
@@ -389,12 +389,12 @@ namespace stick
         String ret;
         if (!m_userInfo.isEmpty())
         {
-            ret.append(m_userInfo, '@');
+            ret.append(AppendVariadicFlag(), m_userInfo, '@');
         }
         //Ipv6
         if (m_host.findIndex(':') != String::InvalidIndex)
         {
-            ret.append('[', m_host, ']');
+            ret.append(AppendVariadicFlag(), '[', m_host, ']');
         }
         else
         {
@@ -403,7 +403,7 @@ namespace stick
 
         if (m_port && defaultPortForScheme(m_scheme) == 0)
         {
-            ret.append(':', toString(m_port));
+            ret.append(AppendVariadicFlag(), ':', toString(m_port));
         }
         return ret;
     }
@@ -462,9 +462,9 @@ namespace stick
     {
         String ret = encodedPath();
         if (m_query.length())
-            ret.append("?", encodedQuery());
+            ret.append(AppendVariadicFlag(), "?", encodedQuery());
         if (m_fragment.length())
-            ret.append("#", encodedFragment());
+            ret.append(AppendVariadicFlag(), "#", encodedFragment());
         return ret;
     }
 
@@ -486,10 +486,10 @@ namespace stick
         String ret(64);
         String auth = _uri.authority();
         if (!_uri.scheme().isEmpty())
-            ret.append(_uri.scheme(), ":");
+            ret.append(AppendVariadicFlag(), _uri.scheme(), ":");
         if (!auth.isEmpty() || _uri.scheme() == "file")
         {
-            ret.append("//", auth);
+            ret.append(AppendVariadicFlag(), "//", auth);
         }
         if (!_uri.path().isEmpty())
         {
@@ -503,11 +503,11 @@ namespace stick
         }
         if (!_uri.query().isEmpty())
         {
-            ret.append('?', _uri.encodedQuery());
+            ret.append(AppendVariadicFlag(), '?', _uri.encodedQuery());
         }
         if (!_uri.fragment().isEmpty())
         {
-            ret.append('#', _uri.encodedFragment());
+            ret.append(AppendVariadicFlag(), '#', _uri.encodedFragment());
         }
         return ret;
     }
