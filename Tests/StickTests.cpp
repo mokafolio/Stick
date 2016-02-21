@@ -993,6 +993,15 @@ const Suite spec[] =
         //test if type ID's are the same across shared library bounds
         EXPECT(TypeInfoT<Int32>::typeID() == detail::__typeIDInt32SharedLibBoundsTestFunction());
     },
+    SUITE("create, destroy Tests")
+    {
+        Allocator & alloc = defaultAllocator();
+        auto someInt = alloc.create<Int32>(5);
+        EXPECT(*someInt == 5);
+        //check if the size that the create function stored for the memory allocated is correct.
+        //the size is stored in the 8 bytes just before the actual pointer returned.
+        EXPECT(*reinterpret_cast<Size*>(reinterpret_cast<char*>(someInt) - 8) == 4);
+    },
     SUITE("UniquePtr Tests")
     {
         DestructorTester::reset();

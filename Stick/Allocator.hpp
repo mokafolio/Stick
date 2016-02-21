@@ -24,8 +24,11 @@ namespace stick
         template<class T, class...Args>
         inline T * create(Args&&..._args)
         {
-            auto mem = allocate(sizeof(T));
-            return new (mem.ptr) T(forward<Args>(_args)...);
+            auto mem = allocate(sizeof(T) + 8);
+            char * bytePtr = reinterpret_cast<char*>(mem.ptr);
+            Size * ptr = reinterpret_cast<Size*>(bytePtr);
+            *ptr = sizeof(T);
+            return new (bytePtr + 8) T(forward<Args>(_args)...);
         }
     };
 
@@ -59,7 +62,8 @@ namespace stick
         if (_obj)
         {
             _obj->~T();
-            _alloc.deallocate({_obj, sizeof(T)});
+            char * bytePtr = reinterpret_cast<char*>(_obj) - 8;
+            _alloc.deallocate({bytePtr, *reinterpret_cast<Size*>(bytePtr)});
         }
     }
 }
