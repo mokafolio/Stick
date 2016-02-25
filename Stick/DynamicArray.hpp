@@ -114,7 +114,6 @@ namespace stick
             m_count = _s;
             if (oldSize < m_count)
             {
-                if (oldSize > 0) oldSize -= 1;
                 for (Size i = oldSize; i < m_count; ++i)
                 {
                     new (reinterpret_cast<T *>(m_data.ptr) + i) T();
@@ -129,7 +128,6 @@ namespace stick
             m_count = _s;
             if (oldSize < m_count)
             {
-                if (oldSize > 0) oldSize -= 1;
                 for (Size i = oldSize; i < m_count; ++i)
                 {
                     new (reinterpret_cast<T *>(m_data.ptr) + i) T(_initial);

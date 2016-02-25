@@ -422,9 +422,10 @@ const Suite spec[] =
 
         {
             DynamicArray<DestructorTester> tt2(10);
+            tt2.resize(20);
         }
         printf("%i\n", DestructorTester::destructionCount );
-        EXPECT(DestructorTester::destructionCount == 15);
+        EXPECT(DestructorTester::destructionCount == 25);
 
         DynamicArray<Int32> ttt({1, 2, 3, 4, 5});
         EXPECT(ttt.count() == 5);
@@ -464,6 +465,17 @@ const Suite spec[] =
         EXPECT(mcopy[2] == 3);
         EXPECT(mcopy[3] == 4);
         EXPECT(mcopy[4] == 5);
+
+        DynamicArray<Int32> farts = {0, 52, 1, 3};
+        farts.resize(8, 99);
+        EXPECT(farts[0] == 0);
+        EXPECT(farts[1] == 52);
+        EXPECT(farts[2] == 1);
+        EXPECT(farts[3] == 3);
+        EXPECT(farts[4] == 99);
+        EXPECT(farts[5] == 99);
+        EXPECT(farts[6] == 99);
+        EXPECT(farts[7] == 99);
     },
     SUITE("Path tests")
     {
