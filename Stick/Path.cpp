@@ -123,10 +123,10 @@ namespace stick
                     if (!tmp.isEmpty())
                     {
                         //check if the last segment needs to be removed
-                        if (tmp.back() == "..")
+                        if (tmp.last() == "..")
                             tmp.append(*it);
                         else
-                            tmp.removeBack();
+                            tmp.removeLast();
                     }
                     //check if the leading segment should be removed
                     else if (!_bRemoveLeading)

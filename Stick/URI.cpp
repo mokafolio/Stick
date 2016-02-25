@@ -99,7 +99,7 @@ namespace stick
                         if (!(*(m_path.rbegin()) == '/'))
                         {
                             StringArray tSegs = path::segments(m_path);
-                            tSegs.removeBack();
+                            tSegs.removeLast();
                             m_path = path::join(path::fromSegments(tSegs, true), _relURI.path());
                         }
                         else

@@ -18,7 +18,6 @@ namespace stick
         inline Maybe() :
             m_bHasValue(false)
         {
-
         }
 
         inline Maybe(const T & _value) :
@@ -157,7 +156,7 @@ namespace stick
         {
             if (!m_bHasValue)
             {
-                printf("Called ensure on emtpy Maybe type.\n");
+                fprintf(stderr, "Called ensure on emtpy Maybe type.\n");
                 exit(EXIT_FAILURE);
             }
             return value();
@@ -247,7 +246,7 @@ namespace stick
         {
             if (!m_ptr)
             {
-                printf("Called ensure on emtpy Maybe type.\n");
+                fprintf(stderr, "Called ensure on emtpy Maybe type.\n");
                 exit(EXIT_FAILURE);
             }
             return value();

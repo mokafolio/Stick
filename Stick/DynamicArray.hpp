@@ -45,10 +45,10 @@ namespace stick
 
         DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
             m_data( {nullptr, 0}),
-        m_count(_size),
+        m_count(0),
         m_allocator(&_alloc)
         {
-            m_data = (T *)m_allocator->allocate(m_count * sizeof(T));
+            resize(_size);
         }
 
         DynamicArray(const DynamicArray & _other) :
@@ -63,9 +63,9 @@ namespace stick
         }
 
         DynamicArray(DynamicArray && _other) :
-            m_data(move(_other.m_data)),
-            m_count(move(_other.m_count)),
-            m_allocator(move(_other.m_allocator))
+            m_data(stick::move(_other.m_data)),
+            m_count(stick::move(_other.m_count)),
+            m_allocator(stick::move(_other.m_allocator))
         {
             //we don't want other to deallocate anything
             _other.m_data.ptr = nullptr;
@@ -99,9 +99,9 @@ namespace stick
         inline DynamicArray & operator = (DynamicArray && _other)
         {
             deallocate();
-            m_data = move(_other.m_data);
-            m_allocator = move(_other.m_allocator);
-            m_count = move(_other.m_count);
+            m_data = stick::move(_other.m_data);
+            m_allocator = stick::move(_other.m_allocator);
+            m_count = stick::move(_other.m_count);
             _other.m_data.ptr = nullptr;
 
             return *this;
@@ -109,20 +109,30 @@ namespace stick
 
         inline void resize(Size _s)
         {
+            Size oldSize = m_count;
             reserve(_s);
             m_count = _s;
+            if (oldSize < m_count)
+            {
+                if (oldSize > 0) oldSize -= 1;
+                for (Size i = oldSize; i < m_count; ++i)
+                {
+                    new (reinterpret_cast<T *>(m_data.ptr) + i) T();
+                }
+            }
         }
 
         inline void resize(Size _s, const T & _initial)
         {
             Size oldSize = m_count;
-            resize(_s);
-            if(oldSize < m_count)
+            reserve(_s);
+            m_count = _s;
+            if (oldSize < m_count)
             {
-                if(oldSize > 0) oldSize -= 1;
-                for(Size i = oldSize; i<m_count; ++i)
+                if (oldSize > 0) oldSize -= 1;
+                for (Size i = oldSize; i < m_count; ++i)
                 {
-                    (*this)[i] = _initial;
+                    new (reinterpret_cast<T *>(m_data.ptr) + i) T(_initial);
                 }
             }
         }
@@ -140,7 +150,7 @@ namespace stick
                 //move the existing elements over
                 for (Size i = 0; i < m_count; ++i)
                 {
-                    new (arrayPtr + i) T(move(sourcePtr[i]));
+                    new (arrayPtr + i) T(stick::move(sourcePtr[i]));
                 }
                 m_allocator->deallocate(m_data);
                 m_data = blk;
@@ -167,7 +177,7 @@ namespace stick
             {
                 reserve(max((Size)1, m_count * 2));
             }
-            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(move(_element));
+            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(stick::move(_element));
         }
 
         template<class InputIter>
@@ -221,7 +231,7 @@ namespace stick
             {
                 for (Size i = 0; i < diff; ++i)
                 {
-                    (*this)[index + i] = move((*this)[endIndex + i]);
+                    (*this)[index + i] = stick::move((*this)[endIndex + i]);
                 }
             }
 
@@ -229,7 +239,7 @@ namespace stick
             return begin() + index;
         }
 
-        inline void removeBack()
+        inline void removeLast()
         {
             (reinterpret_cast<T *>(m_data.ptr)[m_count - 1]).~T();
             m_count--;
@@ -342,22 +352,22 @@ namespace stick
             return m_data.byteCount / sizeof(T);
         }
 
-        inline T & front()
+        inline T & first()
         {
             return (*this)[0];
         }
 
-        inline const T & front() const
+        inline const T & first() const
         {
             return (*this)[0];
         }
 
-        inline T & back()
+        inline T & last()
         {
             return (*this)[m_count - 1];
         }
 
-        inline const T & back() const
+        inline const T & last() const
         {
             return (*this)[m_count - 1];
         }

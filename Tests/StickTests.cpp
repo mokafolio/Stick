@@ -314,6 +314,14 @@ const Suite spec[] =
             EXPECT(DestructorTester::destructionCount == 1);
         }
         EXPECT(DestructorTester::destructionCount == 2);
+
+        Maybe<String> a;
+        EXPECT(!a);
+        a = "test";
+        EXPECT(a);
+        EXPECT(*a == "test");
+        a.reset();
+        EXPECT(!a);
     },
     SUITE("DynamicArray Tests")
     {
@@ -340,11 +348,11 @@ const Suite spec[] =
         EXPECT(a.count() == 6);
 
         EXPECT(a[5] == 10);
-        EXPECT(a.back() == 10);
-        EXPECT(a.front() == 0);
+        EXPECT(a.last() == 10);
+        EXPECT(a.first() == 0);
 
-        a.removeBack();
-        EXPECT(a.back() == 4);
+        a.removeLast();
+        EXPECT(a.last() == 4);
         EXPECT(a.count() == 5);
 
         Int32 expectedResults[] = {0, 1, 2, 3, 4};
@@ -411,6 +419,12 @@ const Suite spec[] =
         EXPECT(DestructorTester::destructionCount == 2);
         tt.clear();
         EXPECT(DestructorTester::destructionCount == 5);
+
+        {
+            DynamicArray<DestructorTester> tt2(10);
+        }
+        printf("%i\n", DestructorTester::destructionCount );
+        EXPECT(DestructorTester::destructionCount == 15);
 
         DynamicArray<Int32> ttt({1, 2, 3, 4, 5});
         EXPECT(ttt.count() == 5);
