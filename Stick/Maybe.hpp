@@ -35,7 +35,6 @@ namespace stick
         inline Maybe(const Maybe & _other) :
             m_bHasValue(_other.m_bHasValue)
         {
-            printf("COPY MAYBE\n");
             if (m_bHasValue)
                 new(m_data) T(_other.value());
         }
@@ -43,7 +42,6 @@ namespace stick
         inline Maybe(Maybe && _other) :
             m_bHasValue(_other.m_bHasValue)
         {
-            printf("MOVA MAYBE\n");
             if (m_bHasValue)
                 new(m_data) T(move(_other.value()));
         }
@@ -84,15 +82,12 @@ namespace stick
         template<class U>
         inline Maybe & operator = (U && _value)
         {
-            printf("MASSIGN MAYBE\n");
             if (m_bHasValue)
             {
-                printf("W V\n");
                 value() = forward<U>(_value);
             }
             else
             {
-                printf("N V\n");
                 new(m_data) T(forward<U>(_value));
                 m_bHasValue = true;
             }
@@ -101,7 +96,6 @@ namespace stick
 
         inline Maybe & operator = (const Maybe & _other)
         {
-            printf("ASSIGN MAYBE\n");
             if (_other.m_bHasValue)
             {
                 if (m_bHasValue)

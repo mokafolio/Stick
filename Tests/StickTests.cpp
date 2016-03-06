@@ -476,6 +476,15 @@ const Suite spec[] =
         EXPECT(farts[5] == 99);
         EXPECT(farts[6] == 99);
         EXPECT(farts[7] == 99);
+
+        DynamicArray<Int32> darts = {0, 52, 1, 3, 99, 12, 18, 4};
+        darts.remove(darts.begin() + 5, darts.end());
+        EXPECT(darts.count() == 5);
+        darts.remove(darts.begin() + 1, darts.begin() + 3);
+        EXPECT(darts.count() == 3);
+        EXPECT(darts[0] == 0);
+        EXPECT(darts[1] == 3);
+        EXPECT(darts[2] == 99);
     },
     SUITE("Path tests")
     {
