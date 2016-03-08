@@ -141,6 +141,7 @@ namespace stick
         {
             if (_s > capacity())
             {
+                STICK_ASSERT(m_allocator);
                 auto blk = m_allocator->allocate(_s * sizeof(T));
                 T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
                 T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
@@ -275,7 +276,7 @@ namespace stick
             return *m_allocator;
         }
 
-        inline bool isEmpty()
+        inline bool isEmpty() const
         {
             return m_count == 0;
         }

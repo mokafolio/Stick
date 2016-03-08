@@ -375,7 +375,7 @@ const Suite spec[] =
 
         DynamicArray<Int32> b;
         Int32 arr[] = {1, 2, 3, 4};
-        b.append(10);
+        b.insert(b.begin(), 10);
         b.append(11);
         b.append(12);
         b.append(13);

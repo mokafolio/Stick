@@ -1,15 +1,17 @@
 #ifndef STICK_PLATFORM_HPP
 #define STICK_PLATFORM_HPP
 
+#include <assert.h>
+
 //ASSERT
-#if defined(DEBUG) || defined(_DEBUG)
+#if !defined(NDEBUG)
 #define STICK_ASSERT( exp ) assert( exp )
 #else
 #define STICK_ASSERT( exp )
 #endif
 
 //DEBUG
-#if defined(DEBUG) || defined(_DEBUG)
+#if !defined(NDEBUG)
 #define STICK_DEBUG
 #else
 #undef STICK_DEBUG
