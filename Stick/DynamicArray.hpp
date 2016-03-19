@@ -81,11 +81,8 @@ namespace stick
             deallocate();
             m_count = 0;
             m_allocator = _other.m_allocator;
-            resize(_other.m_count);
-            for (Size i = 0; i < m_count; ++i)
-            {
-                (*this)[i] = _other[i];
-            }
+            insert(end(), _other.begin(), _other.end());
+
             return *this;
         }
 
