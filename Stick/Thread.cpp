@@ -67,6 +67,7 @@ namespace stick
             return Error(ec::SystemErrorCode(res), "Could not join pthread", STICK_FILE, STICK_LINE);
 #endif //STICK_PLATFORM_UNIX
 
+        m_bIsJoinable = false;
         return Error();
     }
 

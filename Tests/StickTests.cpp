@@ -977,6 +977,7 @@ const Suite spec[] =
         Thread t4;
         t4.run([&]() { Thread::sleepFor(Duration::fromSeconds(0.1f)); });
         t3 = move(t4);
+
         EXPECT(t4.isJoinable() == false);
         t3.join();
     },

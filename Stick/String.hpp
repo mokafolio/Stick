@@ -277,7 +277,7 @@ namespace stick
 
         inline Size findIndex(char _c, Size _startIndex = 0) const
         {
-            STICK_ASSERT(_startIndex < m_length);
+            //STICK_ASSERT(_startIndex < m_length);
             for (; _startIndex < m_length; ++_startIndex)
             {
                 if ((*this)[_startIndex] == _c)
@@ -289,7 +289,7 @@ namespace stick
         inline Size rfindIndex(char _c, Size _startIndex = InvalidIndex) const
         {
             _startIndex = _startIndex == InvalidIndex ? m_length - 1 : _startIndex;
-            STICK_ASSERT(_startIndex < m_length);
+            //STICK_ASSERT(_startIndex < m_length);
             for (; _startIndex > 0; --_startIndex)
             {
                 if ((*this)[_startIndex] == _c)
@@ -300,7 +300,7 @@ namespace stick
 
         inline Size findIndex(const String & _str, Size _startIndex = 0) const
         {
-            STICK_ASSERT(_startIndex < m_length);
+            //STICK_ASSERT(_startIndex < m_length);
             for (; _startIndex < m_length - _str.m_length; ++_startIndex)
             {
                 bool bBreak = false;
@@ -321,7 +321,7 @@ namespace stick
         inline Size rfindIndex(const String & _str, Size _startIndex = InvalidIndex) const
         {
             _startIndex = _startIndex == InvalidIndex ? m_length - _str.m_length : _startIndex;
-            STICK_ASSERT(_startIndex < m_length);
+            //STICK_ASSERT(_startIndex < m_length);
             for (; _startIndex > 0; --_startIndex)
             {
                 bool bBreak = false;
