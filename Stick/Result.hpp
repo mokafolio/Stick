@@ -105,6 +105,9 @@ namespace stick
 
         Error m_error;
     };
+
+    STICK_RESULT_HOLDER(TextResultHolder, text);
+    typedef Result<stick::String, TextResultHolder> TextResult;
 }
 
 #endif //STICK_STICKRESULT_HPP

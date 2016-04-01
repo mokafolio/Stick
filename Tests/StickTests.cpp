@@ -322,6 +322,23 @@ const Suite spec[] =
         EXPECT(*a == "test");
         a.reset();
         EXPECT(!a);
+
+        DynamicArray<Maybe<Int32>> arr;
+        arr.append(1);
+        arr.append(2);
+        arr.append(3);
+        EXPECT(arr[0]);
+        EXPECT(arr[1]);
+        EXPECT(arr[2]);
+        arr.resize(8);
+        EXPECT(arr[0]);
+        EXPECT(arr[1]);
+        EXPECT(arr[2]);
+        EXPECT(!arr[3]);
+        EXPECT(!arr[4]);
+        EXPECT(!arr[5]);
+        EXPECT(!arr[6]);
+        EXPECT(!arr[7]);
     },
     SUITE("DynamicArray Tests")
     {
