@@ -13,6 +13,7 @@ Stick/DynamicArray.hpp
 Stick/Error.hpp
 Stick/ErrorCategory.hpp
 Stick/ErrorCodes.hpp
+Stick/FileSystem.hpp
 Stick/FileUtilities.hpp
 Stick/HashMap.hpp
 Stick/HighResolutionClock.hpp
@@ -36,9 +37,6 @@ Stick/TypeInfo.hpp
 Stick/UniquePtr.hpp
 Stick/URI.hpp
 Stick/Utility.hpp
-)
-
-set (STICKDETAILINC
 Stick/Detail/MurmurHash2.hpp
 )
 
@@ -46,6 +44,7 @@ set (STICKSRC
 Stick/ConditionVariable.cpp
 Stick/Error.cpp 
 Stick/ErrorCategory.cpp
+Stick/FileSystem.cpp
 Stick/FileUtilities.cpp
 Stick/HighResolutionClock.cpp 
 Stick/Mutex.cpp 
@@ -60,6 +59,8 @@ add_library (Stick SHARED ${STICKSRC})
 add_library (StickStatic STATIC ${STICKSRC})
 add_subdirectory (Tests)
 
-install (TARGETS Stick StickStatic DESTINATION /usr/local/lib)
-install (FILES ${STICKINC} DESTINATION /usr/local/include/Stick)
-install (FILES ${STICKDETAILINC} DESTINATION /usr/local/include/Stick/Detail)
+install (TARGETS Stick StickStatic DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+foreach ( file ${STICKINC} )
+    get_filename_component( dir ${file} DIRECTORY )
+    install( FILES ${file} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${dir} )
+endforeach()

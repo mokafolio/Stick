@@ -15,6 +15,7 @@
 #include <Stick/TypeInfo.hpp>
 #include <Stick/UniquePtr.hpp>
 #include <Stick/Maybe.hpp>
+#include <Stick/FileSystem.hpp>
 #include <limits>
 #include <atomic>
 
@@ -103,6 +104,12 @@ const Suite spec[] =
         EXPECT(a == b);
         EXPECT(a != c);
         EXPECT(b != c);
+
+        String emp;
+        EXPECT(emp != a);
+        EXPECT(b != emp);
+        EXPECT(a != "");
+        EXPECT(emp == "");
 
         char expectedResults[] = {'t', 'e', 's', 't'};
 
@@ -968,6 +975,12 @@ const Suite spec[] =
         EXPECT(foo.count() == 2);
         EXPECT(foo["we"] == "are");
         EXPECT(foo["done"] == "now");
+
+        HashMap<const void*, String> blaMap;
+        blaMap[0] = "test";
+        blaMap[(const void*)1] = "test2";
+        EXPECT(blaMap[0] == "test");
+        EXPECT(blaMap[(const void*)1] == "test2");
     },
     SUITE("Thread Tests")
     {
@@ -1053,7 +1066,7 @@ const Suite spec[] =
         EXPECT(*someInt == 5);
         //check if the size that the create function stored for the memory allocated is correct.
         //the size is stored in the 8 bytes just before the actual pointer returned.
-        EXPECT(*reinterpret_cast<Size*>(reinterpret_cast<char*>(someInt) - 8) == 4);
+        EXPECT(*reinterpret_cast<Size *>(reinterpret_cast<char *>(someInt) - 8) == 4);
     },
     SUITE("UniquePtr Tests")
     {
@@ -1073,6 +1086,85 @@ const Suite spec[] =
             UniquePtr<DestructorTester> d(move(e));
         }
         EXPECT(DestructorTester::destructionCount == 4);
+        //TODO lots more
+    },
+    SUITE("FileSystem Tests")
+    {
+        EXPECT(fs::Permission::AllAll == static_cast<fs::Permission>(0777));
+        EXPECT(fs::Permission::GroupAll == static_cast<fs::Permission>(070));
+        EXPECT(fs::Permission::OwnerAll == static_cast<fs::Permission>(0700));
+
+        EXPECT(!fs::exists("_SomeDir"));
+        auto err = fs::createDirectory("_SomeDir");
+        EXPECT(!err);
+        EXPECT(fs::exists("_SomeDir"));
+        err = fs::remove("_SomeDir");
+        EXPECT(!err);
+        EXPECT(!fs::exists("_SomeDir"));
+
+        String path = "IteratorTestFolder";
+        String sub = path::join(path, "Subfolder");
+        String foo = path::join(path, "Foo/Bazz");
+        String bar = path::join(path, "Bar");
+
+        err = fs::removeAll(path);
+
+        fs::createDirectory(path);
+        fs::createDirectory(sub);
+        fs::createDirectories(foo);
+        fs::createDirectory(bar);
+
+        int numIterations = 0;
+        fs::DirectoryIterator it(path);
+        //TODO: actually test if all the paths are correct
+        EXPECT(!it.error());
+        for (; it != fs::DirectoryIterator::End; ++it)
+        {
+            printf("%s\n", it->path().cString());
+            numIterations++;
+        }
+        EXPECT(numIterations == 3);
+
+        fs::createDirectory(path::join(path, "empty"));
+
+        //recursive iterator
+        //TODO: actually test if all the paths are correct
+        int numIterationsTwo = 0;
+        fs::RecursiveDirectoryIterator rit(path);
+        for (; rit != fs::RecursiveDirectoryIterator::End; ++rit)
+        {
+            printf("%s\n", rit->path().cString());
+            numIterationsTwo++;
+        }
+
+        EXPECT(numIterationsTwo == 5);
+        err = fs::removeAll(path);
+        EXPECT(!err);
+
+        String filePath = "test.txt";
+        fs::remove(filePath);
+        saveTextFile("test test test", filePath);
+
+        EXPECT(fs::exists(filePath));
+        EXPECT(fs::isFile(filePath));
+        EXPECT(!fs::isSymbolicLink(filePath));
+        EXPECT(!fs::isDirectory(filePath));
+
+        String symLinkPath = "testSymLink.txt";
+        fs::remove(symLinkPath);
+        fs::createSymbolicLink(filePath, symLinkPath);
+
+        EXPECT(fs::readSymbolicLink(symLinkPath).ensure() == filePath);
+
+        EXPECT(fs::exists(symLinkPath));
+        EXPECT(!fs::isFile(symLinkPath));
+        EXPECT(fs::isSymbolicLink(symLinkPath));
+        EXPECT(!fs::isDirectory(symLinkPath));
+
+        fs::remove(filePath);
+        fs::remove(symLinkPath);
+        EXPECT(!fs::exists(filePath));
+        EXPECT(!fs::exists(symLinkPath));
     }
 };
 

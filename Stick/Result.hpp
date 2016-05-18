@@ -30,6 +30,16 @@ struct _name \
     { \
         return *m_value; \
     } \
+\
+    T & get() \
+    { \
+        return *m_value; \
+    } \
+\
+    const T & get() const \
+    { \
+        return *m_value; \
+    } \
     stick::Maybe<T> m_value; \
 } \
 

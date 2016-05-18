@@ -38,6 +38,15 @@ namespace stick
         }
     };
 
+    template<class T>
+    struct DefaultHash<T *>
+    {
+        Size operator()(T * _i) const
+        {
+            return reinterpret_cast<Size>(_i);
+        }
+    };
+
     template<class K, class V, template<class> class H = DefaultHash>
     class HashMap
     {
@@ -301,7 +310,12 @@ namespace stick
 
         inline InsertResult insert(const KeyType & _key, const ValueType & _value)
         {
-            return insert({_key, _value});
+            return insert((KeyValuePair) {_key, _value});
+        }
+
+        inline InsertResult insert(const KeyType & _key, ValueType && _value)
+        {
+            return insert((KeyValuePair) {_key, move(_value)});
         }
 
         inline InsertResult insert(const KeyValuePair & _val)
@@ -322,7 +336,42 @@ namespace stick
             else
             {
                 //otherwise create the node n stuff
-                n = createNode(_val.key, _val.value);
+                n = createNode({_val.key, _val.value});
+                if (prev)
+                    prev->next = n;
+                else
+                    b.first = n;
+                ++m_count;
+            }
+
+            Float32 lf = loadFactor();
+            if (lf > m_maxLoadFactor)
+            {
+                rehash(m_bucketCount * 2);
+            }
+
+            return {Iter(*this, bi, n), true};
+        }
+
+        inline InsertResult insert(KeyValuePair && _val)
+        {
+            Size bi = bucketIndex(_val.key);
+            Bucket & b = m_buckets[bi];
+
+            //check if the key allready exists
+            Node * n, *prev;
+            findHelper(b, _val.key, n, prev);
+
+            //the key allready exists, change the value
+            if (n)
+            {
+                n->kv.value = move(_val.value);
+                return {Iter(*this, bi, n), false};
+            }
+            else
+            {
+                //otherwise create the node n stuff
+                n = createNode({_val.key, move(_val.value)});
                 if (prev)
                     prev->next = n;
                 else
@@ -531,11 +580,11 @@ namespace stick
 
     private:
 
-        inline Node * createNode(const KeyType & _key, const ValueType & _val)
+        inline Node * createNode(KeyValuePair && _pair)
         {
             auto mem = m_alloc->allocate(sizeof(Node));
             Node * ret = new (mem.ptr) Node;
-            ret->kv = {_key, _val};
+            ret->kv = move(_pair);
             return ret;
         }
 
@@ -576,7 +625,7 @@ namespace stick
 
         inline Node * copyNode(Node * _node)
         {
-            Node * ret = createNode(_node->kv.key, _node->kv.value);
+            Node * ret = createNode({_node->kv.key, _node->kv.value});
             if (_node->next)
                 ret->next = copyNode(_node->next);
             return ret;

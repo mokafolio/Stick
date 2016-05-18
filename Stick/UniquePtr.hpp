@@ -2,6 +2,7 @@
 #define STICK_UNIQUEPTR_HPP
 
 #include <Stick/Allocator.hpp>
+#include <cstddef> //for std::nullptr_t
 
 namespace stick
 {

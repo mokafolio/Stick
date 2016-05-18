@@ -134,13 +134,19 @@ namespace stick
 
         inline String & operator = (const char * _other)
         {
-            deallocate();
+            if(m_cStr)
+                deallocate();
 
             if (!m_allocator)
                 m_allocator = &defaultAllocator();
 
-            resize(strlen(_other));
-            strcpy(m_cStr, _other);
+            Size len = strlen(_other);
+            m_length = 0;
+            if(len)
+            {
+                resize(strlen(_other));
+                strcpy(m_cStr, _other);
+            }
 
             return *this;
         }
@@ -150,7 +156,7 @@ namespace stick
 
         inline void append(const String & _str)
         {
-            if(!_str.m_length) return;
+            if (!_str.m_length) return;
             Size off = m_length;
             preAppend(m_length + _str.length());
             strcpy(m_cStr + off, _str.m_cStr);
@@ -189,9 +195,13 @@ namespace stick
 
         inline bool operator == (const String & _b) const
         {
-            if (!m_cStr && !_b.m_cStr) return true;
-            else if (!m_cStr && !strlen(_b.m_cStr)) return true;
-            else if (!m_cStr) return false;
+            //TODO: Make this nicer!!!1111
+            if (isEmpty() && _b.isEmpty())
+            {
+                return true;
+            }
+            else if(isEmpty() || _b.isEmpty())
+                return false;
             return strcmp(m_cStr, _b.m_cStr) == 0;
         }
 
@@ -202,9 +212,8 @@ namespace stick
 
         inline bool operator == (const char * _str) const
         {
-            if (!m_cStr && !_str) return true;
-            else if (!m_cStr && !strlen(_str)) return true;
-            else if (!m_cStr) return false;
+            if (isEmpty() && (!_str || (_str && strlen(_str) == 0))) return true;
+            else if (isEmpty() || !_str) return false;
             return strcmp(m_cStr, _str) == 0;
         }
 
@@ -237,6 +246,32 @@ namespace stick
         {
             if (!m_cStr) return false;
             return strcmp(m_cStr, _str) > 0;
+        }
+
+        inline bool operator <= (const String & _str) const
+        {
+            if (!m_cStr && !_str.m_cStr) return true;
+            if (!_str.m_cStr || !m_cStr) return false;
+            return strcmp(m_cStr, _str.m_cStr) < 0;
+        }
+
+        inline bool operator >= (const String & _str) const
+        {
+            if (!m_cStr && !_str.m_cStr) return true;
+            if (!_str.m_cStr || m_cStr) return false;
+            return strcmp(m_cStr, _str.m_cStr) >= 0;
+        }
+
+        inline bool operator <= (const char * _str) const
+        {
+            if (!m_cStr) return true;
+            return strcmp(m_cStr, _str) <= 0;
+        }
+
+        inline bool operator >= (const char * _str) const
+        {
+            if (!m_cStr) return false;
+            return strcmp(m_cStr, _str) >= 0;
         }
 
         inline void resize(Size _count)

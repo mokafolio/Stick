@@ -29,6 +29,10 @@
 #define STICK_PLATFORM_UNIX
 #endif
 
+#ifdef STICK_PLATFORM_UNIX
+#define STICK_PLATFORM_POSIX
+#endif
+
 //LINE AND FILE MACROS
 #define STICK_LINE __LINE__
 #define STICK_FILE __FILE__
