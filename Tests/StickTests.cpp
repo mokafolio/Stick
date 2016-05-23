@@ -448,7 +448,6 @@ const Suite spec[] =
             DynamicArray<DestructorTester> tt2(10);
             tt2.resize(20);
         }
-        printf("%i\n", DestructorTester::destructionCount );
         EXPECT(DestructorTester::destructionCount == 25);
 
         DynamicArray<Int32> ttt({1, 2, 3, 4, 5});
@@ -1120,7 +1119,7 @@ const Suite spec[] =
         EXPECT(!it.error());
         for (; it != fs::DirectoryIterator::End; ++it)
         {
-            printf("%s\n", it->path().cString());
+            //printf("%s\n", it->path().cString());
             numIterations++;
         }
         EXPECT(numIterations == 3);
@@ -1133,7 +1132,7 @@ const Suite spec[] =
         fs::RecursiveDirectoryIterator rit(path);
         for (; rit != fs::RecursiveDirectoryIterator::End; ++rit)
         {
-            printf("%s\n", rit->path().cString());
+            //printf("%s\n", rit->path().cString());
             numIterationsTwo++;
         }
 
