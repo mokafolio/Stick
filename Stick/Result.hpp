@@ -21,6 +21,12 @@ struct _name \
  \
     } \
  \
+    _name(T && _data) : \
+        m_value(move(_data)) \
+    { \
+ \
+    } \
+ \
     T & _holderName() \
     { \
         return *m_value; \
@@ -41,7 +47,7 @@ struct _name \
         return *m_value; \
     } \
     stick::Maybe<T> m_value; \
-} \
+};
 
 namespace stick
 {
@@ -65,11 +71,11 @@ namespace stick
 
         }
 
-        /*inline Result(T && _result) :
-            ResultHolderType(move(_result))
+        inline Result(T && _result) :
+            ResultHolderType(forward<T>(_result))
         {
 
-        }*/
+        }
 
         inline Result(const Error & _error) :
             m_error(_error)

@@ -346,6 +346,8 @@ const Suite spec[] =
         EXPECT(!arr[5]);
         EXPECT(!arr[6]);
         EXPECT(!arr[7]);
+
+        //Maybe<UniquePtr<Int32>> uniqueMaybe(UniquePtr<Int32>(defaultAllocator().create<Int32>(3)));
     },
     SUITE("DynamicArray Tests")
     {
