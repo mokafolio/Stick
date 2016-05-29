@@ -26,9 +26,9 @@ namespace stick
     }
 
     Thread::Thread(Thread && _other) :
-        m_handle(move(_other.m_handle)),
-        m_threadID(move(_other.m_threadID)),
-        m_bIsJoinable(move(_other.m_bIsJoinable))
+        m_handle(std::move(_other.m_handle)),
+        m_threadID(std::move(_other.m_threadID)),
+        m_bIsJoinable(std::move(_other.m_bIsJoinable))
     {
         ScopedLock<Mutex> lock(_other.m_mutex);
         _other.m_bIsJoinable = false;
@@ -43,9 +43,9 @@ namespace stick
     Thread & Thread::operator = (Thread && _other)
     {
         STICK_ASSERT(!isJoinable());
-        m_handle = move(_other.m_handle);
-        m_threadID = move(_other.m_threadID);
-        m_bIsJoinable = move(_other.m_bIsJoinable);
+        m_handle = std::move(_other.m_handle);
+        m_threadID = std::move(_other.m_threadID);
+        m_bIsJoinable = std::move(_other.m_bIsJoinable);
 
         ScopedLock<Mutex> lock(_other.m_mutex);
         _other.m_bIsJoinable = false;

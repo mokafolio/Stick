@@ -227,11 +227,11 @@ namespace stick
         }
 
         inline HashMap(HashMap && _other) :
-            m_alloc(move(_other.m_alloc)),
-            m_buckets(move(_other.m_buckets)),
-            m_bucketCount(move(_other.m_bucketCount)),
-            m_maxLoadFactor(move(_other.m_maxLoadFactor)),
-            m_count(move(_other.m_count))
+            m_alloc(std::move(_other.m_alloc)),
+            m_buckets(std::move(_other.m_buckets)),
+            m_bucketCount(std::move(_other.m_bucketCount)),
+            m_maxLoadFactor(std::move(_other.m_maxLoadFactor)),
+            m_count(std::move(_other.m_count))
         {
             _other.m_buckets = nullptr;
         }
@@ -290,11 +290,11 @@ namespace stick
             if (m_buckets)
                 m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
 
-            m_alloc = move(_other.m_alloc);
-            m_bucketCount = move(_other.m_bucketCount);
-            m_count = move(_other.m_count);
-            m_maxLoadFactor = move(_other.m_maxLoadFactor);
-            m_buckets = move(_other.m_buckets);
+            m_alloc = std::move(_other.m_alloc);
+            m_bucketCount = std::move(_other.m_bucketCount);
+            m_count = std::move(_other.m_count);
+            m_maxLoadFactor = std::move(_other.m_maxLoadFactor);
+            m_buckets = std::move(_other.m_buckets);
 
             _other.m_buckets = nullptr;
 
@@ -315,7 +315,7 @@ namespace stick
 
         inline InsertResult insert(const KeyType & _key, ValueType && _value)
         {
-            return insert((KeyValuePair) {_key, move(_value)});
+            return insert((KeyValuePair) {_key, std::move(_value)});
         }
 
         inline InsertResult insert(const KeyValuePair & _val)
@@ -365,13 +365,13 @@ namespace stick
             //the key allready exists, change the value
             if (n)
             {
-                n->kv.value = move(_val.value);
+                n->kv.value = std::move(_val.value);
                 return {Iter(*this, bi, n), false};
             }
             else
             {
                 //otherwise create the node n stuff
-                n = createNode({_val.key, move(_val.value)});
+                n = createNode({_val.key, std::move(_val.value)});
                 if (prev)
                     prev->next = n;
                 else
@@ -584,7 +584,7 @@ namespace stick
         {
             auto mem = m_alloc->allocate(sizeof(Node));
             Node * ret = new (mem.ptr) Node;
-            ret->kv = move(_pair);
+            ret->kv = std::move(_pair);
             return ret;
         }
 

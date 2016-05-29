@@ -22,7 +22,7 @@ struct _name \
     } \
  \
     _name(T && _data) : \
-        m_value(move(_data)) \
+        m_value(std::move(_data)) \
     { \
  \
     } \
@@ -72,7 +72,7 @@ namespace stick
         }
 
         inline Result(T && _result) :
-            ResultHolderType(forward<T>(_result))
+            ResultHolderType(std::forward<T>(_result))
         {
 
         }
@@ -100,7 +100,7 @@ namespace stick
 
         inline void setError(Error && _error)
         {
-            m_error = move(_error);
+            m_error = std::move(_error);
         }
 
         inline const T & ensure()

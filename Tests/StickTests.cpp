@@ -276,10 +276,10 @@ const Suite spec[] =
             b = c;
             EXPECT(b == c);
 
-            String mc(move(b));
+            String mc(std::move(b));
             EXPECT(mc == c);
 
-            mc = move(c);
+            mc = std::move(c);
             EXPECT(mc == "weee");
         }
     },
@@ -476,14 +476,14 @@ const Suite spec[] =
         EXPECT(copy[2] == 1);
         EXPECT(copy[3] == 3);
 
-        DynamicArray<Int32> mcopy = move(copy);
+        DynamicArray<Int32> mcopy = std::move(copy);
         EXPECT(mcopy.count() == 4);
         EXPECT(mcopy[0] == 0);
         EXPECT(mcopy[1] == 52);
         EXPECT(mcopy[2] == 1);
         EXPECT(mcopy[3] == 3);
 
-        mcopy = move(ttt);
+        mcopy = std::move(ttt);
         EXPECT(mcopy.count() == 5);
         EXPECT(mcopy[0] == 1);
         EXPECT(mcopy[1] == 2);
@@ -731,7 +731,7 @@ const Suite spec[] =
         EXPECT(n22->value == "no");
         EXPECT(n23->value == "awesome");
 
-        auto tree3 = move(tree2);
+        auto tree3 = std::move(tree2);
         auto n212 = tree3.find("yes");
         auto n222 = tree3.find("no");
         auto n232 = tree3.find("awesome");
@@ -755,7 +755,7 @@ const Suite spec[] =
         EXPECT(n32->value == "world");
 
         RBTree<String> bla3Copy;
-        bla3Copy = move(bla2Copy);
+        bla3Copy = std::move(bla2Copy);
         auto n312 = bla3Copy.find("hello");
         auto n322 = bla3Copy.find("world");
         EXPECT(n312 == n31);
@@ -884,7 +884,7 @@ const Suite spec[] =
         EXPECT(copy["hello"] == 1);
         EXPECT(copy["world"] == 2);
 
-        auto copy2 = move(copy);
+        auto copy2 = std::move(copy);
         EXPECT(copy2.count() == 2);
         EXPECT(copy2["hello"] == 1);
         EXPECT(copy2["world"] == 2);
@@ -904,7 +904,7 @@ const Suite spec[] =
         mapToCopy3.insert("arr", 5);
         mapToCopy3.insert("gh", 6);
 
-        copy2 = move(mapToCopy3);
+        copy2 = std::move(mapToCopy3);
         EXPECT(copy2.count() == 2);
         EXPECT(copy2["arr"] == 5);
         EXPECT(copy2["gh"] == 6);
@@ -942,7 +942,7 @@ const Suite spec[] =
         copyMe["a"] = 1;
         copyMe["b"] = 2;
         copyMe["c"] = 3;
-        auto cpied = move(copyMe);
+        auto cpied = std::move(copyMe);
         EXPECT(cpied.count() == 3);
         EXPECT(cpied["a"] == 1);
         EXPECT(cpied["b"] == 2);
@@ -955,7 +955,7 @@ const Suite spec[] =
 
         HashMap<String, Int32> copyMe2;
         copyMe2["d"] = 199;
-        cpy = move(copyMe2);
+        cpy = std::move(copyMe2);
         EXPECT(cpy.count() == 1);
         EXPECT(cpy["d"] == 199);
 
@@ -1001,13 +1001,13 @@ const Suite spec[] =
         //move test
         Thread t2;
         t2.run([&]() { Thread::sleepFor(Duration::fromSeconds(0.1f)); });
-        Thread t3 = move(t2);
+        Thread t3 = std::move(t2);
         EXPECT(t2.isJoinable() == false);
         t3.join();
 
         Thread t4;
         t4.run([&]() { Thread::sleepFor(Duration::fromSeconds(0.1f)); });
-        t3 = move(t4);
+        t3 = std::move(t4);
 
         EXPECT(t4.isJoinable() == false);
         t3.join();
@@ -1084,7 +1084,7 @@ const Suite spec[] =
         EXPECT(DestructorTester::destructionCount == 3);
         {
             UniquePtr<DestructorTester> e(defaultAllocator().create<DestructorTester>());
-            UniquePtr<DestructorTester> d(move(e));
+            UniquePtr<DestructorTester> d(std::move(e));
         }
         EXPECT(DestructorTester::destructionCount == 4);
         //TODO lots more

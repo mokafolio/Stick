@@ -2,6 +2,7 @@
 #define STICK_UTILITY_HPP
 
 #include <Stick/Iterator.hpp>
+#include <utility>
 
 namespace stick
 {
@@ -29,7 +30,7 @@ namespace stick
     template<class T>
     struct EnableIf<true, T> { typedef T Type; };
 
-    template<class T>
+    /*template<class T>
     inline typename RemoveReference<T>::Type && move(T && _arg)
     {
         return static_cast < typename RemoveReference<T>::Type && > (_arg);
@@ -45,7 +46,7 @@ namespace stick
     inline T && forward(typename RemoveReference<T>::Type && _arg)
     {
         return _arg;
-    }
+    }*/
 
     template<class T>
     inline T min(const T & _a, const T & _b)
@@ -102,7 +103,7 @@ namespace stick
     template<class F>
     ScopeExit<typename RemoveReference<F>::Type> makeScopeExit(F && _f)
     {
-        return ScopeExit<typename RemoveReference<F>::Type>(forward<F>(_f));
+        return ScopeExit<typename RemoveReference<F>::Type>(std::forward<F>(_f));
     }
 
     template<class InputIter, class T>

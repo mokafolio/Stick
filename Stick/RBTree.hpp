@@ -111,9 +111,9 @@ namespace stick
         }
 
         inline RBTree(RBTree && _other) :
-            m_alloc(move(_other.m_alloc)),
-            m_rootNode(move(_other.m_rootNode)),
-            m_count(move(_other.m_count))
+            m_alloc(std::move(_other.m_alloc)),
+            m_rootNode(std::move(_other.m_rootNode)),
+            m_count(std::move(_other.m_count))
         {
             _other.m_rootNode = nullptr;
         }
@@ -138,9 +138,9 @@ namespace stick
         RBTree & operator = (RBTree && _other)
         {
             clear();
-            m_alloc = move(_other.m_alloc);
-            m_rootNode = move(_other.m_rootNode);
-            m_count = move(_other.m_count);
+            m_alloc = std::move(_other.m_alloc);
+            m_rootNode = std::move(_other.m_rootNode);
+            m_count = std::move(_other.m_count);
             _other.m_rootNode = nullptr;
             return *this;
         }

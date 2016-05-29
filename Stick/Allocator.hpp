@@ -28,7 +28,7 @@ namespace stick
             char * bytePtr = reinterpret_cast<char*>(mem.ptr);
             Size * ptr = reinterpret_cast<Size*>(bytePtr);
             *ptr = sizeof(T);
-            return new (bytePtr + 8) T(forward<Args>(_args)...);
+            return new (bytePtr + 8) T(std::forward<Args>(_args)...);
         }
     };
 

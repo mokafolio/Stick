@@ -310,7 +310,7 @@ namespace stick
 
         inline InsertResult insert(const KeyType & _key, ValueType && _val)
         {
-            return insert((KeyValuePair){_key, move(_val)});
+            return insert((KeyValuePair){_key, std::move(_val)});
         }
 
         inline ValueType & operator [] (const KeyType & _key)

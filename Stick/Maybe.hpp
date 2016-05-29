@@ -29,7 +29,7 @@ namespace stick
         inline Maybe(T && _value) :
             m_bHasValue(true)
         {
-            new(m_data) T(move(_value));
+            new(m_data) T(std::move(_value));
         }
 
         inline Maybe(const Maybe & _other) :
@@ -43,7 +43,7 @@ namespace stick
             m_bHasValue(_other.m_bHasValue)
         {
             if (m_bHasValue)
-                new(m_data) T(move(_other.value()));
+                new(m_data) T(std::move(_other.value()));
         }
 
         inline ~Maybe()
@@ -84,11 +84,11 @@ namespace stick
         {
             if (m_bHasValue)
             {
-                value() = forward<U>(_value);
+                value() = std::forward<U>(_value);
             }
             else
             {
-                new(m_data) T(forward<U>(_value));
+                new(m_data) T(std::forward<U>(_value));
                 m_bHasValue = true;
             }
             return *this;
@@ -118,10 +118,10 @@ namespace stick
             if (_other.m_bHasValue)
             {
                 if (m_bHasValue)
-                    value() = move(_other.value());
+                    value() = std::move(_other.value());
                 else
                 {
-                    new(m_data) T(move(_other.value()));
+                    new(m_data) T(std::move(_other.value()));
                     m_bHasValue = true;
                 }
             }

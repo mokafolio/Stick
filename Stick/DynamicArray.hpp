@@ -63,9 +63,9 @@ namespace stick
         }
 
         DynamicArray(DynamicArray && _other) :
-            m_data(stick::move(_other.m_data)),
-            m_count(stick::move(_other.m_count)),
-            m_allocator(stick::move(_other.m_allocator))
+            m_data(std::move(_other.m_data)),
+            m_count(std::move(_other.m_count)),
+            m_allocator(std::move(_other.m_allocator))
         {
             //we don't want other to deallocate anything
             _other.m_data.ptr = nullptr;
@@ -96,9 +96,9 @@ namespace stick
         inline DynamicArray & operator = (DynamicArray && _other)
         {
             deallocate();
-            m_data = stick::move(_other.m_data);
-            m_allocator = stick::move(_other.m_allocator);
-            m_count = stick::move(_other.m_count);
+            m_data = std::move(_other.m_data);
+            m_allocator = std::move(_other.m_allocator);
+            m_count = std::move(_other.m_count);
             _other.m_data.ptr = nullptr;
 
             return *this;
@@ -146,7 +146,7 @@ namespace stick
                 //move the existing elements over
                 for (Size i = 0; i < m_count; ++i)
                 {
-                    new (arrayPtr + i) T(stick::move(sourcePtr[i]));
+                    new (arrayPtr + i) T(std::move(sourcePtr[i]));
                 }
                 m_allocator->deallocate(m_data);
                 m_data = blk;
@@ -173,7 +173,7 @@ namespace stick
             {
                 reserve(max((Size)1, m_count * 2));
             }
-            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(stick::move(_element));
+            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(std::move(_element));
         }
 
         template<class InputIter>
@@ -227,7 +227,7 @@ namespace stick
             {
                 for (Size i = 0; i < diff; ++i)
                 {
-                    (*this)[index + i] = stick::move((*this)[endIndex + i]);
+                    (*this)[index + i] = std::move((*this)[endIndex + i]);
                 }
             }
 

@@ -80,10 +80,10 @@ namespace stick
         }
 
         inline String(String && _other) :
-            m_cStr(move(_other.m_cStr)),
-            m_length(move(_other.m_length)),
-            m_capacity(move(_other.m_capacity)),
-            m_allocator(move(_other.m_allocator))
+            m_cStr(std::move(_other.m_cStr)),
+            m_length(std::move(_other.m_length)),
+            m_capacity(std::move(_other.m_capacity)),
+            m_allocator(std::move(_other.m_allocator))
         {
             _other.m_cStr = nullptr;
         }
@@ -124,10 +124,10 @@ namespace stick
         inline String & operator = (String && _other)
         {
             deallocate();
-            m_cStr = move(_other.m_cStr);
-            m_allocator = move(_other.m_allocator);
-            m_length = move(_other.m_length);
-            m_capacity = move(_other.m_capacity);
+            m_cStr = std::move(_other.m_cStr);
+            m_allocator = std::move(_other.m_allocator);
+            m_length = std::move(_other.m_length);
+            m_capacity = std::move(_other.m_capacity);
             _other.m_cStr = nullptr;
             return *this;
         }

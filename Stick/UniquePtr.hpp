@@ -51,8 +51,8 @@ namespace stick
         }
 
         inline UniquePtr(UniquePtr && _other) :
-            m_obj(move(_other.m_obj)),
-            m_cleanup(move(_other.m_cleanup))
+            m_obj(std::move(_other.m_obj)),
+            m_cleanup(std::move(_other.m_cleanup))
         {
             _other.m_obj = nullptr;
         }
@@ -75,8 +75,8 @@ namespace stick
         inline UniquePtr & operator = (UniquePtr && _other)
         {
             reset();
-            m_obj = move(_other.m_obj);
-            m_cleanup = move(_other.m_cleanup);
+            m_obj = std::move(_other.m_obj);
+            m_cleanup = std::move(_other.m_cleanup);
             _other.m_obj = nullptr;
             return *this;
         }

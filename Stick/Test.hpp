@@ -97,7 +97,7 @@ namespace stick
             }
 
             TestFunction(TestFunction && _other) :
-            function(move(_other.function))
+            function(std::move(_other.function))
             {
                 _other.function = nullptr;
             }
