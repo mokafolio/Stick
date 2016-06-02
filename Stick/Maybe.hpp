@@ -44,6 +44,7 @@ namespace stick
         {
             if (m_bHasValue)
                 new(m_data) T(std::move(_other.value()));
+            //TODO: I think we need to set _other.m_bHasValue to false here?
         }
 
         inline ~Maybe()
@@ -137,7 +138,7 @@ namespace stick
             return &value();
         }
 
-        inline T * operator->() const
+        inline const T * operator->() const
         {
             return &value();
         }
@@ -147,7 +148,7 @@ namespace stick
             return value();
         }
 
-        inline T & operator*() const
+        inline const T & operator*() const
         {
             return value();
         }
@@ -237,7 +238,7 @@ namespace stick
             return *m_ptr;
         }
 
-        inline T & operator*() const
+        inline const T & operator*() const
         {
             return *m_ptr;
         }

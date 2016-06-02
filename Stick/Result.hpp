@@ -15,6 +15,18 @@ struct _name \
  \
     } \
  \
+    _name(const _name & _other) : \
+    m_value(_other.m_value) \
+    { \
+ \
+    } \
+ \
+    _name(_name && _other) : \
+    m_value(std::move(_other.m_value)) \
+    { \
+ \
+    } \
+ \
     _name(const T & _data) : \
         m_value(_data) \
     { \
@@ -51,28 +63,137 @@ struct _name \
 
 namespace stick
 {
-    STICK_RESULT_HOLDER(DefaultResultHolder, data);
-
-    template<class T, template<class> class ResultHolder = DefaultResultHolder>
-    class Result : public ResultHolder<T>
+    template<class T>
+    class Result
     {
     public:
-
-        typedef ResultHolder<T> ResultHolderType;
 
         inline Result()
         {
 
         }
 
+        inline Result(const Result & _result) :
+            m_value(_result.m_value)
+        {
+
+        }
+
+        inline Result(Result && _result) :
+            m_value(std::move(_result.m_value))
+        {
+
+        }
+
         inline Result(const T & _result) :
-            ResultHolderType(_result)
+            m_value(_result)
         {
 
         }
 
         inline Result(T && _result) :
-            ResultHolderType(std::forward<T>(_result))
+            m_value(std::forward<T>(_result))
+        {
+
+        }
+
+        inline Result(const Error & _error) :
+            m_error(_error)
+        {
+
+        }
+
+        inline Result & operator = (const Result & _result)
+        {
+            m_value = _result.m_value;
+            return *this;
+        }
+
+        inline Result & operator = (Result && _result)
+        {
+            m_value = std::move(_result.m_value);
+            return *this;
+        }
+
+        inline operator bool() const
+        {
+            return !static_cast<bool>(m_error);
+        }
+
+        inline const Error & error() const
+        {
+            return m_error;
+        }
+
+        inline void setError(const Error & _error)
+        {
+            m_error = _error;
+        }
+
+        inline void setError(Error && _error)
+        {
+            m_error = std::move(_error);
+        }
+
+        inline const T & ensure() const
+        {
+            if (!this->m_value)
+            {
+                printf("Called ensure on an empty result.\n");
+                if (m_error)
+                {
+                    printf("The result holds the following error message: %s.\nThe generic error description is: %s.\n", m_error.message().cString(), m_error.description().cString());
+                }
+                exit(EXIT_FAILURE);
+            }
+            return *(this->m_value);
+        }
+
+        inline T & ensure()
+        {
+            return const_cast<T &>(const_cast<const Result &>(*this).ensure());
+        }
+
+        T & get()
+        {
+            return *m_value;
+        }
+
+        const T & get() const
+        {
+            return *m_value;
+        }
+
+    private:
+
+        Error m_error;
+        stick::Maybe<T> m_value;
+    };
+
+    template<class T>
+    class Result<T &>
+    {
+    public:
+
+        inline Result()
+        {
+
+        }
+
+        inline Result(const Result & _result) :
+            m_value(_result.m_value)
+        {
+
+        }
+
+        inline Result(Result && _result) :
+            m_value(std::move(_result.m_value))
+        {
+
+        }
+
+        inline Result(T & _result) :
+            m_value(_result)
         {
 
         }
@@ -103,7 +224,7 @@ namespace stick
             m_error = std::move(_error);
         }
 
-        inline const T & ensure()
+        inline const T & ensure() const
         {
             if (!this->m_value)
             {
@@ -117,13 +238,35 @@ namespace stick
             return *(this->m_value);
         }
 
+        inline T & ensure()
+        {
+            return const_cast<T &>(const_cast<const Result &>(*this).ensure());
+        }
+
+        T & get()
+        {
+            return *m_value;
+        }
+
+        const T & get() const
+        {
+            return *m_value;
+        }
+
     private:
 
         Error m_error;
+        stick::Maybe<T &> m_value;
     };
 
-    STICK_RESULT_HOLDER(TextResultHolder, text);
-    typedef Result<stick::String, TextResultHolder> TextResult;
+    template<class T>
+    inline constexpr Result<typename std::decay<T>::type> makeResult(T && _value)
+    {
+        return Result<typename std::decay<T>::type>(std::forward<T>(_value));
+    }
+
+    //STICK_RESULT_HOLDER(TextResultHolder, text);
+    typedef Result<stick::String> TextResult;
 }
 
 #endif //STICK_STICKRESULT_HPP

@@ -349,6 +349,20 @@ const Suite spec[] =
 
         //Maybe<UniquePtr<Int32>> uniqueMaybe(UniquePtr<Int32>(defaultAllocator().create<Int32>(3)));
     },
+    SUITE("Result Tests")
+    {
+        Result<Int32> a(Error(ec::InvalidOperation, "bla", STICK_FILE, STICK_LINE));
+        EXPECT(!a);
+        Result<Int32> b(20);
+        EXPECT(b);
+        Result<Int32> c(b);
+        EXPECT(c);
+        EXPECT(b.get() == 20);
+        EXPECT(c.get() == 20);
+        Result<Int32> d(std::move(c));
+        EXPECT(d);
+        EXPECT(d.get() == 20);
+    },
     SUITE("DynamicArray Tests")
     {
         DynamicArray<Int32> a;
@@ -977,11 +991,11 @@ const Suite spec[] =
         EXPECT(foo["we"] == "are");
         EXPECT(foo["done"] == "now");
 
-        HashMap<const void*, String> blaMap;
+        HashMap<const void *, String> blaMap;
         blaMap[0] = "test";
-        blaMap[(const void*)1] = "test2";
+        blaMap[(const void *)1] = "test2";
         EXPECT(blaMap[0] == "test");
-        EXPECT(blaMap[(const void*)1] == "test2");
+        EXPECT(blaMap[(const void *)1] == "test2");
     },
     SUITE("Thread Tests")
     {
@@ -1036,7 +1050,7 @@ const Suite spec[] =
         EXPECT(!err);
         auto result = loadTextFile(uri);
         EXPECT(result);
-        EXPECT(result.data() == "This is some text");
+        EXPECT(result.get() == "This is some text");
         String str = result.ensure();
         EXPECT(str == "This is some text");
         auto result2 = loadTextFile("I/do/not/exist");
@@ -1048,12 +1062,12 @@ const Suite spec[] =
         EXPECT(!err);
         auto result3 = loadBinaryFile(uri2);
         EXPECT(result3);
-        EXPECT(result3.data().count() == 5);
-        EXPECT(result3.data()[0] == 1);
-        EXPECT(result3.data()[1] == 2);
-        EXPECT(result3.data()[2] == 127);
-        EXPECT(result3.data()[3] == 3);
-        EXPECT(result3.data()[4] == 4);
+        EXPECT(result3.get().count() == 5);
+        EXPECT(result3.get()[0] == 1);
+        EXPECT(result3.get()[1] == 2);
+        EXPECT(result3.get()[2] == 127);
+        EXPECT(result3.get()[3] == 3);
+        EXPECT(result3.get()[4] == 4);
     },
     SUITE("TypeInfo Tests")
     {
