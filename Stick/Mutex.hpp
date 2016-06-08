@@ -16,7 +16,8 @@ namespace stick
     public:
 
 #ifdef STICK_PLATFORM_UNIX
-        typedef pthread_mutex_t NativeHandle;
+        typedef pthread_mutex_t Native;
+        typedef Native * NativeHandle;
 #endif //STICK_PLATFORM_UNIX
 
         Mutex();
@@ -34,12 +35,12 @@ namespace stick
 
         void unlock();
 
-        NativeHandle nativeHandle() const;
+        NativeHandle nativeHandle();
 
 
     private:
 
-        NativeHandle m_handle;
+        Native m_handle;
         bool m_bIsInitialized;
     };
 }

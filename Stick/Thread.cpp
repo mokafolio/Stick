@@ -57,23 +57,25 @@ namespace stick
     Error Thread::join()
     {
 #ifdef STICK_PLATFORM_UNIX
-#if STICK_PLATFORM == STICK_PLATFORM_LINUX
-        if (!isJoinable())
-            return Error(ec::InvalidOperation, "The pthread is not joinable", STICK_FILE, STICK_LINE);
-#endif
+        {
+            ScopedLock<Mutex> lock(m_mutex);
+            if(m_threadID == 0) // thread is not initialized
+                return Error();
+        }
         int res = pthread_join(m_handle, NULL);
         m_threadID = 0;
         if (res != 0)
             return Error(ec::SystemErrorCode(res), "Could not join pthread", STICK_FILE, STICK_LINE);
 #endif //STICK_PLATFORM_UNIX
 
+        ScopedLock<Mutex> lock(m_mutex);
         m_bIsJoinable = false;
         return Error();
     }
 
     Thread::NativeHandle Thread::nativeHandle()
     {
-        return m_handle;
+        return &m_handle;
     }
 
     bool Thread::isJoinable() const

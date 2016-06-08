@@ -19,6 +19,10 @@
 #include <limits>
 #include <atomic>
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 using namespace stick;
 
 /*
@@ -1000,11 +1004,9 @@ const Suite spec[] =
     SUITE("Thread Tests")
     {
         Thread thread;
-        Error err = thread.join();
-        EXPECT(err.code() != 0);
         std::atomic<bool> bJoinable(false);
         std::atomic<bool> bValidThreadID(false);
-        err = thread.run([&]() { bValidThreadID = thread.threadID() != 0; bJoinable = thread.isJoinable(); Thread::sleepFor(Duration::fromSeconds(0.1f));});
+        Error err = thread.run([&]() { bValidThreadID = thread.threadID() != 0; bJoinable = thread.isJoinable(); Thread::sleepFor(Duration::fromSeconds(0.1f));});
         EXPECT(err.code() == 0);
         err = thread.join();
         EXPECT(bJoinable);
@@ -1031,17 +1033,25 @@ const Suite spec[] =
         Thread thread;
         ConditionVariable cond;
         Mutex m;
-        Error err = thread.run([&]() { ScopedLock<Mutex> lock(m); cond.wait(lock); });
-        auto ss = SystemClock::now();
-        auto start = HighResolutionClock::now();
-        Thread::sleepFor(Duration::fromSeconds(0.05));
-        std::cout << (HighResolutionClock::now() - start).seconds() << std::endl;
-        std::cout << (SystemClock::now() - ss).seconds() << std::endl;
-        EXPECT(err.code() == 0);
+        bool bRun = true;
+        Error err = thread.run([&]() { printf("START THREAD\n"); ScopedLock<Mutex> lock(m); while(bRun){cond.wait(lock);}printf("END FUNC\n");});
+        // auto ss = SystemClock::now();
+        // auto start = HighResolutionClock::now();
+        // Thread::sleepFor(Duration::fromSeconds(1.0));
+        // std::cout << (HighResolutionClock::now() - start).seconds() << std::endl;
+        // std::cout << (SystemClock::now() - ss).seconds() << std::endl;
+        // EXPECT(err.code() == 0);
+        Thread::sleepFor(Duration::fromSeconds(0.25));
         EXPECT(thread.isJoinable() == true); //the thread should still run as its blocking on the condition var
-        err = cond.notifyOne();
+        {
+            ScopedLock<Mutex> lock(m);
+            bRun = false;
+            err = cond.notifyOne();
+        }
         EXPECT(err.code() == 0);
+        printf("pre join\n");
         thread.join();
+        printf("test end\n");
     },
     SUITE("FileUtilities Tests")
     {

@@ -19,7 +19,8 @@ namespace stick
     public:
 
 #ifdef STICK_PLATFORM_UNIX
-        typedef pthread_t NativeHandle;
+        typedef pthread_t Native;
+        typedef pthread_t * NativeHandle;
 #endif //STICK_PLATFORM_UNIX
 
         Thread();
@@ -57,7 +58,7 @@ namespace stick
         static void * _pthreadFunc(void * _data);
 #endif //STICK_PLATFORM_UNIX
 
-        NativeHandle m_handle;
+        Native m_handle;
         mutable Mutex m_mutex;
         bool m_bIsJoinable;
         ThreadID m_threadID;

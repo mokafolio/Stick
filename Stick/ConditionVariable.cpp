@@ -51,16 +51,15 @@ namespace stick
         }
         if (!_lock.isLocked())
             return Error(ec::InvalidOperation, "The lock either does not have a mutex assigned or did not lock the mutex.", STICK_FILE, STICK_LINE);
-        auto mtx = _lock.mutex()->nativeHandle();
-        int res = pthread_cond_wait(&m_handle, &mtx);
+        int res = pthread_cond_wait(&m_handle, _lock.mutex()->nativeHandle());
         if (res != 0)
             return Error(ec::SystemErrorCode(res), "pthread_cond_wait failed.", STICK_FILE, STICK_LINE);
         return Error();
 #endif //STICK_PLATFORM_UNIX
     }
 
-    ConditionVariable::NativeHandle ConditionVariable::nativeHandle() const
+    ConditionVariable::NativeHandle ConditionVariable::nativeHandle()
     {
-        return m_handle;
+        return &m_handle;
     }
 }

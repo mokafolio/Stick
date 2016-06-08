@@ -18,7 +18,8 @@ namespace stick
     public:
 
 #ifdef STICK_PLATFORM_UNIX
-        typedef pthread_cond_t NativeHandle;
+        typedef pthread_cond_t Native;
+        typedef Native * NativeHandle;
 #endif //STICK_PLATFORM_UNIX
 
         typedef ScopedLock<Mutex> LockType;
@@ -42,11 +43,11 @@ namespace stick
         template<class F>
         Error wait(LockType & _lock, F && _predicate);
 
-        NativeHandle nativeHandle() const;
+        NativeHandle nativeHandle();
 
     private:
 
-        NativeHandle m_handle;
+        Native m_handle;
         bool m_bIsInitialized;
     };
 }
