@@ -74,12 +74,14 @@ namespace stick
         }
 
         inline Result(const Result & _result) :
+            m_error(_result.m_error),
             m_value(_result.m_value)
         {
 
         }
 
         inline Result(Result && _result) :
+            m_error(std::move(_result.m_error)),
             m_value(std::move(_result.m_value))
         {
 
@@ -106,12 +108,14 @@ namespace stick
         inline Result & operator = (const Result & _result)
         {
             m_value = _result.m_value;
+            m_error = _result.m_error;
             return *this;
         }
 
         inline Result & operator = (Result && _result)
         {
             m_value = std::move(_result.m_value);
+            m_error = std::move(_result.m_error);
             return *this;
         }
 
