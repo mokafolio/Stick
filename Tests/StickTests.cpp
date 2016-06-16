@@ -528,6 +528,32 @@ const Suite spec[] =
         EXPECT(darts[0] == 0);
         EXPECT(darts[1] == 3);
         EXPECT(darts[2] == 99);
+
+        DynamicArray<Int32> ia = {0, 1, 2};
+        DynamicArray<Int32> ib = {3, 4, 5, 6, 7, 8, 9};
+        ia.insert(ia.end(), ib.begin(), ib.end());
+        EXPECT(ia[0] == 0);
+        EXPECT(ia[1] == 1);
+        EXPECT(ia[2] == 2);
+        EXPECT(ia[3] == 3);
+        EXPECT(ia[4] == 4);
+        EXPECT(ia[5] == 5);
+        EXPECT(ia[6] == 6);
+        EXPECT(ia[7] == 7);
+        EXPECT(ia[8] == 8);
+        EXPECT(ia[9] == 9);
+        EXPECT(ia.count() == 10);
+
+        DynamicArray<Int32> ic;
+        ic.insert(ic.end(), ib.begin(), ib.end());
+        EXPECT(ic[0] == 3);
+        EXPECT(ic[1] == 4);
+        EXPECT(ic[2] == 5);
+        EXPECT(ic[3] == 6);
+        EXPECT(ic[4] == 7);
+        EXPECT(ic[5] == 8);
+        EXPECT(ic[6] == 9);
+        EXPECT(ic.count() == 7);
     },
     SUITE("Path tests")
     {
@@ -1034,7 +1060,7 @@ const Suite spec[] =
         ConditionVariable cond;
         Mutex m;
         bool bRun = true;
-        Error err = thread.run([&]() { printf("START THREAD\n"); ScopedLock<Mutex> lock(m); while(bRun){cond.wait(lock);}printf("END FUNC\n");});
+        Error err = thread.run([&]() { printf("START THREAD\n"); ScopedLock<Mutex> lock(m); while (bRun) {cond.wait(lock);} printf("END FUNC\n");});
         // auto ss = SystemClock::now();
         // auto start = HighResolutionClock::now();
         // Thread::sleepFor(Duration::fromSeconds(1.0));

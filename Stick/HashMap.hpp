@@ -30,6 +30,16 @@ namespace stick
     };
 
     template<>
+    struct DefaultHash<UInt32>
+    {
+        Size operator()(Int32 _i) const
+        {
+            return _i;
+        }
+    };
+
+
+    template<>
     struct DefaultHash<Size>
     {
         Size operator()(Size _i) const

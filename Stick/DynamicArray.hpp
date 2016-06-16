@@ -132,17 +132,15 @@ namespace stick
             }
         }
 
-        //TODO: make a version that uses move rather than copy
-        //for types of T that are move constructible
         inline void reserve(Size _s)
         {
-            if (_s > capacity())
+            auto c = capacity();
+            if (_s > c)
             {
                 STICK_ASSERT(m_allocator);
                 auto blk = m_allocator->allocate(_s * sizeof(T));
                 T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
                 T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
-
                 //move the existing elements over
                 for (Size i = 0; i < m_count; ++i)
                 {
@@ -182,10 +180,11 @@ namespace stick
             Size idiff = _last - _first;
             Size index = (_it - begin());
             Size diff = m_count - index;
+            Size mc = m_count + idiff;
 
-            if (capacity() < m_count + idiff)
+            if (capacity() < mc)
             {
-                reserve(max(idiff, m_count * 2));
+                reserve(max(mc, m_count * 2));
             }
 
             Size fidx = index + diff - 1;
