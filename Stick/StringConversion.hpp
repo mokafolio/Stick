@@ -67,7 +67,7 @@ namespace stick
     template<class T>
     inline String toString(T _i, Allocator & _alloc = defaultAllocator())
     {
-        return String::toString(_i, _alloc);
+        return String::toString(std::forward<T>(_i), _alloc);
     }
 
     template<class T>

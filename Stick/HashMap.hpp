@@ -425,6 +425,18 @@ namespace stick
                 return Iter(*this, bi, n);
         }
 
+        inline ConstIter find(const KeyType & _key) const
+        {
+            Size bi = bucketIndex(_key);
+            Bucket & b = m_buckets[bi];
+            Node * n, *prev;
+            findHelper(b, _key, n, prev);
+            if (!n)
+                return end();
+            else
+                return ConstIter(*this, bi, n);
+        }
+
         inline ValueType & operator [] (const KeyType & _key)
         {
             auto it = find(_key);
@@ -604,12 +616,12 @@ namespace stick
             m_alloc->deallocate({_n, sizeof(Node)});
         }
 
-        inline Size bucketIndex(const KeyType & _key)
+        inline Size bucketIndex(const KeyType & _key) const
         {
             return m_hasher(_key) % bucketCount();
         }
 
-        inline void findHelper(Bucket & _bucket, const KeyType & _key, Node *& _outNode, Node *& _prev)
+        inline void findHelper(Bucket & _bucket, const KeyType & _key, Node *& _outNode, Node *& _prev) const
         {
             _outNode = nullptr;
             Node * n = _bucket.first;
