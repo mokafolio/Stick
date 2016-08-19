@@ -342,6 +342,11 @@ namespace stick
             return (const T *)m_data.ptr;
         }
 
+        inline T * ptr()
+        {
+            return (T *)m_data.ptr;
+        }
+
         inline Size capacity() const
         {
             return m_data.byteCount / sizeof(T);

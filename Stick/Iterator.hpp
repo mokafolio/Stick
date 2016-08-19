@@ -1,6 +1,8 @@
 #ifndef STICK_ITERATOR_HPP
 #define STICK_ITERATOR_HPP
 
+#include <Stick/Platform.hpp>
+
 namespace stick
 {
     template<class T>
