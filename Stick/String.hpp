@@ -459,6 +459,16 @@ namespace stick
             return m_cStr;
         }
 
+        inline void * ptr()
+        {
+            return m_cStr;
+        }
+
+        inline const void * ptr() const
+        {
+            return m_cStr;
+        }
+
         inline bool isEmpty() const
         {
             return m_length == 0;

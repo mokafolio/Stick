@@ -17,6 +17,16 @@ namespace stick
 
     }
 
+    Error::Error(Int32 _code, const ErrorCategory & _category, const String & _message, const char * _file, UInt32 _line) :
+    m_code(_code),
+    m_category(&_category),
+    m_message(_message),
+    m_file(_file),
+    m_line(_line)
+    {
+
+    }
+
     Error::operator bool() const
     {
         return m_category->indicatesError(*this) ? true : false;

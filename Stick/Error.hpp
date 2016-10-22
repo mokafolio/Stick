@@ -45,6 +45,9 @@ namespace stick
         template<class ErrorEnum>
         Error(ErrorEnum _code, const String & _message = "", const char * _file = "", UInt32 _line = 0, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type * = 0);
 
+        Error(Int32 _code, const ErrorCategory & _category, const String & _message = "", const char * _file = "", UInt32 _line = 0);
+
+
         /**
          * @brief Assigns an ErrorEnum value to this.
          *
