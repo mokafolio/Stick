@@ -205,7 +205,7 @@ namespace stick
 
         inline Iter insert(ConstIter _it, const T & _val)
         {
-            return insert(_it, std::forward<const T>(_val));
+            return insert(_it, &_val, &_val + 1);
         }
 
         inline Iter insert(ConstIter _it, T && _val)
