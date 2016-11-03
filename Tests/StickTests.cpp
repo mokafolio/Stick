@@ -351,7 +351,10 @@ const Suite spec[] =
         EXPECT(!arr[6]);
         EXPECT(!arr[7]);
 
-        //Maybe<UniquePtr<Int32>> uniqueMaybe(UniquePtr<Int32>(defaultAllocator().create<Int32>(3)));
+
+        DynamicArray<UniquePtr<Float32>> vv;
+        vv.append(defaultAllocator().create<Float32>(3.0));
+        vv.insert(vv.end(), defaultAllocator().create<Float32>(2.0));
     },
     SUITE("Result Tests")
     {
@@ -430,11 +433,12 @@ const Suite spec[] =
         auto it2 = b.insert(b.begin() + 2, 99);
         EXPECT(it2 == b.begin() + 2);
         EXPECT(*it2 == 99);
-
+        EXPECT(b.count() == 9);
         Int32 expectedArr[] = {10, 11, 99, 12, 13, 1, 2, 3, 4};
         i = 0;
         for (auto v : b)
         {
+            printf("DA INT %i\n", v);
             EXPECT(expectedArr[i] == v);
             i++;
         }

@@ -191,7 +191,7 @@ namespace stick
             Size iidx = fidx + idiff;
             for (Size i = 0; i < diff; ++i)
             {
-                (*this)[iidx - i] = (*this)[fidx - i];
+                (*this)[iidx - i] = std::move((*this)[fidx - i]);
             }
 
             for (Size i = 0; _first != _last; ++_first, ++i)
@@ -205,7 +205,31 @@ namespace stick
 
         inline Iter insert(ConstIter _it, const T & _val)
         {
-            return insert(_it, &_val, &_val + 1);
+            return insert(_it, std::forward<const T>(_val));
+        }
+
+        inline Iter insert(ConstIter _it, T && _val)
+        {
+            Size index = (_it - begin());
+            Size diff = m_count - index;
+            Size mc = m_count + 1;
+
+            if (capacity() < mc)
+            {
+                reserve(max(mc, m_count * 2));
+            }
+
+            Size fidx = index + diff - 1;
+            Size iidx = fidx + 1;
+            for (Size i = 0; i < diff; ++i)
+            {
+                (*this)[iidx - i] = std::move((*this)[fidx - i]);
+            }
+
+            new (reinterpret_cast<T *>(m_data.ptr) + index) T(std::forward<T>(_val));
+
+            m_count++;
+            return begin() + index;
         }
 
         inline Iter remove(ConstIter _first, ConstIter _last)
