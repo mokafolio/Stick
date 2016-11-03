@@ -54,13 +54,18 @@ namespace stick
             m_obj(std::move(_other.m_obj)),
             m_cleanup(std::move(_other.m_cleanup))
         {
+            printf("MOVE\n");
             _other.m_obj = nullptr;
         }
 
         inline ~UniquePtr()
         {
+            printf("~UniquePtr\n");
             if (m_obj)
+            {
+                printf("DELETE OBJ\n");
                 m_cleanup(m_obj);
+            }
         }
 
         UniquePtr(const UniquePtr & _other) = delete;
@@ -83,8 +88,10 @@ namespace stick
 
         inline void reset()
         {
+            printf("RESET\n");
             if (m_obj)
             {
+                printf("DELETE OBJ\n");
                 m_cleanup(m_obj);
                 m_obj = nullptr;
             }

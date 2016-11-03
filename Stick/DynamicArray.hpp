@@ -191,7 +191,7 @@ namespace stick
             Size iidx = fidx + idiff;
             for (Size i = 0; i < diff; ++i)
             {
-                (*this)[iidx - i] = std::move((*this)[fidx - i]);
+                new (reinterpret_cast<T *>(m_data.ptr) + iidx - i) T(std::move((*this)[fidx - i]));
             }
 
             for (Size i = 0; _first != _last; ++_first, ++i)
@@ -223,7 +223,7 @@ namespace stick
             Size iidx = fidx + 1;
             for (Size i = 0; i < diff; ++i)
             {
-                (*this)[iidx - i] = std::move((*this)[fidx - i]);
+                new (reinterpret_cast<T *>(m_data.ptr) + iidx - i) T(std::move((*this)[fidx - i]));
             }
 
             new (reinterpret_cast<T *>(m_data.ptr) + index) T(std::forward<T>(_val));
