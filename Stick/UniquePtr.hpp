@@ -11,20 +11,15 @@ namespace stick
     {
     public:
 
-        inline DefaultCleanup(Allocator & _alloc = defaultAllocator()) :
-            m_alloc(&_alloc)
+        inline DefaultCleanup()
         {
 
         }
 
         inline void operator() (T * _obj) const
         {
-            destroy(_obj, *m_alloc);
+            destroy(_obj);
         }
-
-    private:
-
-        Allocator * m_alloc;
     };
 
     template<class T, template<class> class C = DefaultCleanup>

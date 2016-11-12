@@ -1117,11 +1117,15 @@ const Suite spec[] =
     SUITE("create, destroy Tests")
     {
         Allocator & alloc = defaultAllocator();
+        printf("ALLOC %lu\n", (Size)&alloc);
         auto someInt = alloc.create<Int32>(5);
         EXPECT(*someInt == 5);
+
         //check if the size that the create function stored for the memory allocated is correct.
         //the size is stored in the 8 bytes just before the actual pointer returned.
-        EXPECT(*reinterpret_cast<Size *>(reinterpret_cast<char *>(someInt) - 8) == 4);
+        EXPECT(*reinterpret_cast<Size *>(reinterpret_cast<char *>(someInt) - sizeof(Size)) == 4);
+        //EXPECT(reinterpret_cast<Allocator *>(reinterpret_cast<char *>(someInt) - sizeof(Size) - sizeof(Allocator*)) == &alloc);
+        destroy(someInt);
     },
     SUITE("UniquePtr Tests")
     {

@@ -22,13 +22,17 @@ namespace stick
         virtual void deallocate(const Block & _block) = 0;
 
         template<class T, class...Args>
-        inline T * create(Args&&..._args)
+        inline T * create(Args && ..._args)
         {
-            auto mem = allocate(sizeof(T) + 8);
-            char * bytePtr = reinterpret_cast<char*>(mem.ptr);
-            Size * ptr = reinterpret_cast<Size*>(bytePtr);
+            static constexpr auto adderSize = sizeof(Size) + sizeof(Allocator *);
+            static constexpr auto totalSize = sizeof(T) + adderSize;
+            auto mem = allocate(totalSize);
+            char * bytePtr = reinterpret_cast<char *>(mem.ptr);
+            Allocator ** alloc = reinterpret_cast<Allocator **>(bytePtr);
+            *alloc = this;
+            Size * ptr = reinterpret_cast<Size *>(bytePtr + sizeof(Allocator *));
             *ptr = sizeof(T);
-            return new (bytePtr + 8) T(std::forward<Args>(_args)...);
+            return new (bytePtr + adderSize) T(std::forward<Args>(_args)...);
         }
     };
 
@@ -57,13 +61,14 @@ namespace stick
     }
 
     template<class T>
-    inline STICK_API void destroy(T * _obj, Allocator & _alloc = defaultAllocator())
+    inline STICK_API void destroy(T * _obj)
     {
         if (_obj)
         {
+            static constexpr auto adderSize = sizeof(Size) + sizeof(Allocator *);
             _obj->~T();
-            char * bytePtr = reinterpret_cast<char*>(_obj) - 8;
-            _alloc.deallocate({bytePtr, *reinterpret_cast<Size*>(bytePtr)});
+            Allocator ** alloc = reinterpret_cast<Allocator **>(reinterpret_cast<char *>(_obj) - adderSize);
+            (*alloc)->deallocate({reinterpret_cast<char *>(alloc), *reinterpret_cast<Size *>(reinterpret_cast<char *>(alloc) + sizeof(Allocator *))});
         }
     }
 }
