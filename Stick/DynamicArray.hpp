@@ -141,11 +141,19 @@ namespace stick
                 auto blk = m_allocator->allocate(_s * sizeof(T));
                 T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
                 T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
+
                 //move the existing elements over
                 for (Size i = 0; i < m_count; ++i)
                 {
                     new (arrayPtr + i) T(std::move(sourcePtr[i]));
                 }
+
+                //call the destructors on the old elements
+                for (Size i = 0; i < m_count; ++i)
+                {
+                    sourcePtr[i].~T();
+                }
+
                 m_allocator->deallocate(m_data);
                 m_data = blk;
             }
