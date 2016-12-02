@@ -3,6 +3,7 @@
 
 #include <Stick/Iterator.hpp>
 #include <utility>
+#include <type_traits>
 
 namespace stick
 {
@@ -24,29 +25,19 @@ namespace stick
         typedef T Type;
     };
 
-    template<bool B, class T = void>
-    struct EnableIf {};
-
-    template<class T>
-    struct EnableIf<true, T> { typedef T Type; };
-
-    /*template<class T>
-    inline typename RemoveReference<T>::Type && move(T && _arg)
+    template<typename T>
+    struct EnableBitmaskOperators
     {
-        return static_cast < typename RemoveReference<T>::Type && > (_arg);
+        static constexpr bool Value = false;
+    };
+
+    template<typename T>
+    typename std::enable_if<EnableBitmaskOperators<T>::Value, T>::type
+    operator|(T _a, T _b)
+    {
+        typedef typename std::underlying_type<T>::type underlying;
+        return static_cast<T>(static_cast<underlying>(_a) | static_cast<underlying>(_b));
     }
-
-    template <class T>
-    inline T && forward(typename RemoveReference<T>::Type & _arg)
-    {
-        return static_cast < T && > (_arg);
-    }
-
-    template <class T>
-    inline T && forward(typename RemoveReference<T>::Type && _arg)
-    {
-        return _arg;
-    }*/
 
     template<class T>
     inline T min(const T & _a, const T & _b)

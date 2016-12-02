@@ -43,7 +43,7 @@ namespace stick
          * The error category is automatically deducted at compile time.
          */
         template<class ErrorEnum>
-        Error(ErrorEnum _code, const String & _message = "", const char * _file = "", UInt32 _line = 0, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type * = 0);
+        Error(ErrorEnum _code, const String & _message = "", const char * _file = "", UInt32 _line = 0, typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value>::type * = 0);
 
         Error(Int32 _code, const ErrorCategory & _category, const String & _message = "", const char * _file = "", UInt32 _line = 0);
 
@@ -54,7 +54,7 @@ namespace stick
          * The error category is automatically deducted at compile time.
          */
         template<class ErrorEnum>
-        typename EnableIf<detail::isErrorEnum<ErrorEnum>::value, Error>::Type & operator = (ErrorEnum _code);
+        typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value, Error>::type & operator = (ErrorEnum _code);
 
         /**
          * @brief Implicit conversion to bool.
@@ -129,7 +129,7 @@ namespace stick
 namespace stick
 {
     template<class ErrorEnum>
-    Error::Error(ErrorEnum _code, const String & _message, const char * _file, UInt32 _line, typename EnableIf<detail::isErrorEnum<ErrorEnum>::value>::Type *) :
+    Error::Error(ErrorEnum _code, const String & _message, const char * _file, UInt32 _line, typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value>::type *) :
     m_category(&detail::errorCategory(_code)),
     m_code(_code),
     m_message(_message),
@@ -140,7 +140,7 @@ namespace stick
     }
 
     template<class ErrorEnum>
-    typename EnableIf<detail::isErrorEnum<ErrorEnum>::value, Error>::Type & Error::operator = (ErrorEnum _code)
+    typename std::enable_if<detail::isErrorEnum<ErrorEnum>::value, Error>::type & Error::operator = (ErrorEnum _code)
     {
         m_category = &detail::errorCategory(_code);
         m_code = _code;
