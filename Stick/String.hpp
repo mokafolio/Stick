@@ -11,6 +11,13 @@ namespace stick
     namespace detail
     {
         struct _StringCopier;
+
+        template<class...Args>
+        inline int variadicStringLength(const char * format, Args..._args)
+        {
+            int result = snprintf(NULL, 0, format, _args...);
+            return result; // ignore extra byte for \0
+        }
     }
 
     struct AppendVariadicFlag {};
@@ -134,7 +141,7 @@ namespace stick
 
         inline String & operator = (const char * _other)
         {
-            if(m_cStr)
+            if (m_cStr)
                 deallocate();
 
             if (!m_allocator)
@@ -142,7 +149,7 @@ namespace stick
 
             Size len = strlen(_other);
             m_length = 0;
-            if(len)
+            if (len)
             {
                 resize(strlen(_other));
                 strcpy(m_cStr, _other);
@@ -153,6 +160,16 @@ namespace stick
 
         template <class ... Strings>
         inline void append(AppendVariadicFlag _flag, Strings ... _args);
+
+        template<class...Args>
+        inline void appendFormatted(const char * _fmt, Args..._args)
+        {
+            int len = detail::variadicStringLength(_fmt, _args...);
+            Size off = m_length;
+            preAppend(m_length + len);
+            int result = snprintf(m_cStr + off, len + 1, _fmt,_args...);
+            STICK_ASSERT(len == result);
+        }
 
         inline void append(const String & _str)
         {
@@ -200,7 +217,7 @@ namespace stick
             {
                 return true;
             }
-            else if(isEmpty() || _b.isEmpty())
+            else if (isEmpty() || _b.isEmpty())
                 return false;
             return strcmp(m_cStr, _b.m_cStr) == 0;
         }

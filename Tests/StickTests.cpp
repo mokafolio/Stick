@@ -286,6 +286,14 @@ const Suite spec[] =
             mc = std::move(c);
             EXPECT(mc == "weee");
         }
+
+        //append formatted tests
+        {
+            String w("Hello World!!");
+            w.appendFormatted(" Wow, does this work? %i %.3f", 2567, 3.564f);
+            EXPECT(w.length() == 45);
+            EXPECT(w == "Hello World!! Wow, does this work? 2567 3.564");
+        }
     },
     SUITE("String Conversion Tests")
     {
