@@ -5,6 +5,20 @@
 #include <utility>
 #include <type_traits>
 
+// stuff that needs to sit outside of the stick namespace
+template<class T>
+static constexpr bool enableBitmaskOperators(T)
+{
+    return false;
+}
+
+template<typename T>
+typename std::enable_if<enableBitmaskOperators(T()), T>::type operator | (T _a, T _b)
+{
+    typedef typename std::underlying_type<T>::type underlying;
+    return static_cast<T>(static_cast<underlying>(_a) | static_cast<underlying>(_b));
+}
+
 namespace stick
 {
     template<class T>
@@ -24,20 +38,6 @@ namespace stick
     {
         typedef T Type;
     };
-
-    template<typename T>
-    struct EnableBitmaskOperators
-    {
-        static constexpr bool Value = false;
-    };
-
-    template<typename T>
-    typename std::enable_if<EnableBitmaskOperators<T>::Value, T>::type
-    operator|(T _a, T _b)
-    {
-        typedef typename std::underlying_type<T>::type underlying;
-        return static_cast<T>(static_cast<underlying>(_a) | static_cast<underlying>(_b));
-    }
 
     template<class T>
     inline T min(const T & _a, const T & _b)
