@@ -5,20 +5,6 @@
 #include <utility>
 #include <type_traits>
 
-// stuff that needs to sit outside of the stick namespace
-template<class T>
-static constexpr bool enableBitmaskOperators(T)
-{
-    return false;
-}
-
-template<typename T>
-typename std::enable_if<enableBitmaskOperators(T()), T>::type operator | (T _a, T _b)
-{
-    typedef typename std::underlying_type<T>::type underlying;
-    return static_cast<T>(static_cast<underlying>(_a) | static_cast<underlying>(_b));
-}
-
 namespace stick
 {
     template<class T>

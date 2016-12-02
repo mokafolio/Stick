@@ -7,6 +7,7 @@ set (STICKDEPS pthread)
 
 set (STICKINC 
 Stick/Allocator.hpp
+Stick/BitmaskEnum.hpp
 Stick/ConditionVariable.hpp
 Stick/Duration.hpp
 Stick/DynamicArray.hpp
