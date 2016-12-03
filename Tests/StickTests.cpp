@@ -98,6 +98,7 @@ const Suite spec[] =
 {
     SUITE("String Tests")
     {
+        EXPECT(false);
         String es;
         EXPECT(es.length() == 0);
         EXPECT(es == "");
