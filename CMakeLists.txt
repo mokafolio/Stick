@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8.11)
 project (Stick)
 set(CMAKE_CXX_FLAGS "-std=c++11 -fno-exceptions")
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
+option(AddTests "AddTests" ON)
 
 set (STICKDEPS pthread)
 
@@ -57,7 +58,10 @@ Stick/URI.cpp
 
 add_library (Stick SHARED ${STICKSRC})
 add_library (StickStatic STATIC ${STICKSRC})
-add_subdirectory (Tests)
+
+if(AddTests)
+    add_subdirectory (Tests)
+endif()
 
 install (TARGETS Stick StickStatic DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 foreach ( file ${STICKINC} )
