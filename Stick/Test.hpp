@@ -138,7 +138,7 @@ namespace stick
         }
         printf(ANSI_COLOR_YELLOW "%lu/%lu test suites passed.\n" ANSI_COLOR_RESET, N-failedSuites, N);
 
-        return 0;
+        return failedSuites ? EXIT_FAILURE : EXIT_SUCCESS;
     }
 }
 
