@@ -1,4 +1,4 @@
-Stick
+Stick [![Build Status](https://travis-ci.org/mokafolio/Stick.svg?branch=master)](https://travis-ci.org/mokafolio/Stick)
 ======
 
 Overview
