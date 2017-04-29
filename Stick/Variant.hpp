@@ -57,7 +57,7 @@ namespace stick
                     VariantHelper<Ts...>::copy(_typeID, _from, _to);
             }
 
-            inline static void move(TypeID _typeID, const void * _from, void * _to)
+            inline static void move(TypeID _typeID, void * _from, void * _to)
             {
                 if (_typeID == TypeInfoT<T>::typeID())
                     new (_to) T(std::move(*reinterpret_cast<T *>(_from)));
@@ -150,6 +150,7 @@ namespace stick
             m_typeID(_other.m_typeID)
         {
             Helper::move(_other.m_typeID, &_other.m_storage, &m_storage);
+            _other.m_typeID = 0;
         }
 
         template<class T, class Enable = typename std::enable_if<detail::Traits<T, Ts...>::bIsValid>::type>
@@ -190,7 +191,6 @@ namespace stick
         template<class T>
         inline bool is() const
         {
-            printf("DA TYPES %lu %lu\n", m_typeID, stick::TypeInfoT<T>::typeID());
             return m_typeID == stick::TypeInfoT<T>::typeID();
         }
 

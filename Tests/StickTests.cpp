@@ -1267,6 +1267,20 @@ const Suite spec[] =
         EXPECT(!c.get<Float32>());
         EXPECT(c.get<String>());
         EXPECT(*c.get<String>() == "test");
+
+        c = 1.0f;
+        EXPECT(!c.is<Int32>());
+        EXPECT(c.is<Float32>());
+        EXPECT(!c.is<String>());
+        EXPECT(!c.get<Int32>());
+        EXPECT(c.get<Float32>());
+        EXPECT(!c.get<String>());
+        EXPECT(*c.get<Float32>() == 1.0f);
+
+        Variant<Float32, String> d(std::move(c));
+        EXPECT(d.isValid());
+        EXPECT(!c.isValid());
+        EXPECT(*d.get<Float32>() == 1.0f);
     }
 };
 
