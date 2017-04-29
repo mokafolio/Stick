@@ -49,12 +49,12 @@ namespace stick
                     VariantHelper<Ts...>::destroy(_typeID, _storage);
             }
 
-            inline static void copy(TypeID _typeID, void * _from, void * _to)
+            inline static void copy(TypeID _typeID, const void * _from, void * _to)
             {
                 if (_typeID == TypeInfoT<T>::typeID())
-                    new (_to) T(*reinterpret_cast<T *>(_from));
+                    new (_to) T(*(const T*)(_from));
                 else
-                    VariantHelper<Ts...>::move(_typeID, _from, _to);
+                    VariantHelper<Ts...>::copy(_typeID, _from, _to);
             }
 
             inline static void move(TypeID _typeID, const void * _from, void * _to)
