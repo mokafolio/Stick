@@ -16,6 +16,7 @@
 #include <Stick/UniquePtr.hpp>
 #include <Stick/Maybe.hpp>
 #include <Stick/FileSystem.hpp>
+#include <Stick/Variant.hpp>
 #include <limits>
 #include <atomic>
 
