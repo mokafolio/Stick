@@ -6,24 +6,33 @@
 
 namespace stick
 {
-    template <Size arg1, Size ... others>
-    struct StaticMax;
-
-    template <Size arg>
-    struct StaticMax<arg>
-    {
-        static constexpr Size value = arg;
-    };
-
-    template <Size arg1, Size arg2, Size ... others>
-    struct StaticMax<arg1, arg2, others...>
-    {
-        static constexpr Size value = arg1 >= arg2 ? StaticMax<arg1, others...>::value :
-                                      StaticMax<arg2, others...>::value;
-    };
-
     namespace detail
     {
+        template <Size arg1, Size ... others>
+        struct StaticMax;
+
+        template <Size arg>
+        struct StaticMax<arg>
+        {
+            static constexpr Size value = arg;
+        };
+
+        template <Size arg1, Size arg2, Size ... others>
+        struct StaticMax<arg1, arg2, others...>
+        {
+            static constexpr Size value = arg1 >= arg2 ? StaticMax<arg1, others...>::value :
+                                          StaticMax<arg2, others...>::value;
+        };
+
+        //@TODO: Make sure this does not conflict with c++14+ compilers
+        template< bool B, class T, class F >
+        using conditional_t = typename std::conditional<B, T, F>::type;
+        template<class...> struct disjunction : std::false_type { };
+        template<class B1> struct disjunction<B1> : B1 { };
+        template<class B1, class... Bn>
+        struct disjunction<B1, Bn...>
+        : conditional_t<bool(B1::value), B1, disjunction<Bn...>>  { };
+
         template<class T, class...Ts>
         struct VariantHelper
         {
@@ -52,10 +61,10 @@ namespace stick
             }
         };
 
-        template<class T, class...Ts>
-        struct TypeValidator
+        template<class T, class First, class...Ts>
+        struct ConversionValidator
         {
-            
+            static constexpr bool valid = std::is_convertible<T, First>::value ? std::is_convertible<T, First>::value : disjunction<std::is_convertible<T, Ts>...>::value;
         };
     }
 
@@ -71,8 +80,8 @@ namespace stick
 
     public:
 
-        static constexpr size_t storageSize = StaticMax<sizeof(Ts)...>::value;
-        static constexpr size_t storageAlignment = StaticMax<alignof(Ts)...>::value;
+        static constexpr size_t storageSize = detail::StaticMax<sizeof(Ts)...>::value;
+        static constexpr size_t storageAlignment = detail::StaticMax<alignof(Ts)...>::value;
         using StorageType = typename std::aligned_storage<storageSize, storageAlignment>::type;
 
         inline Variant() :
@@ -92,7 +101,11 @@ namespace stick
             Helper::move(_other.m_typeID, &_other.m_storage, &m_storage);
         }
 
-        template<class T>
+        template<class T, class Enable = typename std::enable_if<detail::ConversionValidator<T, Ts...>::valid>::type>
+        inline Variant(T && _value)
+        {
+
+        }
 
         inline ~Variant()
         {
@@ -129,9 +142,9 @@ namespace stick
         template<class T>
         inline stick::Maybe<T> get() const
         {
-            if(m_typeID == stick::TypeInfoT<T>::typeID())
+            if (m_typeID == stick::TypeInfoT<T>::typeID())
             {
-                return *reinterpret_cast<T*>(&m_storage);
+                return *reinterpret_cast<T *>(&m_storage);
             }
             else
             {
