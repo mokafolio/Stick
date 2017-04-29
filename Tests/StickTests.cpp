@@ -1233,6 +1233,10 @@ const Suite spec[] =
         fs::remove(symLinkPath);
         EXPECT(!fs::exists(filePath));
         EXPECT(!fs::exists(symLinkPath));
+    },
+    SUITE("Variant Tests")
+    {
+        Variant<Float32, String> a;
     }
 };
 

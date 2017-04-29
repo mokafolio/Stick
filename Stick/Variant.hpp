@@ -33,13 +33,19 @@ namespace stick
         struct disjunction<B1, Bn...>
         : conditional_t<bool(B1::value), B1, disjunction<Bn...>>  { };
 
+        template <typename... Types>
+        struct VariantHelper;
+
         template<class T, class...Ts>
-        struct VariantHelper
+        struct VariantHelper<T, Ts...>
         {
             inline static void destroy(TypeID _typeID, void * _storage)
             {
                 if (_typeID == TypeInfoT<T>::typeID())
-                    reinterpret_cast<T *>(_storage)->~F();
+                {
+                    printf("DESTROY %öu %lu\n", _typeID, TypeInfoT<T>::typeID());
+                    reinterpret_cast<T *>(_storage)->~T();
+                }
                 else
                     VariantHelper<Ts...>::destroy(_typeID, _storage);
             }
@@ -52,7 +58,7 @@ namespace stick
                     VariantHelper<Ts...>::move(_typeID, _from, _to);
             }
 
-            inline static void move(TypeID _typeID, void * _from, void * _to)
+            inline static void move(TypeID _typeID, const void * _from, void * _to)
             {
                 if (_typeID == TypeInfoT<T>::typeID())
                     new (_to) T(std::move(*reinterpret_cast<T *>(_from)));
@@ -61,10 +67,56 @@ namespace stick
             }
         };
 
-        template<class T, class First, class...Ts>
-        struct ConversionValidator
+        template <>
+        struct VariantHelper<>
         {
-            static constexpr bool valid = std::is_convertible<T, First>::value ? std::is_convertible<T, First>::value : disjunction<std::is_convertible<T, Ts>...>::value;
+            static void destroy(TypeID, void *) {}
+            static void copy(TypeID, const void *, void *) {}
+            static void move(TypeID, void *, void *) {}
+        };
+
+        template<class T, class...Ts>
+        struct DirectType;
+
+        template<class T, class First, class...Ts>
+        struct DirectType<T, First, Ts...>
+        {
+            static constexpr TypeID typeID = std::is_same<T, First>::value ? TypeInfoT<T>::typeID() : DirectType<T, Ts...>::value;
+        };
+
+        template<class T>
+        struct DirectType<T>
+        {
+            static constexpr TypeID typeID = 0;
+        };
+
+        template<class T, class...Ts>
+        struct ConvertibleType;
+
+        template<class T, class First, class...Ts>
+        struct ConvertibleType<T, First, Ts...>
+        {
+            using type = T;
+            //TODO: Add check to make sure that T can only convert to one type (to catch ambigous conversions)
+            static constexpr TypeID typeID = std::is_convertible<T, First>::value ? TypeInfoT<First>::typeID() : ConvertibleType<T, Ts...>::typeID;
+        };
+
+        template<class T>
+        struct ConvertibleType<T>
+        {
+            using type = T;
+            static constexpr TypeID typeID = 0;
+        };
+
+        template<class T, class...Ts>
+        struct Traits
+        {
+            //@TODO: remove volatile, too?
+            using ValueType = typename std::remove_reference<typename std::remove_const<T>::type>::type;
+            static constexpr bool bIsDirect = DirectType<T, Ts...>::typeID;
+            static constexpr TypeID typeID = bIsDirect ? DirectType<ValueType, Ts...>::typeID : ConvertibleType<ValueType, Ts...>::typeID;
+            static constexpr bool bIsValid = typeID != 0;
+            using TargetType = typename std::conditional<bIsValid, ValueType, typename ConvertibleType<ValueType, Ts...>::type>::type;
         };
     }
 
@@ -101,14 +153,15 @@ namespace stick
             Helper::move(_other.m_typeID, &_other.m_storage, &m_storage);
         }
 
-        template<class T, class Enable = typename std::enable_if<detail::ConversionValidator<T, Ts...>::valid>::type>
+        template<class T, class Enable = typename std::enable_if<detail::Traits<T, Ts...>::bIsValid>::type>
         inline Variant(T && _value)
         {
-
+            new (&m_storage) typename detail::Traits<T, Ts...>::TargetType(std::forward<T>(_value));
         }
 
         inline ~Variant()
         {
+            printf("MY ID %lu\n", m_typeID);
             Helper::destroy(m_typeID, &m_storage);
         }
 
