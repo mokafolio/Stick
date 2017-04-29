@@ -38,6 +38,7 @@ Stick/TypeInfo.hpp
 Stick/UniquePtr.hpp
 Stick/URI.hpp
 Stick/Utility.hpp
+Stick/Variant.hpp
 Stick/Detail/MurmurHash2.hpp
 )
 
