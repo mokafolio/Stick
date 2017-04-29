@@ -43,7 +43,6 @@ namespace stick
             {
                 if (_typeID == TypeInfoT<T>::typeID())
                 {
-                    printf("DESTROY %öu %lu\n", _typeID, TypeInfoT<T>::typeID());
                     reinterpret_cast<T *>(_storage)->~T();
                 }
                 else
@@ -81,7 +80,7 @@ namespace stick
         template<class T, class First, class...Ts>
         struct DirectType<T, First, Ts...>
         {
-            static constexpr TypeID typeID = std::is_same<T, First>::value ? TypeInfoT<T>::typeID() : DirectType<T, Ts...>::value;
+            static constexpr TypeID typeID = std::is_same<T, First>::value ? TypeInfoT<T>::typeID() : DirectType<T, Ts...>::typeID;
         };
 
         template<class T>
@@ -96,7 +95,7 @@ namespace stick
         template<class T, class First, class...Ts>
         struct ConvertibleType<T, First, Ts...>
         {
-            using type = T;
+            using type = typename std::conditional<std::is_convertible<T, First>::value, First, typename ConvertibleType<T, Ts...>::type>::type;
             //TODO: Add check to make sure that T can only convert to one type (to catch ambigous conversions)
             static constexpr TypeID typeID = std::is_convertible<T, First>::value ? TypeInfoT<First>::typeID() : ConvertibleType<T, Ts...>::typeID;
         };
@@ -113,10 +112,10 @@ namespace stick
         {
             //@TODO: remove volatile, too?
             using ValueType = typename std::remove_reference<typename std::remove_const<T>::type>::type;
-            static constexpr bool bIsDirect = DirectType<T, Ts...>::typeID;
+            static constexpr bool bIsDirect = DirectType<T, Ts...>::typeID != 0;
             static constexpr TypeID typeID = bIsDirect ? DirectType<ValueType, Ts...>::typeID : ConvertibleType<ValueType, Ts...>::typeID;
             static constexpr bool bIsValid = typeID != 0;
-            using TargetType = typename std::conditional<bIsValid, ValueType, typename ConvertibleType<ValueType, Ts...>::type>::type;
+            using TargetType = typename std::conditional<bIsDirect, ValueType, typename ConvertibleType<ValueType, Ts...>::type>::type;
         };
     }
 
@@ -156,12 +155,14 @@ namespace stick
         template<class T, class Enable = typename std::enable_if<detail::Traits<T, Ts...>::bIsValid>::type>
         inline Variant(T && _value)
         {
-            new (&m_storage) typename detail::Traits<T, Ts...>::TargetType(std::forward<T>(_value));
+            using Traits = detail::Traits<T, Ts...>;
+            using TT = typename detail::Traits<T, Ts...>::TargetType;
+            m_typeID = Traits::typeID;
+            new (&m_storage) TT(std::forward<T>(_value));
         }
 
         inline ~Variant()
         {
-            printf("MY ID %lu\n", m_typeID);
             Helper::destroy(m_typeID, &m_storage);
         }
 
@@ -189,11 +190,12 @@ namespace stick
         template<class T>
         inline bool is() const
         {
+            printf("DA TYPES %lu %lu\n", m_typeID, stick::TypeInfoT<T>::typeID());
             return m_typeID == stick::TypeInfoT<T>::typeID();
         }
 
         template<class T>
-        inline stick::Maybe<T> get() const
+        inline stick::Maybe<T> get()
         {
             if (m_typeID == stick::TypeInfoT<T>::typeID())
             {

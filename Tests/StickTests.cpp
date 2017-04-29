@@ -1236,7 +1236,16 @@ const Suite spec[] =
     },
     SUITE("Variant Tests")
     {
-        Variant<Float32, String> a;
+        Variant<Float32, String> a("test");
+        printf("A FEW ID %lu\n", TypeInfoT<String>::typeID());
+        EXPECT(a.isValid());
+        EXPECT(!a.is<Int32>());
+        EXPECT(!a.is<Float32>());
+        EXPECT(a.is<String>());
+        EXPECT(!a.get<Int32>());
+        EXPECT(!a.get<Float32>());
+        EXPECT(a.get<String>());
+        EXPECT(*a.get<String>() == "test");
     }
 };
 
