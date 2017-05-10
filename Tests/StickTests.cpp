@@ -1,3 +1,4 @@
+#include <Stick/ArgumentParser.hpp>
 #include <Stick/String.hpp>
 #include <Stick/DynamicArray.hpp>
 #include <Stick/RBTree.hpp>
@@ -1005,6 +1006,15 @@ const Suite spec[] =
         EXPECT(cpied["b"] == 2);
         EXPECT(cpied["c"] == 3);
 
+        //iterator tests
+        Int32 counter = 0;
+        for (auto & pair : cpied)
+        {
+            counter++;
+        }
+        EXPECT(counter == 3);
+        printf("COUNTER %i %lu\n", counter, cpied.count());
+
         cpied = cpy;
         EXPECT(cpied.count() == 2);
         EXPECT(cpied["blubb"] == 5);
@@ -1237,7 +1247,6 @@ const Suite spec[] =
     SUITE("Variant Tests")
     {
         Variant<Float32, String> a("test");
-        printf("A FEW ID %lu\n", TypeInfoT<String>::typeID());
         EXPECT(a.isValid());
         EXPECT(!a.is<Int32>());
         EXPECT(!a.is<Float32>());
@@ -1281,6 +1290,14 @@ const Suite spec[] =
         EXPECT(d.isValid());
         EXPECT(!c.isValid());
         EXPECT(*d.get<Float32>() == 1.0f);
+    },
+    SUITE("ArgumentParser Tests")
+    {
+        ArgumentParser parser;
+        parser.addArgument("-h", "--help", 0);
+        parser.addArgument("-t", "--test", 3);
+
+        printf("%s\n", parser.usage().cString());
     }
 };
 

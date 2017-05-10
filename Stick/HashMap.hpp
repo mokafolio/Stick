@@ -127,19 +127,18 @@ namespace stick
                     return;
 
                 if (node->next)
+                {
                     node = node->next;
+                }
                 else
                 {
-                    if (bucketIndex < map->m_bucketCount - 1)
+                    Node * nn = nullptr;
+                    while (!nn && bucketIndex < map->m_bucketCount - 1)
                     {
                         ++bucketIndex;
-                        node = map->m_buckets[bucketIndex].first;
+                        nn = map->m_buckets[bucketIndex].first;
                     }
-                    else
-                    {
-                        //we reached the end
-                        node = nullptr;
-                    }
+                    node = nn;
                 }
             }
 

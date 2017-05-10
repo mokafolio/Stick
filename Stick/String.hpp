@@ -5,6 +5,8 @@
 #include <Stick/Iterator.hpp>
 #include <Stick/Utility.hpp>
 #include <string.h>
+#include <cctype> //for toupper
+#include <algorithm> //for transform
 
 namespace stick
 {
@@ -167,7 +169,7 @@ namespace stick
             int len = detail::variadicStringLength(_fmt, _args...);
             Size off = m_length;
             preAppend(m_length + len);
-            int result = snprintf(m_cStr + off, len + 1, _fmt,_args...);
+            int result = snprintf(m_cStr + off, len + 1, _fmt, _args...);
             STICK_ASSERT(len == result);
         }
 
@@ -495,6 +497,20 @@ namespace stick
         {
             STICK_ASSERT(m_allocator);
             return *m_allocator;
+        }
+
+        inline String toUpper() const
+        {
+            String ret(*this);
+            std::transform(ret.begin(), ret.end(), ret.begin(), std::toupper);
+            return ret;
+        }
+
+        inline String toLower() const
+        {
+            String ret(*this);
+            std::transform(ret.begin(), ret.end(), ret.begin(), std::tolower);
+            return ret;
         }
 
         inline static String toString(Int32 _i, Allocator & _alloc = defaultAllocator())

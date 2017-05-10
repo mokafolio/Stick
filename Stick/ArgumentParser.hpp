@@ -115,12 +115,19 @@ namespace stick
 
         Error parse(const char ** _args, UInt32 _argc);
 
+        const String & applicationName() const;
+
+        String usage() const;
+
         Maybe<const Argument &> argument(const String & _name) const;
 
 
     private:
 
         ArgumentMap m_args;
+        String m_applicationName;
+        String m_applicationPath;
+        Size m_requiredCount;
     };
 }
 

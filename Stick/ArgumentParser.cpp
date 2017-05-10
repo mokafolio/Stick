@@ -17,9 +17,18 @@ namespace stick
 
             return Error();
         }
+
+        inline String stripName(const String & _name)
+        {
+            Size idx = 0;
+            while (idx < _name.length() && _name[idx] == '-')
+                idx++;
+            return _name.sub(idx);
+        }
     }
 
-    ArgumentParser::ArgumentParser()
+    ArgumentParser::ArgumentParser() :
+        m_requiredCount(0)
     {
     }
 
@@ -49,7 +58,34 @@ namespace stick
 
     Error ArgumentParser::parse(const char ** _args, UInt32 _argc)
     {
+        // if(_argc < m_requiredCount + 1)
+        //     return
+    }
 
+    String ArgumentParser::usage() const
+    {
+        String ret = String::concat("Usage: ", m_applicationName, " ");
+        printf("DA COUNT %lu\n", m_args.count());
+        for (auto it = m_args.begin(); it != m_args.end(); ++it)
+        {
+            printf("APPEND BRO\n");
+            ret.append(AppendVariadicFlag(), "[", it->value.identifier());
+            if (it->value.argCount)
+            {
+                String upper = detail::stripName(it->value.identifier()).toUpper();
+                ret.append(" ");
+                for (Size i = 0; i < it->value.argCount; ++i)
+                {
+                    if(i < it->value.argCount - 1)
+                        ret.append(AppendVariadicFlag(), upper, " ");
+                    else
+                        ret.append(upper);
+                }
+            }
+            ret.append("]");
+        }
+        ret.append("\n");
+        return ret;
     }
 
     Maybe<const ArgumentParser::Argument &> ArgumentParser::argument(const String & _name) const
