@@ -1,6 +1,7 @@
 #ifndef STICK_VARIANT_HPP
 #define STICK_VARIANT_HPP
 
+#include <Stick/TypeInfo.hpp>
 #include <Stick/Maybe.hpp>
 #include <type_traits>
 

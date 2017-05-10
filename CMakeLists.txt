@@ -8,6 +8,7 @@ set (STICKDEPS pthread)
 
 set (STICKINC 
 Stick/Allocator.hpp
+Stick/ArgumentParser.hpp
 Stick/ConditionVariable.hpp
 Stick/Duration.hpp
 Stick/DynamicArray.hpp
@@ -43,6 +44,7 @@ Stick/Detail/MurmurHash2.hpp
 )
 
 set (STICKSRC 
+Stick/ArgumentParser.cpp
 Stick/ConditionVariable.cpp
 Stick/Error.cpp 
 Stick/ErrorCategory.cpp

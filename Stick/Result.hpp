@@ -4,6 +4,8 @@
 #include <Stick/Maybe.hpp>
 #include <Stick/Error.hpp>
 
+// @TODO: Use Variant instead of Maybe (at least for the non reference version)
+
 // TODO: make different specializations of Result and STICK_RESULT_HOLDER
 // for references so that the default one can implement move semantics, too
 #define STICK_RESULT_HOLDER(_name, _holderName) \
