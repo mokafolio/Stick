@@ -1,4 +1,5 @@
 #include <Stick/ArgumentParser.hpp>
+#include <Stick/Path.hpp>
 
 namespace stick
 {
@@ -68,12 +69,9 @@ namespace stick
         Error err = detail::validateName(_name);
         if (err) return err;
         if (_name.length() > 2)
-            m_args[_name] = Argument("", _name, _argCount, _bOptional);
+            addArgumentHelper(Argument("", _name, _argCount, _bOptional));
         else
-            m_args[_name] = Argument(_name, "", _argCount, _bOptional);
-
-        if (!_bOptional)
-            m_requiredCount++;
+            addArgumentHelper(Argument(_name, "", _argCount, _bOptional));
 
         return Error();
     }
@@ -85,18 +83,100 @@ namespace stick
         err = detail::validateName(_name);
         if (err) return err;
 
-        m_args[_shortName] = Argument(_shortName, _name, _argCount, _bOptional);
-
-        if (!_bOptional)
-            m_requiredCount++;
+        addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional));
 
         return Error();
     }
 
+    void ArgumentParser::addArgumentHelper(const Argument & _arg)
+    {
+        Size idx = m_args.count();
+        m_args.append(_arg);
+
+        if (!_arg.shortName.isEmpty())
+            m_indices[_arg.shortName] = idx;
+        if (!_arg.name.isEmpty())
+            m_indices[_arg.name] = idx;
+        if (!_arg.bOptional)
+            m_requiredCount++;
+    }
+
     Error ArgumentParser::parse(const char ** _args, UInt32 _argc)
     {
-        // if (_argc < m_requiredCount + 1)
-        //     return
+        if (_argc < m_requiredCount + 1)
+        {
+            String errStr;
+            errStr.appendFormatted("Expected at least %i required arguments, got %i.", m_requiredCount, _argc - 1);
+            return Error(ec::InvalidArgument, errStr, STICK_FILE, STICK_LINE);
+        }
+
+        m_applicationPath = _args[0];
+        m_applicationName = path::fileName(m_applicationPath);
+
+        Argument * active = nullptr;
+        const char * activeName = nullptr;
+        UInt8 activeArgTargetCount = 0;
+        UInt8 currentCount = 0;
+        for (Size i = 1; i < _argc; ++i)
+        {
+            auto it = m_indices.find(_args[i]);
+            //check if this a key
+            if (it != m_indices.end())
+            {
+                //if there is an active key, check if all its arguments are satisfied.
+                if (active)
+                {
+                    if (activeArgTargetCount == '+' && currentCount < 1)
+                    {
+                        String err;
+                        err.appendFormatted("Expected at least 1 argument for %s, got %i.", activeName, currentCount);
+                        return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
+                    }
+                    else if (activeArgTargetCount != '*' && currentCount < activeArgTargetCount)
+                    {
+                        String err;
+                        err.appendFormatted("Expected %i arguments for %s, got %i.", activeArgTargetCount, activeName, currentCount);
+                        return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
+                    }
+                }
+                active = &m_args[it->value];
+                activeName = _args[i];
+                activeArgTargetCount = active->argCount;
+                currentCount = 0;
+
+                //check if there is enough args left to parse
+                auto left = _argc - i - 1;
+                if (left < activeArgTargetCount)
+                {
+                    String err;
+                    err.appendFormatted("Expected %i arguments for %s, there is only %i left to parse.", activeArgTargetCount, activeName, left);
+                    return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
+                }
+            }
+            else
+            {
+                if (activeArgTargetCount != '*' && activeArgTargetCount != '+' && currentCount > activeArgTargetCount)
+                {
+                    String err;
+                    err.appendFormatted("Expected %i arguments for %s, got %i.", activeArgTargetCount, activeName, currentCount);
+                    return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
+                }
+                active->values.append(_args[i]);
+                currentCount++;
+            }
+        }
+
+        //check if all required args were set.
+        for(auto & arg : m_args)
+        {
+            if(!arg.bOptional && arg.argCount != '*' && arg.argCount > 0)
+            {
+                if(!arg.values.count())
+                    return Error(ec::InvalidArgument, String::concat("Required argument ", arg.printableIdentifier(), " is missing."), STICK_FILE, STICK_LINE);
+            }
+        }
+
+        return Error();
     }
 
     String ArgumentParser::usage() const
@@ -105,8 +185,8 @@ namespace stick
         for (auto & arg : m_args)
         {
             ret.append(AppendVariadicFlag(), "[",
-                       arg.value.identifier(),
-                       detail::argumentSignature(arg.value), "] ");
+                       arg.identifier(),
+                       detail::argumentSignature(arg), "] ");
         }
         ret.append("\n");
         return ret;
@@ -123,17 +203,17 @@ namespace stick
                 ret.append("\nRequired arguments:\n");
                 for (auto & arg : m_args)
                 {
-                    if (!arg.value.bOptional)
+                    if (!arg.bOptional)
                     {
-                        if (arg.value.shortName.length())
-                            ret.append(arg.value.shortName);
-                        if (arg.value.name.length())
+                        if (arg.shortName.length())
+                            ret.append(arg.shortName);
+                        if (arg.name.length())
                         {
-                            if (arg.value.shortName.length())
+                            if (arg.shortName.length())
                                 ret.append(", ");
-                            ret.append(arg.value.name);
+                            ret.append(arg.name);
                         }
-                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg.value));
+                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg));
                         ret.append("\n");
                     }
                 }
@@ -142,17 +222,17 @@ namespace stick
             ret.append("\nOptional arguments:\n");
             for (auto & arg : m_args)
             {
-                if (arg.value.bOptional)
+                if (arg.bOptional)
                 {
-                    if (arg.value.shortName.length())
-                        ret.append(arg.value.shortName);
-                    if (arg.value.name.length())
+                    if (arg.shortName.length())
+                        ret.append(arg.shortName);
+                    if (arg.name.length())
                     {
-                        if (arg.value.shortName.length())
+                        if (arg.shortName.length())
                             ret.append(", ");
-                        ret.append(arg.value.name);
+                        ret.append(arg.name);
                     }
-                    ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg.value));
+                    ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg));
                     ret.append("\n");
                 }
             }

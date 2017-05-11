@@ -1295,10 +1295,15 @@ const Suite spec[] =
     {
         ArgumentParser parser;
         parser.addArgument("-h", "--help", 0);
-        parser.addArgument("-t", "--test", 3);
+        parser.addArgument("-t", "--test", 3, false);
+        parser.addArgument("-f", "--feast", 1, false);
         parser.addArgument("--beast", '*');
         parser.addArgument("--almost", '+');
 
+        const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3"};
+        Error err = parser.parse(args, sizeof(args) / sizeof(const char*));
+
+        printf("%s\n", err.message().cString());
         printf("%s\n", parser.help().cString());
     }
 };

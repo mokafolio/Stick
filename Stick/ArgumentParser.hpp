@@ -101,6 +101,11 @@ namespace stick
                 return shortName.length() ? shortName : name;
             }
 
+            const String & printableIdentifier() const
+            {
+                return name.length() ? name : shortName;
+            }
+
             String shortName;
             String name;
             bool bOptional;
@@ -108,7 +113,8 @@ namespace stick
             StringArray values;
         };
 
-        using ArgumentMap = HashMap<String, Argument>;
+        using IndexMap = HashMap<String, Size>;
+        using ArgumentArray = DynamicArray<Argument>;
 
         ArgumentParser();
 
@@ -123,13 +129,16 @@ namespace stick
         String usage() const;
 
         String help() const;
-        
+
         Maybe<const Argument &> argument(const String & _name) const;
 
 
     private:
 
-        ArgumentMap m_args;
+        void addArgumentHelper(const Argument & _arg);
+
+        IndexMap m_indices;
+        ArgumentArray m_args;
         String m_applicationName;
         String m_applicationPath;
         Size m_requiredCount;
