@@ -25,6 +25,37 @@ namespace stick
                 idx++;
             return _name.sub(idx);
         }
+
+        inline String argumentSignature(const ArgumentParser::Argument & _arg)
+        {
+            String ret;
+
+            if (_arg.argCount)
+            {
+                String upper = detail::stripName(_arg.identifier()).toUpper();
+                ret.append(" ");
+                if (_arg.argCount == '*')
+                {
+                    ret.append("...");
+                }
+                else if (_arg.argCount == '+')
+                {
+                    ret.append(AppendVariadicFlag(), upper, " ...");
+                }
+                else
+                {
+                    for (Size i = 0; i < _arg.argCount; ++i)
+                    {
+                        if (i < _arg.argCount - 1)
+                            ret.append(AppendVariadicFlag(), upper, " ");
+                        else
+                            ret.append(upper);
+                    }
+                }
+            }
+
+            return ret;
+        }
     }
 
     ArgumentParser::ArgumentParser() :
@@ -32,7 +63,7 @@ namespace stick
     {
     }
 
-    Error ArgumentParser::addArgument(const String & _name, UInt32 _argCount, bool _bOptional)
+    Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional)
     {
         Error err = detail::validateName(_name);
         if (err) return err;
@@ -41,10 +72,13 @@ namespace stick
         else
             m_args[_name] = Argument(_name, "", _argCount, _bOptional);
 
+        if (!_bOptional)
+            m_requiredCount++;
+
         return Error();
     }
 
-    Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt32 _argCount, bool _bOptional)
+    Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional)
     {
         Error err = detail::validateName(_shortName);
         if (err) return err;
@@ -53,38 +87,77 @@ namespace stick
 
         m_args[_shortName] = Argument(_shortName, _name, _argCount, _bOptional);
 
+        if (!_bOptional)
+            m_requiredCount++;
+
         return Error();
     }
 
     Error ArgumentParser::parse(const char ** _args, UInt32 _argc)
     {
-        // if(_argc < m_requiredCount + 1)
+        // if (_argc < m_requiredCount + 1)
         //     return
     }
 
     String ArgumentParser::usage() const
     {
         String ret = String::concat("Usage: ", m_applicationName, " ");
-        printf("DA COUNT %lu\n", m_args.count());
-        for (auto it = m_args.begin(); it != m_args.end(); ++it)
+        for (auto & arg : m_args)
         {
-            printf("APPEND BRO\n");
-            ret.append(AppendVariadicFlag(), "[", it->value.identifier());
-            if (it->value.argCount)
-            {
-                String upper = detail::stripName(it->value.identifier()).toUpper();
-                ret.append(" ");
-                for (Size i = 0; i < it->value.argCount; ++i)
-                {
-                    if(i < it->value.argCount - 1)
-                        ret.append(AppendVariadicFlag(), upper, " ");
-                    else
-                        ret.append(upper);
-                }
-            }
-            ret.append("]");
+            ret.append(AppendVariadicFlag(), "[",
+                       arg.value.identifier(),
+                       detail::argumentSignature(arg.value), "] ");
         }
         ret.append("\n");
+        return ret;
+    }
+
+    String ArgumentParser::help() const
+    {
+        String ret = usage();
+
+        if (m_args.count())
+        {
+            if (m_requiredCount)
+            {
+                ret.append("\nRequired arguments:\n");
+                for (auto & arg : m_args)
+                {
+                    if (!arg.value.bOptional)
+                    {
+                        if (arg.value.shortName.length())
+                            ret.append(arg.value.shortName);
+                        if (arg.value.name.length())
+                        {
+                            if (arg.value.shortName.length())
+                                ret.append(", ");
+                            ret.append(arg.value.name);
+                        }
+                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg.value));
+                        ret.append("\n");
+                    }
+                }
+                ret.append("\n");
+            }
+            ret.append("\nOptional arguments:\n");
+            for (auto & arg : m_args)
+            {
+                if (arg.value.bOptional)
+                {
+                    if (arg.value.shortName.length())
+                        ret.append(arg.value.shortName);
+                    if (arg.value.name.length())
+                    {
+                        if (arg.value.shortName.length())
+                            ret.append(", ");
+                        ret.append(arg.value.name);
+                    }
+                    ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg.value));
+                    ret.append("\n");
+                }
+            }
+        }
+
         return ret;
     }
 

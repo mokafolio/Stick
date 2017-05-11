@@ -1010,10 +1010,10 @@ const Suite spec[] =
         Int32 counter = 0;
         for (auto & pair : cpied)
         {
+            //@TODO: test iter values somehow?
             counter++;
         }
         EXPECT(counter == 3);
-        printf("COUNTER %i %lu\n", counter, cpied.count());
 
         cpied = cpy;
         EXPECT(cpied.count() == 2);
@@ -1296,8 +1296,10 @@ const Suite spec[] =
         ArgumentParser parser;
         parser.addArgument("-h", "--help", 0);
         parser.addArgument("-t", "--test", 3);
+        parser.addArgument("--beast", '*');
+        parser.addArgument("--almost", '+');
 
-        printf("%s\n", parser.usage().cString());
+        printf("%s\n", parser.help().cString());
     }
 };
 

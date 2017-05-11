@@ -63,6 +63,9 @@ namespace stick
         }
     }
 
+    struct STICK_API OneOrMoreFlag {};
+    struct STICK_API ZeroOrMoreFlag {};
+
     class STICK_API ArgumentParser
     {
     public:
@@ -101,7 +104,7 @@ namespace stick
             String shortName;
             String name;
             bool bOptional;
-            Int32 argCount; //-1 = variable count
+            UInt8 argCount; //* = zero or more, + = one or more
             StringArray values;
         };
 
@@ -109,9 +112,9 @@ namespace stick
 
         ArgumentParser();
 
-        Error addArgument(const String & _name, UInt32 _argCount, bool _bOptional = true);
+        Error addArgument(const String & _name, UInt8 _argCount, bool _bOptional = true);
 
-        Error addArgument(const String & _shortName, const String & _name, UInt32 _argCount, bool _bOptional = true);
+        Error addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional = true);
 
         Error parse(const char ** _args, UInt32 _argc);
 
@@ -119,6 +122,8 @@ namespace stick
 
         String usage() const;
 
+        String help() const;
+        
         Maybe<const Argument &> argument(const String & _name) const;
 
 
