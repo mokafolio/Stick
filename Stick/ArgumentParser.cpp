@@ -132,15 +132,18 @@ namespace stick
 
     Error ArgumentParser::parse(const char ** _args, UInt32 _argc)
     {
+        if(_argc < 1)
+            return Error(ec::InvalidArgument, "No arguments", STICK_FILE, STICK_LINE);
+
+        m_applicationPath = _args[0];
+        m_applicationName = path::fileName(m_applicationPath);
+
         if (_argc < m_requiredCount + 1)
         {
             String errStr;
             errStr.appendFormatted("Expected at least %i required arguments, got %i.", m_requiredCount, _argc - 1);
             return Error(ec::InvalidArgument, errStr, STICK_FILE, STICK_LINE);
         }
-
-        m_applicationPath = _args[0];
-        m_applicationName = path::fileName(m_applicationPath);
 
         Argument * active = nullptr;
         const char * activeName = nullptr;
@@ -211,7 +214,7 @@ namespace stick
 
     String ArgumentParser::usage() const
     {
-        String ret = String::concat("Usage: ", m_applicationName, " ");
+        String ret = String::concat("Usage: ./", m_applicationName, " ");
         for (auto & arg : m_args)
         {
             ret.append(AppendVariadicFlag(), "[",
@@ -249,21 +252,24 @@ namespace stick
                 }
                 ret.append("\n");
             }
-            ret.append("\nOptional arguments:\n");
-            for (auto & arg : m_args)
+            if (m_args.count() > m_requiredCount)
             {
-                if (arg.bOptional)
+                ret.append("\nOptional arguments:\n");
+                for (auto & arg : m_args)
                 {
-                    if (arg.shortName.length())
-                        ret.append(arg.shortName);
-                    if (arg.name.length())
+                    if (arg.bOptional)
                     {
                         if (arg.shortName.length())
-                            ret.append(", ");
-                        ret.append(arg.name);
+                            ret.append(arg.shortName);
+                        if (arg.name.length())
+                        {
+                            if (arg.shortName.length())
+                                ret.append(", ");
+                            ret.append(arg.name);
+                        }
+                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg));
+                        ret.append("\n");
                     }
-                    ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg));
-                    ret.append("\n");
                 }
             }
         }
