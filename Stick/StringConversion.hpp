@@ -82,6 +82,12 @@ namespace stick
         inline T convert(const String & _str);
 
         template<>
+        inline String convert<String>(const String & _str)
+        {
+            return _str;
+        }
+
+        template<>
         inline const String & convert<const String &>(const String & _str)
         {
             return _str;

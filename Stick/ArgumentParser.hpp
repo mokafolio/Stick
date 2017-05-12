@@ -77,6 +77,12 @@ namespace stick
         template<class T>
         inline Maybe<T> maybe(const String & _name) const;
 
+        template<class T>
+        inline T maybe(const String & _name, T _or) const;
+
+        template<class T>
+        inline T get(const String & _name) const;
+
 
     private:
 
@@ -106,10 +112,11 @@ namespace stick
             static DynamicArray<T> convert(const ArgumentParser::Argument & _arg)
             {
                 DynamicArray<T> ret(_arg.values.count());
-                for(Size i=0; i < ret.count(); ++i)
+                for (Size i = 0; i < ret.count(); ++i)
                 {
                     ret[i] = convertString<T>(_arg.values[i]);
                 }
+                return ret;
             }
         };
     }
@@ -127,6 +134,20 @@ namespace stick
         const Argument * arg = argument(_name);
         if (arg) return detail::ConversionHelper<T>::convert(*arg);
         return Maybe<T>();
+    }
+
+    template<class T>
+    inline T ArgumentParser::maybe(const String & _name, T _or) const
+    {
+        auto m = maybe<T>(_name);
+        if(m) return *m;
+        return _or;
+    }
+
+    template<class T>
+    inline T ArgumentParser::get(const String & _name) const
+    {
+        return maybe<T>(_name).value();
     }
 }
 

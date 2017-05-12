@@ -1302,7 +1302,7 @@ const Suite spec[] =
 
         const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3", "--feast", "always"};
         Error err = parser.parse(args, sizeof(args) / sizeof(const char *));
-
+        EXPECT(!err);
         auto a = parser.argument("none");
         EXPECT(!a);
         auto b = parser.argument("test");
@@ -1312,7 +1312,13 @@ const Suite spec[] =
         EXPECT(b->values[1] == "2");
         EXPECT(b->values[2] == "3");
 
-        printf("%s\n", err.message().cString());
+        auto arr = parser.get<DynamicArray<Int32>>("test");
+        EXPECT(arr[0] == 1);
+        EXPECT(arr[1] == 2);
+        EXPECT(arr[2] == 3);
+
+        EXPECT(parser.get<const String &>("feast") == "always");
+
         printf("%s\n", parser.help().cString());
     }
 };
