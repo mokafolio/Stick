@@ -30,7 +30,7 @@ namespace stick
 
             template<class T>
             inline T get(Size _index);
-
+            
             const String & identifier() const;
 
             const String & printableIdentifier() const;

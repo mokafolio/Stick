@@ -502,14 +502,14 @@ namespace stick
         inline String toUpper() const
         {
             String ret(*this);
-            std::transform(ret.begin(), ret.end(), ret.begin(), std::toupper);
+            std::transform(ret.begin(), ret.end(), ret.begin(), [](UInt8 _c) { return std::toupper(_c); });
             return ret;
         }
 
         inline String toLower() const
         {
             String ret(*this);
-            std::transform(ret.begin(), ret.end(), ret.begin(), std::tolower);
+            std::transform(ret.begin(), ret.end(), ret.begin(), [](UInt8 _c) { return std::tolower(_c); });
             return ret;
         }
 
