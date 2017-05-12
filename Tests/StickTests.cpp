@@ -1300,8 +1300,10 @@ const Suite spec[] =
         parser.addArgument("--beast", '*');
         parser.addArgument("--almost", '+');
 
-        const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3", "--feast", "always"};
+        const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3", "--feast", "always", "--beast", "uno", "dos", "tres"};
         Error err = parser.parse(args, sizeof(args) / sizeof(const char *));
+        if(err)
+            printf("%s\n", err.message().cString());
         EXPECT(!err);
         auto a = parser.argument("none");
         EXPECT(!a);
@@ -1318,6 +1320,11 @@ const Suite spec[] =
         EXPECT(arr[2] == 3);
 
         EXPECT(parser.get<const String &>("feast") == "always");
+
+        auto arr2 = parser.get<DynamicArray<String>>("beast");
+        EXPECT(arr2[0] == "uno");
+        EXPECT(arr2[1] == "dos");
+        EXPECT(arr2[2] == "tres");
 
         printf("%s\n", parser.help().cString());
     }
