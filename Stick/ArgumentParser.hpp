@@ -20,14 +20,7 @@ namespace stick
 
         struct Argument
         {
-            Argument(const String & _shortName, const String & _name, Int32 _count, bool _bOptional) :
-                shortName(_shortName),
-                name(_name),
-                argCount(_count),
-                bOptional(_bOptional)
-            {
-
-            }
+            Argument(const String & _shortName, const String & _name, Int32 _count, bool _bOptional);
 
             Argument() = default;
             Argument(const Argument &) = default;
@@ -38,15 +31,9 @@ namespace stick
             template<class T>
             inline T get(Size _index);
 
-            const String & identifier() const
-            {
-                return shortName.length() ? shortName : name;
-            }
+            const String & identifier() const;
 
-            const String & printableIdentifier() const
-            {
-                return name.length() ? name : shortName;
-            }
+            const String & printableIdentifier() const;
 
             String shortName;
             String name;
@@ -140,7 +127,7 @@ namespace stick
     inline T ArgumentParser::maybe(const String & _name, T _or) const
     {
         auto m = maybe<T>(_name);
-        if(m) return *m;
+        if (m) return *m;
         return _or;
     }
 

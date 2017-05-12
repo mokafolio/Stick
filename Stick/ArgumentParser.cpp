@@ -29,8 +29,8 @@ namespace stick
 
         inline String delimitName(const String & _name)
         {
-            if(!_name.length() || _name[0] == '-') return _name;
-            if(_name.length() > 1)
+            if (!_name.length() || _name[0] == '-') return _name;
+            if (_name.length() > 1)
                 return String::concat("--", _name);
             else
                 return String::concat("-", _name);
@@ -67,6 +67,26 @@ namespace stick
             return ret;
         }
     }
+
+    ArgumentParser::Argument::Argument(const String & _shortName, const String & _name, Int32 _count, bool _bOptional) :
+        shortName(_shortName),
+        name(_name),
+        argCount(_count),
+        bOptional(_bOptional)
+    {
+
+    }
+
+    const String & ArgumentParser::Argument::identifier() const
+    {
+        return shortName.length() ? shortName : name;
+    }
+
+    const String & ArgumentParser::Argument::printableIdentifier() const
+    {
+        return name.length() ? name : shortName;
+    }
+
 
     ArgumentParser::ArgumentParser() :
         m_requiredCount(0)
@@ -156,7 +176,7 @@ namespace stick
                 //check if there is enough args left to parse
                 auto left = _argc - i - 1;
                 auto tc = activeArgTargetCount == '+' ? 1 : activeArgTargetCount;
-                if ((left < activeArgTargetCount && activeArgTargetCount != '*') || (activeArgTargetCount == '+' && left < 1)) 
+                if ((left < activeArgTargetCount && activeArgTargetCount != '*') || (activeArgTargetCount == '+' && left < 1))
                 {
                     String err;
                     err.appendFormatted("Expected %i arguments for %s, there is only %i left to parse.", tc, activeName, left);
@@ -177,11 +197,11 @@ namespace stick
         }
 
         //check if all required args were set.
-        for(auto & arg : m_args)
+        for (auto & arg : m_args)
         {
-            if(!arg.bOptional && arg.argCount != '*' && arg.argCount > 0)
+            if (!arg.bOptional && arg.argCount != '*' && arg.argCount > 0)
             {
-                if(!arg.values.count())
+                if (!arg.values.count())
                     return Error(ec::InvalidArgument, String::concat("Required argument ", arg.printableIdentifier(), " is missing."), STICK_FILE, STICK_LINE);
             }
         }
@@ -254,7 +274,7 @@ namespace stick
     const ArgumentParser::Argument * ArgumentParser::argument(const String & _name) const
     {
         auto it = m_indices.find(detail::delimitName(_name));
-        if(it != m_indices.end())
+        if (it != m_indices.end())
         {
             return &m_args[it->value];
         }
