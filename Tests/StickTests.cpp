@@ -1300,8 +1300,17 @@ const Suite spec[] =
         parser.addArgument("--beast", '*');
         parser.addArgument("--almost", '+');
 
-        const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3"};
-        Error err = parser.parse(args, sizeof(args) / sizeof(const char*));
+        const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3", "--feast", "always"};
+        Error err = parser.parse(args, sizeof(args) / sizeof(const char *));
+
+        auto a = parser.argument("none");
+        EXPECT(!a);
+        auto b = parser.argument("test");
+        EXPECT(b);
+        EXPECT(b->values.count() == 3);
+        EXPECT(b->values[0] == "1");
+        EXPECT(b->values[1] == "2");
+        EXPECT(b->values[2] == "3");
 
         printf("%s\n", err.message().cString());
         printf("%s\n", parser.help().cString());

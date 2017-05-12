@@ -27,6 +27,15 @@ namespace stick
             return _name.sub(idx);
         }
 
+        inline String delimitName(const String & _name)
+        {
+            if(!_name.length() || _name[0] == '-') return _name;
+            if(_name.length() > 1)
+                return String::concat("--", _name);
+            else
+                return String::concat("-", _name);
+        }
+
         inline String argumentSignature(const ArgumentParser::Argument & _arg)
         {
             String ret;
@@ -241,8 +250,14 @@ namespace stick
         return ret;
     }
 
-    Maybe<const ArgumentParser::Argument &> ArgumentParser::argument(const String & _name) const
+    const ArgumentParser::Argument * ArgumentParser::argument(const String & _name) const
     {
+        auto it = m_indices.find(detail::delimitName(_name));
+        if(it != m_indices.end())
+        {
+            return &m_args[it->value];
+        }
 
+        return nullptr;
     }
 }

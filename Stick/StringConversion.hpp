@@ -75,6 +75,66 @@ namespace stick
     {
         return String::toHexString(_i, _width, _bUpperCase, _bShowBase, _alloc);
     }
+
+    namespace detail
+    {
+        template<class T>
+        inline T convert(const String & _str);
+
+        template<>
+        inline const String & convert<const String &>(const String & _str)
+        {
+            return _str;
+        }
+
+        template<>
+        inline bool convert<bool>(const String & _str)
+        {
+            return _str == "true" || _str == "1";
+        }
+
+        template<>
+        inline Float32 convert<Float32>(const String & _str)
+        {
+            return toFloat32(_str);
+        }
+
+        template<>
+        inline Float64 convert<Float64>(const String & _str)
+        {
+            return toFloat64(_str);
+        }
+
+        template<>
+        inline Int32 convert<Int32>(const String & _str)
+        {
+            return toInt32(_str);
+        }
+
+        template<>
+        inline UInt32 convert<UInt32>(const String & _str)
+        {
+            return toUInt32(_str);
+        }
+
+        template<>
+        inline Int64 convert<Int64>(const String & _str)
+        {
+            return toInt64(_str);
+        }
+
+        template<>
+        inline UInt64 convert<UInt64>(const String & _str)
+        {
+            return toUInt64(_str);
+        }
+    }
+
+    template<class T>
+    inline T convertString(const String & _str)
+    {
+        return detail::convert<T>(_str);
+    }
 }
 
 #endif //STICK_STICKSTRINGCONVERSION_HPP

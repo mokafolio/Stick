@@ -9,60 +9,6 @@
 
 namespace stick
 {
-    namespace detail
-    {
-        template<class T>
-        inline T convert(const String & _str);
-
-        template<>
-        inline const String & convert<const String &>(const String & _str)
-        {
-            return _str;
-        }
-
-        template<>
-        inline bool convert<bool>(const String & _str)
-        {
-            return _str == "true" || _str == "1";
-        }
-
-        template<>
-        inline Float32 convert<Float32>(const String & _str)
-        {
-            return toFloat32(_str);
-        }
-
-        template<>
-        inline Float64 convert<Float64>(const String & _str)
-        {
-            return toFloat64(_str);
-        }
-
-        template<>
-        inline Int32 convert<Int32>(const String & _str)
-        {
-            return toInt32(_str);
-        }
-
-        template<>
-        inline UInt32 convert<UInt32>(const String & _str)
-        {
-            return toUInt32(_str);
-        }
-
-        template<>
-        inline Int64 convert<Int64>(const String & _str)
-        {
-            return toInt64(_str);
-        }
-
-        template<>
-        inline UInt64 convert<UInt64>(const String & _str)
-        {
-            return toUInt64(_str);
-        }
-    }
-
     struct STICK_API OneOrMoreFlag {};
     struct STICK_API ZeroOrMoreFlag {};
 
@@ -75,10 +21,10 @@ namespace stick
         struct Argument
         {
             Argument(const String & _shortName, const String & _name, Int32 _count, bool _bOptional) :
-            shortName(_shortName),
-            name(_name),
-            argCount(_count),
-            bOptional(_bOptional)
+                shortName(_shortName),
+                name(_name),
+                argCount(_count),
+                bOptional(_bOptional)
             {
 
             }
@@ -90,11 +36,7 @@ namespace stick
             Argument & operator = (Argument &&) = default;
 
             template<class T>
-            inline T get(Size _index)
-            {
-                STICK_ASSERT(_index < values.count());
-                return detail::convert<T>(values[_index]);
-            }
+            inline T get(Size _index);
 
             const String & identifier() const
             {
@@ -130,7 +72,10 @@ namespace stick
 
         String help() const;
 
-        Maybe<const Argument &> argument(const String & _name) const;
+        const Argument * argument(const String & _name) const;
+
+        template<class T>
+        inline Maybe<T> maybe(const String & _name) const;
 
 
     private:
@@ -143,6 +88,46 @@ namespace stick
         String m_applicationPath;
         Size m_requiredCount;
     };
+
+    namespace detail
+    {
+        template<class T>
+        struct ConversionHelper
+        {
+            static T convert(const ArgumentParser::Argument & _arg)
+            {
+                return convertString<T>(_arg.values[0]);
+            }
+        };
+
+        template<class T>
+        struct ConversionHelper<DynamicArray<T>>
+        {
+            static DynamicArray<T> convert(const ArgumentParser::Argument & _arg)
+            {
+                DynamicArray<T> ret(_arg.values.count());
+                for(Size i=0; i < ret.count(); ++i)
+                {
+                    ret[i] = convertString<T>(_arg.values[i]);
+                }
+            }
+        };
+    }
+
+    template<class T>
+    inline T ArgumentParser::Argument::get(Size _index)
+    {
+        STICK_ASSERT(_index < values.count());
+        return convertString<T>(values[_index]);
+    }
+
+    template<class T>
+    inline Maybe<T> ArgumentParser::maybe(const String & _name) const
+    {
+        const Argument * arg = argument(_name);
+        if (arg) return detail::ConversionHelper<T>::convert(*arg);
+        return Maybe<T>();
+    }
 }
 
 #endif //STICK_ARGUMENTPARSER_HPP

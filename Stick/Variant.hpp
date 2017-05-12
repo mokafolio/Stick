@@ -192,19 +192,19 @@ namespace stick
         template<class T>
         inline bool is() const
         {
-            return m_typeID == stick::TypeInfoT<T>::typeID();
+            return m_typeID == TypeInfoT<T>::typeID();
         }
 
         template<class T>
-        inline stick::Maybe<T> get()
+        inline Maybe<T> get()
         {
-            if (m_typeID == stick::TypeInfoT<T>::typeID())
+            if (m_typeID == TypeInfoT<T>::typeID())
             {
                 return *reinterpret_cast<T *>(&m_storage);
             }
             else
             {
-                return stick::Maybe<T>();
+                return Maybe<T>();
             }
         }
 
