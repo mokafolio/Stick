@@ -1293,10 +1293,10 @@ const Suite spec[] =
     },
     SUITE("ArgumentParser Tests")
     {
-        ArgumentParser parser;
-        parser.addArgument("-h", "--help", 0);
-        parser.addArgument("-t", "--test", 3, false);
-        parser.addArgument("-f", "--feast", 1, false);
+        ArgumentParser parser("Please give us all your info.");
+        parser.addArgument("-h", "--help", 0, true, "Print help.");
+        parser.addArgument("-t", "--test", 3, false, "Three numbers.");
+        parser.addArgument("-f", "--feast", 1, false, "One String please.");
         parser.addArgument("--beast", '*');
         parser.addArgument("--almost", '+');
 

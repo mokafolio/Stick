@@ -20,7 +20,8 @@ namespace stick
 
         struct Argument
         {
-            Argument(const String & _shortName, const String & _name, Int32 _count, bool _bOptional);
+            Argument(const String & _shortName, const String & _name,
+                     Int32 _count, bool _bOptional, const String & _info);
 
             Argument() = default;
             Argument(const Argument &) = default;
@@ -30,7 +31,7 @@ namespace stick
 
             template<class T>
             inline T get(Size _index);
-            
+
             const String & identifier() const;
 
             const String & printableIdentifier() const;
@@ -39,17 +40,25 @@ namespace stick
             String name;
             bool bOptional;
             UInt8 argCount; //* = zero or more, + = one or more
+            String info;
             StringArray values;
         };
 
         using IndexMap = HashMap<String, Size>;
         using ArgumentArray = DynamicArray<Argument>;
 
-        ArgumentParser();
+        ArgumentParser(const String & _info = "");
 
-        Error addArgument(const String & _name, UInt8 _argCount, bool _bOptional = true);
+        Error addArgument(const String & _name,
+                          UInt8 _argCount = 0,
+                          bool _bOptional = true,
+                          const String & _info = "");
 
-        Error addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional = true);
+        Error addArgument(const String & _shortName,
+                          const String & _name,
+                          UInt8 _argCount = 0,
+                          bool _bOptional = true,
+                          const String & _info = "");
 
         Error parse(const char ** _args, UInt32 _argc);
 
@@ -79,6 +88,7 @@ namespace stick
         ArgumentArray m_args;
         String m_applicationName;
         String m_applicationPath;
+        String m_info;
         Size m_requiredCount;
     };
 

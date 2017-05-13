@@ -68,11 +68,13 @@ namespace stick
         }
     }
 
-    ArgumentParser::Argument::Argument(const String & _shortName, const String & _name, Int32 _count, bool _bOptional) :
+    ArgumentParser::Argument::Argument(const String & _shortName, const String & _name,
+                                       Int32 _count, bool _bOptional, const String & _info) :
         shortName(_shortName),
         name(_name),
         argCount(_count),
-        bOptional(_bOptional)
+        bOptional(_bOptional),
+        info(_info)
     {
 
     }
@@ -88,31 +90,32 @@ namespace stick
     }
 
 
-    ArgumentParser::ArgumentParser() :
-        m_requiredCount(0)
+    ArgumentParser::ArgumentParser(const String & _info) :
+        m_requiredCount(0),
+        m_info(_info)
     {
     }
 
-    Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional)
+    Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional, const String & _info)
     {
         Error err = detail::validateName(_name);
         if (err) return err;
         if (_name.length() > 2)
-            addArgumentHelper(Argument("", _name, _argCount, _bOptional));
+            addArgumentHelper(Argument("", _name, _argCount, _bOptional, _info));
         else
-            addArgumentHelper(Argument(_name, "", _argCount, _bOptional));
+            addArgumentHelper(Argument(_name, "", _argCount, _bOptional, _info));
 
         return Error();
     }
 
-    Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional)
+    Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional, const String & _info)
     {
         Error err = detail::validateName(_shortName);
         if (err) return err;
         err = detail::validateName(_name);
         if (err) return err;
 
-        addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional));
+        addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional, _info));
 
         return Error();
     }
@@ -132,7 +135,7 @@ namespace stick
 
     Error ArgumentParser::parse(const char ** _args, UInt32 _argc)
     {
-        if(_argc < 1)
+        if (_argc < 1)
             return Error(ec::InvalidArgument, "No arguments", STICK_FILE, STICK_LINE);
 
         m_applicationPath = _args[0];
@@ -214,7 +217,7 @@ namespace stick
 
     String ArgumentParser::usage() const
     {
-        String ret = String::concat("Usage: ./", m_applicationName, " ");
+        String ret = String::concat("Usage:\n./", m_applicationName, " ");
         for (auto & arg : m_args)
         {
             ret.append(AppendVariadicFlag(), "[",
@@ -228,6 +231,9 @@ namespace stick
     String ArgumentParser::help() const
     {
         String ret = usage();
+
+        if(m_info.length())
+            ret.append(AppendVariadicFlag(), "\n", m_info, "\n");
 
         if (m_args.count())
         {
@@ -246,15 +252,14 @@ namespace stick
                                 ret.append(", ");
                             ret.append(arg.name);
                         }
-                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg));
-                        ret.append("\n");
+                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg), "    ", arg.info.length() ? arg.info : "", "\n");
                     }
                 }
                 ret.append("\n");
             }
             if (m_args.count() > m_requiredCount)
             {
-                ret.append("\nOptional arguments:\n");
+                ret.append("Optional arguments:\n");
                 for (auto & arg : m_args)
                 {
                     if (arg.bOptional)
@@ -267,8 +272,7 @@ namespace stick
                                 ret.append(", ");
                             ret.append(arg.name);
                         }
-                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg));
-                        ret.append("\n");
+                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg), arg.info.length() ? arg.info : "", "\n");
                     }
                 }
             }
