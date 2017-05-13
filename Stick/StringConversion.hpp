@@ -94,6 +94,12 @@ namespace stick
         }
 
         template<>
+        inline const char * convert<const char *>(const String & _str)
+        {
+            return _str.cString();
+        }
+
+        template<>
         inline bool convert<bool>(const String & _str)
         {
             return _str == "true" || _str == "1";
