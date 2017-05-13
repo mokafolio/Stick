@@ -23,7 +23,8 @@ namespace stick
             Argument(const String & _shortName, const String & _name,
                      Int32 _count, bool _bOptional, const String & _info);
 
-            Argument() = default;
+            Argument();
+            
             Argument(const Argument &) = default;
             Argument(Argument &&) = default;
             Argument & operator = (const Argument &) = default;
