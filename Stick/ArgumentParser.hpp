@@ -60,6 +60,9 @@ namespace stick
                           bool _bOptional = true,
                           const String & _info = "");
 
+        template<class F>
+        inline Error addArgument(F _func);
+
         Error parse(const char ** _args, UInt32 _argc);
 
         const String & applicationName() const;
@@ -82,7 +85,7 @@ namespace stick
 
     private:
 
-        void addArgumentHelper(const Argument & _arg);
+        Error addArgumentHelper(const Argument & _arg);
 
         IndexMap m_indices;
         ArgumentArray m_args;
@@ -116,6 +119,14 @@ namespace stick
                 return ret;
             }
         };
+    }
+
+    template<class F>
+    inline Error ArgumentParser::addArgument(F _func)
+    {
+        Argument arg;
+        _func(arg);
+        return addArgumentHelper(arg);
     }
 
     template<class T>

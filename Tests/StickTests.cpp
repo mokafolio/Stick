@@ -1294,15 +1294,31 @@ const Suite spec[] =
     SUITE("ArgumentParser Tests")
     {
         ArgumentParser parser("Please give us all your info.");
-        parser.addArgument("-h", "--help", 0, true, "Print help.");
-        parser.addArgument("-t", "--test", 3, false, "Three numbers.");
-        parser.addArgument("-f", "--feast", 1, false, "One String please.");
-        parser.addArgument("--beast", '*');
-        parser.addArgument("--almost", '+');
+        auto err = parser.addArgument("-h", "--help", 0, true, "Print help.");
+        EXPECT(!err);
+        err = parser.addArgument("-t", "--test", 3, false, "Three numbers.");
+        EXPECT(!err);
+        err = parser.addArgument("-f", "--feast", 1, false, "One String please.");
+        EXPECT(!err);
+        err = parser.addArgument("--beast", '*');
+        EXPECT(!err);
+        err = parser.addArgument("--almost", '+');
+        EXPECT(!err);
+
+
+        err = parser.addArgument([](ArgumentParser::Argument & _arg)
+        {
+            _arg.argCount = 2;
+            _arg.shortName = "-u";
+            _arg.name = "--uber";
+            _arg.info = "Some info text.";
+            _arg.bOptional = true;
+        });
+        EXPECT(!err);
 
         const char * args[] = {"./apps/TestApp", "--test", "1", "2", "3", "--feast", "always", "--beast", "uno", "dos", "tres"};
-        Error err = parser.parse(args, sizeof(args) / sizeof(const char *));
-        if(err)
+        err = parser.parse(args, sizeof(args) / sizeof(const char *));
+        if (err)
             printf("%s\n", err.message().cString());
         EXPECT(!err);
         auto a = parser.argument("none");

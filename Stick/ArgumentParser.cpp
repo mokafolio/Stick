@@ -10,10 +10,10 @@ namespace stick
             if (!_name.length())
                 return Error(ec::InvalidArgument, "The argument name can't be empty", STICK_FILE, STICK_LINE);
 
-            if (_name.length() == 2 && (_name[0] != '-' || _name.length() == 3))
+            if (_name.length() < 2 && (_name[0] != '-' || _name.length() == 3))
                 return Error(ec::InvalidArgument, "Short argument names must start with \"-\"", STICK_FILE, STICK_LINE);
 
-            if (_name.length() > 3 && (_name[0] != '-' || _name[1] != '-'))
+            if (_name.length() > 2 && (_name[0] != '-' || _name[1] != '-'))
                 return Error(ec::InvalidArgument, "Long argument names must start with \"--\"", STICK_FILE, STICK_LINE);
 
             return Error();
@@ -98,30 +98,38 @@ namespace stick
 
     Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional, const String & _info)
     {
-        Error err = detail::validateName(_name);
-        if (err) return err;
         if (_name.length() > 2)
-            addArgumentHelper(Argument("", _name, _argCount, _bOptional, _info));
+            return addArgumentHelper(Argument("", _name, _argCount, _bOptional, _info));
         else
-            addArgumentHelper(Argument(_name, "", _argCount, _bOptional, _info));
-
-        return Error();
+            return addArgumentHelper(Argument(_name, "", _argCount, _bOptional, _info));
     }
 
     Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional, const String & _info)
     {
-        Error err = detail::validateName(_shortName);
-        if (err) return err;
-        err = detail::validateName(_name);
-        if (err) return err;
-
-        addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional, _info));
-
-        return Error();
+        return addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional, _info));
     }
 
-    void ArgumentParser::addArgumentHelper(const Argument & _arg)
+    Error ArgumentParser::addArgumentHelper(const Argument & _arg)
     {
+        if (_arg.shortName.length() || _arg.name.length())
+        {
+            Error err;
+            if (_arg.shortName.length())
+            {
+                err = detail::validateName(_arg.shortName);
+                if (err) return err;
+            }
+            if (_arg.name.length())
+            {
+                err = detail::validateName(_arg.name);
+                if (err) return err;
+            }
+        }
+        else
+        {
+            return Error(ec::InvalidArgument, "An Argument needs either a short name and/or a long name.", STICK_FILE, STICK_LINE);
+        }
+
         Size idx = m_args.count();
         m_args.append(_arg);
 
@@ -131,6 +139,8 @@ namespace stick
             m_indices[_arg.name] = idx;
         if (!_arg.bOptional)
             m_requiredCount++;
+
+        return Error();
     }
 
     Error ArgumentParser::parse(const char ** _args, UInt32 _argc)
@@ -232,7 +242,7 @@ namespace stick
     {
         String ret = usage();
 
-        if(m_info.length())
+        if (m_info.length())
             ret.append(AppendVariadicFlag(), "\n", m_info, "\n");
 
         if (m_args.count())
@@ -272,7 +282,7 @@ namespace stick
                                 ret.append(", ");
                             ret.append(arg.name);
                         }
-                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg), arg.info.length() ? arg.info : "", "\n");
+                        ret.append(AppendVariadicFlag(), " ", detail::argumentSignature(arg), "    ", arg.info.length() ? arg.info : "", "\n");
                     }
                 }
             }
