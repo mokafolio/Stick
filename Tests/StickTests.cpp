@@ -1294,17 +1294,16 @@ const Suite spec[] =
     SUITE("ArgumentParser Tests")
     {
         ArgumentParser parser("Please give us all your info.");
-        auto err = parser.addArgument("-h", "--help", 0, true, "Print help.");
+        auto err = parser.addArgument("-h", "--help", 0, true);
         EXPECT(!err);
-        err = parser.addArgument("-t", "--test", 3, false, "Three numbers.");
+        err = parser.addArgument("-t", "--test", 3, false);
         EXPECT(!err);
-        err = parser.addArgument("-f", "--feast", 1, false, "One String please.");
+        err = parser.addArgument("-f", "--feast", 1, false);
         EXPECT(!err);
         err = parser.addArgument("--beast", '*');
         EXPECT(!err);
         err = parser.addArgument("--almost", '+');
         EXPECT(!err);
-
 
         err = parser.addArgument([](ArgumentParser::Argument & _arg)
         {

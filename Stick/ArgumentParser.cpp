@@ -103,17 +103,17 @@ namespace stick
     {
     }
 
-    Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional, const String & _info)
+    Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional)
     {
         if (_name.length() > 2)
-            return addArgumentHelper(Argument("", _name, _argCount, _bOptional, _info));
+            return addArgumentHelper(Argument("", _name, _argCount, _bOptional, ""));
         else
-            return addArgumentHelper(Argument(_name, "", _argCount, _bOptional, _info));
+            return addArgumentHelper(Argument(_name, "", _argCount, _bOptional, ""));
     }
 
-    Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional, const String & _info)
+    Error ArgumentParser::addArgument(const String & _shortName, const String & _name, UInt8 _argCount, bool _bOptional)
     {
-        return addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional, _info));
+        return addArgumentHelper(Argument(_shortName, _name, _argCount, _bOptional, ""));
     }
 
     Error ArgumentParser::addArgumentHelper(const Argument & _arg)

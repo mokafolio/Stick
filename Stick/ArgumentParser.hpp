@@ -24,7 +24,7 @@ namespace stick
                      Int32 _count, bool _bOptional, const String & _info);
 
             Argument();
-            
+
             Argument(const Argument &) = default;
             Argument(Argument &&) = default;
             Argument & operator = (const Argument &) = default;
@@ -52,14 +52,12 @@ namespace stick
 
         Error addArgument(const String & _name,
                           UInt8 _argCount = 0,
-                          bool _bOptional = true,
-                          const String & _info = "");
+                          bool _bOptional = true);
 
         Error addArgument(const String & _shortName,
                           const String & _name,
                           UInt8 _argCount = 0,
-                          bool _bOptional = true,
-                          const String & _info = "");
+                          bool _bOptional = true);
 
         template<class F>
         inline Error addArgument(F _func);
