@@ -2,6 +2,7 @@
 #define STICK_ALLOCATORS_POOLALLOCATOR_HPP
 
 #include <Stick/Allocators/Block.hpp>
+
 namespace stick
 {
     namespace mem
@@ -18,10 +19,11 @@ namespace stick
             {
                 Size size = MaxSize * BucketCount;
                 m_memory = _allocator.allocate(size, alignment);
+                STICK_ASSERT(m_memory);
                 deallocateAll();
             }
 
-            ~PoolAllocator()
+            inline ~PoolAllocator()
             {
                 m_parentAllocator->deallocate(m_memory);
             }

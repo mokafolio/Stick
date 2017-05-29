@@ -9,6 +9,27 @@ namespace stick
     {
         struct STICK_API Block
         {
+            inline Block(void * _ptr = nullptr, Size _s = 0) :
+                ptr(_ptr),
+                size(_s)
+            {
+            }
+
+            inline Block(const Block &) = default;
+            inline Block(Block &&) = default;
+            Block & operator = (const Block &) = default;
+            Block & operator = (Block &&) = default;
+
+            inline explicit operator bool() const
+            {
+                return ptr != nullptr;
+            }
+
+            inline UPtr end() const
+            {
+                return reinterpret_cast<UPtr>(ptr) + size;
+            }
+
             void * ptr;
             Size size;
         };

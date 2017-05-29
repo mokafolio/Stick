@@ -19,6 +19,7 @@ namespace stick
             m_parentAllocator(&_alloc)
             {
                 m_memory = _alloc.allocate(S, alignment);
+                STICK_ASSERT(m_memory);
                 m_position = m_memory.ptr;
             }
 
@@ -32,9 +33,9 @@ namespace stick
                 STICK_ASSERT(_byteCount > 0);
 
                 Size adjustment = alignmentAdjustment(m_position, _alignment);
-
-                UPtr end = reinterpret_cast<UPtr>(m_memory.ptr) + m_memory.size;
-                if(end - reinterpret_cast<UPtr>(m_position) < adjustment + _byteCount)
+                Size totalSize = adjustment + _byteCount;
+                
+                if(m_memory.end() - reinterpret_cast<UPtr>(m_position) < totalSize)
                     return {nullptr, 0};
 
                 void * alignedAddr = reinterpret_cast<void*>(reinterpret_cast<UPtr>(m_position) + adjustment);

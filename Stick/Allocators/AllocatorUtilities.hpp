@@ -16,6 +16,23 @@ namespace stick
 
             return adjustment;
         }
+
+        inline Size alignmentAdjustmentWithHeader(const void * _ptr, Size _alignment, Size _headerSize)
+        {
+            Size adjustment = alignmentAdjustment(_ptr, _alignment);
+
+            if (adjustment < _headerSize)
+            {
+                _headerSize -= adjustment;
+
+                //Increase adjustment to fit header
+                adjustment += _alignment * (_headerSize / _alignment);
+
+                if (_headerSize % _alignment > 0)
+                    adjustment += _alignment;
+            }
+            return adjustment;
+        }
     }
 }
 

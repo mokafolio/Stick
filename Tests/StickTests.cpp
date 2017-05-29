@@ -22,6 +22,7 @@
 #include <Stick/Allocators/LinearAllocator.hpp>
 #include <Stick/Allocators/Mallocator.hpp>
 #include <Stick/Allocators/PoolAllocator.hpp>
+#include <Stick/Allocators/FreeListAllocator.hpp>
 
 #include <limits>
 #include <atomic>
@@ -1349,10 +1350,10 @@ const Suite spec[] =
         printf("%s\n", parser.help().cString());
     },
     SUITE("Linear Allocator Tests")
-    {   
+    {
         mem::Mallocator mallocator;
         mem::LinearAllocator<mem::Mallocator, 1024> lalloc(mallocator);
-        
+
         EXPECT(lalloc.block().size == 1024);
 
         auto a = lalloc.allocate(2048, 4);
@@ -1398,6 +1399,29 @@ const Suite spec[] =
         auto d = palloc.allocate(32, 4);
         EXPECT(d.ptr > c.ptr);
         EXPECT(d.size == 32);
+    },
+    SUITE("FreeListAllocator Tests")
+    {
+        mem::Mallocator mallocator;
+        mem::FreeListAllocator<mem::Mallocator, 1088> falloc(mallocator);
+
+        auto a = falloc.allocate(2048, 4);
+        EXPECT(!a);
+
+        auto b = falloc.allocate(32, 4);
+        EXPECT(b);
+        EXPECT(b.size == 32);
+        EXPECT(b.ptr > falloc.block().ptr);
+        falloc.deallocate(b);
+
+        mem::Block blocks[5];
+        for(int i=0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if(i > 0)
+                EXPECT(blocks[i].ptr > blocks[i-1].ptr);
+        }
     }
 };
 
