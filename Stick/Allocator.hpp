@@ -3,6 +3,7 @@
 
 #include <Stick/Platform.hpp>
 #include <Stick/Utility.hpp>
+#include <algorithm>
 #include <stdlib.h>
 
 namespace stick
@@ -17,6 +18,8 @@ namespace stick
     {
         virtual Block allocate(Size _byteCount) = 0;
 
+        virtual Block allocateAligned(Size _byteCount, Size _alignment) = 0;
+
         virtual Block reallocate(const Block & _block, Size _byteCount) = 0;
 
         virtual void deallocate(const Block & _block) = 0;
@@ -24,15 +27,17 @@ namespace stick
         template<class T, class...Args>
         inline T * create(Args && ..._args)
         {
-            static constexpr auto adderSize = sizeof(Size) + sizeof(Allocator *);
-            static constexpr auto totalSize = sizeof(T) + adderSize;
-            auto mem = allocate(totalSize);
-            char * bytePtr = reinterpret_cast<char *>(mem.ptr);
+            static constexpr auto headerSize = sizeof(Size) + sizeof(Allocator *);
+            static constexpr auto headerAdjustment = headerSize % alignof(T) == 0 ? 0 : headerSize + alignof(T) - headerSize % alignof(T);
+            static constexpr auto totalSize = sizeof(T) + headerSize + headerAdjustment;
+            printf("HEADER SIZE %lu ADJUST %lu %lu\n", headerSize, headerAdjustment, alignof(T));
+            auto mem = allocateAligned(totalSize, alignof(T));
+            char * bytePtr = reinterpret_cast<char *>(mem.ptr) + headerAdjustment;
             Allocator ** alloc = reinterpret_cast<Allocator **>(bytePtr);
             *alloc = this;
             Size * ptr = reinterpret_cast<Size *>(bytePtr + sizeof(Allocator *));
-            *ptr = sizeof(T);
-            return new (bytePtr + adderSize) T(std::forward<Args>(_args)...);
+            *ptr = totalSize;
+            return new (bytePtr + headerSize) T(std::forward<Args>(_args)...);
         }
     };
 
@@ -41,6 +46,17 @@ namespace stick
         inline Block allocate(Size _byteCount) override
         {
             return {malloc(_byteCount), _byteCount};
+        }
+
+        inline Block allocateAligned(Size _byteCount, Size _alignment) override
+        {
+            //@TODO: check if c11 aligned_alloc is available on non posix platforms?
+            void * ptr = nullptr;
+            auto res = posix_memalign(&ptr, std::max(_alignment, (Size)sizeof(void*)), _byteCount);
+            if(res == 0)
+                return {ptr, _byteCount};
+            else
+                return {nullptr, 0};
         }
 
         inline Block reallocate(const Block & _block, Size _byteCount) override
@@ -65,10 +81,11 @@ namespace stick
     {
         if (_obj)
         {
-            static constexpr auto adderSize = sizeof(Size) + sizeof(Allocator *);
+            static constexpr auto headerSize = sizeof(Size) + sizeof(Allocator *);
+            static constexpr auto headerAdjustment = headerSize % alignof(T) == 0 ? 0 : headerSize + alignof(T) - headerSize % alignof(T);
             _obj->~T();
-            Allocator ** alloc = reinterpret_cast<Allocator **>(reinterpret_cast<char *>(_obj) - adderSize);
-            (*alloc)->deallocate({reinterpret_cast<char *>(alloc), *reinterpret_cast<Size *>(reinterpret_cast<char *>(alloc) + sizeof(Allocator *))});
+            Allocator ** alloc = reinterpret_cast<Allocator **>(reinterpret_cast<char *>(_obj) - headerSize);
+            (*alloc)->deallocate({reinterpret_cast<char *>(alloc) - headerAdjustment, *reinterpret_cast<Size *>(reinterpret_cast<char *>(alloc) + sizeof(Allocator *))});
         }
     }
 }
