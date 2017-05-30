@@ -14,6 +14,8 @@ namespace stick
 
             static constexpr Size alignment = Alloc::alignment;
 
+            // static_assert(S > sizeof(FreeBlock), "The memory is too small.")
+
             inline FreeListAllocator(Alloc & _parentAllocator) :
                 m_parentAllocator(&_parentAllocator)
             {
@@ -39,9 +41,12 @@ namespace stick
                     Size adjustment = alignmentAdjustmentWithHeader(currentBlock, _alignment, sizeof(AllocationHeader));
                     Size totalSize = adjustment + _byteCount;
 
+                    STICK_ASSERT((UPtr)currentBlock + currentBlock->size <= m_memory.end());
+
                     if (currentBlock->size >= totalSize)
                     {
-                        if (currentBlock->size - totalSize > sizeof(AllocationHeader))
+                        auto diff = currentBlock->size - totalSize;
+                        if (diff > sizeof(AllocationHeader))
                         {
                             FreeBlock * nextBlock = reinterpret_cast<FreeBlock *>(reinterpret_cast<UPtr>(currentBlock) + totalSize);
                             nextBlock->size = currentBlock->size - totalSize;
@@ -69,8 +74,6 @@ namespace stick
                         header->size = totalSize;
                         header->adjustment = adjustment;
 
-                        printf("ADJUSTMENT %lu %lu %lu %lu\n", adjustment, totalSize, alignedAddr, (UPtr)m_memory.ptr);
-
                         return {reinterpret_cast<void *>(alignedAddr), _byteCount};
                     }
                     else
@@ -86,8 +89,7 @@ namespace stick
             inline bool owns(const Block & _blk) const
             {
                 UPtr start = reinterpret_cast<UPtr>(_blk.ptr);
-                UPtr start2 = reinterpret_cast<UPtr>(m_memory.ptr);
-                return start >= start2 && start <= start2 +  m_memory.size;
+                return start >= reinterpret_cast<UPtr>(m_memory.ptr) && start <= m_memory.end();
             }
 
             inline void deallocate(const Block & _blk)
@@ -117,25 +119,24 @@ namespace stick
                 //new first block
                 if (prevBlock == nullptr)
                 {
-                    printf("NEW FIRST BLOCK\n");
                     prevBlock = reinterpret_cast<FreeBlock *>(blockStart);
                     prevBlock->size = blockSize;
-                    prevBlock->next = m_freeList;
+                    prevBlock->next = currentBlock;
                     m_freeList = prevBlock;
                 }
                 //adjacent block that we can seamlessly merge with the previous one
                 else if (reinterpret_cast<UPtr>(prevBlock) + prevBlock->size == blockStart)
                 {
-                    printf("MERGE PREV BLOCK\n");
                     prevBlock->size += blockSize;
                 }
                 //append to previous block
                 else
                 {
-                    printf("MERGE PREV BLOCK\n");
-                    FreeBlock * nextBlock = reinterpret_cast<FreeBlock *>(blockEnd);
+                    FreeBlock * nextBlock = reinterpret_cast<FreeBlock *>(blockStart);
                     nextBlock->size = blockSize;
                     nextBlock->next = prevBlock->next;
+
+                    STICK_ASSERT((UPtr)nextBlock + nextBlock->size <= m_memory.end());
 
                     prevBlock->next = nextBlock;
                     prevBlock = nextBlock;
@@ -143,7 +144,6 @@ namespace stick
 
                 if (currentBlock != nullptr && reinterpret_cast<UPtr>(currentBlock) == blockEnd)
                 {
-                    printf("MERGE LAST BLOCK\n");
                     prevBlock->size += currentBlock->size;
                     prevBlock->next = currentBlock->next;
                 }

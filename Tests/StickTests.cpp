@@ -1414,13 +1414,52 @@ const Suite spec[] =
         EXPECT(b.ptr > falloc.block().ptr);
         falloc.deallocate(b);
 
-        mem::Block blocks[5];
-        for(int i=0; i < 4; ++i)
+        mem::Block blocks[4];
+        for (int i = 0; i < 4; ++i)
         {
             blocks[i] = falloc.allocate(256, 4);
             EXPECT(blocks[i]);
-            if(i > 0)
-                EXPECT(blocks[i].ptr > blocks[i-1].ptr);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
+
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
+
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
+
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
         }
     }
 };
