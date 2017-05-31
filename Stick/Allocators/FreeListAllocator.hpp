@@ -14,6 +14,8 @@ namespace stick
 
             static constexpr Size alignment = Alloc::alignment;
 
+            using ParentAllocator = Alloc;
+
             // static_assert(S > sizeof(FreeBlock), "The memory is too small.")
 
             inline FreeListAllocator(Alloc & _parentAllocator) :

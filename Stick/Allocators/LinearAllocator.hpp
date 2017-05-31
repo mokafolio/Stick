@@ -15,6 +15,8 @@ namespace stick
 
             static constexpr Size alignment = Alloc::alignment;
 
+            using ParentAllocator = Alloc;
+
             inline LinearAllocator(Alloc & _alloc) :
             m_parentAllocator(&_alloc)
             {
@@ -34,7 +36,7 @@ namespace stick
 
                 Size adjustment = alignmentAdjustment(m_position, _alignment);
                 Size totalSize = adjustment + _byteCount;
-                
+
                 if(m_memory.end() - reinterpret_cast<UPtr>(m_position) < totalSize)
                     return {nullptr, 0};
 
