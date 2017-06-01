@@ -115,10 +115,7 @@ namespace stick
 
             inline void deallocateAll()
             {
-                printf("A\n");
                 m_freeList = reinterpret_cast<Node *>(m_memory.ptr);
-
-                printf("MEM START %lu %lu\n", reinterpret_cast<UPtr>(m_freeList), m_memory.end());
 
                 // build the linked list of buckets
                 Node * p = m_freeList;
@@ -129,7 +126,6 @@ namespace stick
                     p = p->next;
                 }
 
-                printf("B\n");
                 p->next = nullptr;
             }
 
@@ -143,9 +139,7 @@ namespace stick
             void initialize()
             {
                 Size size = m_max.size() * BucketCount;
-                printf("INITIALIZE %lu %lu %lu %lu\n", m_min.size(), m_max.size(), size, BucketCount);
                 m_memory = m_alloc.allocate(size, alignment);
-                printf("DEAD %lu\n", m_memory.size);
                 STICK_ASSERT(m_memory);
                 deallocateAll();
             }

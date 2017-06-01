@@ -22,8 +22,10 @@
 #include <Stick/Allocators/LinearAllocator.hpp>
 #include <Stick/Allocators/Mallocator.hpp>
 #include <Stick/Allocators/PoolAllocator.hpp>
+#include <Stick/Allocators/FallbackAllocator.hpp>
 #include <Stick/Allocators/FreeListAllocator.hpp>
 #include <Stick/Allocators/Bucketizer.hpp>
+#include <Stick/Allocators/Segregator.hpp>
 
 #include <limits>
 #include <atomic>
@@ -1466,8 +1468,8 @@ const Suite spec[] =
     },
     SUITE("Bucketizer Tests")
     {
-        using PoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 128>;
-        mem::Bucketizer<PoolType, 0, 1024, 64> bucketizer;
+        using PoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 256>;
+        mem::Bucketizer<PoolType, 0, 1024, 32> bucketizer;
     }
 };
 

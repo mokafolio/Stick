@@ -17,10 +17,8 @@ namespace stick
 
             inline Bucketizer()
             {
-                printf("DA BUCKET COUNT %lu\n", bucketCount);
                 for (Size i = 0; i < bucketCount; ++i)
                 {
-                    printf("MIN %lu MAX %lu\n", MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
                     m_allocators[i].setMinMax(MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
                 }
             }
