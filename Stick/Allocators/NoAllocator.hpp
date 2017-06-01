@@ -11,7 +11,7 @@ namespace stick
         class STICK_API NoAllocator
         {
         public:
-            
+
             static constexpr Size alignment = 0;
 
             inline Block allocate(Size _byteCount, Size _alignment)
@@ -21,7 +21,7 @@ namespace stick
 
             inline void deallocate(const Block & _blk)
             {
-
+                //@TODO: Assert here?
             }
         };
     }

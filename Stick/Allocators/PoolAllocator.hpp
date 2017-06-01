@@ -28,7 +28,7 @@ namespace stick
             struct DynamicSizeHelper<Dynamic>
             {
                 DynamicSizeHelper() :
-                    value()
+                    value(Undefined)
                 {
                 }
 
@@ -37,7 +37,7 @@ namespace stick
                     return value;
                 }
 
-                Size set(Size _val)
+                void set(Size _val)
                 {
                     value = _val;
                 }
@@ -45,6 +45,8 @@ namespace stick
                 Size value;
             };
         }
+
+        static constexpr Size DynamicSizeFlag = detail::Dynamic;
 
         template<class Alloc, Size MinSize, Size MaxSize, Size BucketCount>
         class STICK_API PoolAllocator
@@ -55,22 +57,23 @@ namespace stick
 
             using ParentAllocator = Alloc;
 
-            inline PoolAllocator(Alloc & _allocator) :
-                m_parentAllocator(&_allocator)
+            inline PoolAllocator()
             {
                 if (m_min.size() != detail::Undefined && m_max.size() != detail::Undefined)
+                {
+                    printf("CALL INIT\n");
                     initialize();
+                }
             }
 
-            inline PoolAllocator(Alloc & _allocator, Size _min, Size _max) :
-                m_parentAllocator(&_allocator)
+            inline PoolAllocator(Size _min, Size _max)
             {
                 setMinMax(_min, _max);
             }
 
             inline ~PoolAllocator()
             {
-                m_parentAllocator->deallocate(m_memory);
+                m_alloc.deallocate(m_memory);
             }
 
             inline void setMinMax(Size _min, Size _max)
@@ -104,6 +107,7 @@ namespace stick
 
             inline void deallocate(const Block & _blk)
             {
+                STICK_ASSERT(owns(_blk));
                 auto p = reinterpret_cast<Node *>(_blk.ptr);
                 p->next = m_freeList;
                 m_freeList = p;
@@ -111,16 +115,21 @@ namespace stick
 
             inline void deallocateAll()
             {
+                printf("A\n");
                 m_freeList = reinterpret_cast<Node *>(m_memory.ptr);
+
+                printf("MEM START %lu %lu\n", reinterpret_cast<UPtr>(m_freeList), m_memory.end());
 
                 // build the linked list of buckets
                 Node * p = m_freeList;
-                for (Size i = 0; i < BucketCount; ++i)
+                for (Size i = 1; i < BucketCount; ++i)
                 {
-                    p->next = reinterpret_cast<Node *>(reinterpret_cast<UPtr>(p) + MaxSize);
+                    UPtr ptr = reinterpret_cast<UPtr>(p) + m_max.size();
+                    p->next = reinterpret_cast<Node *>(ptr);
                     p = p->next;
                 }
 
+                printf("B\n");
                 p->next = nullptr;
             }
 
@@ -134,12 +143,14 @@ namespace stick
             void initialize()
             {
                 Size size = m_max.size() * BucketCount;
-                m_memory = m_parentAllocator->allocate(size, alignment);
+                printf("INITIALIZE %lu %lu %lu %lu\n", m_min.size(), m_max.size(), size, BucketCount);
+                m_memory = m_alloc.allocate(size, alignment);
+                printf("DEAD %lu\n", m_memory.size);
                 STICK_ASSERT(m_memory);
                 deallocateAll();
             }
 
-            Alloc * m_parentAllocator;
+            ParentAllocator m_alloc;
             struct Node { Node * next; } * m_freeList;
             Block m_memory;
             detail::DynamicSizeHelper<MinSize> m_min;

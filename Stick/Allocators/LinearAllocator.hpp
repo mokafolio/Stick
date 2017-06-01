@@ -17,17 +17,16 @@ namespace stick
 
             using ParentAllocator = Alloc;
 
-            inline LinearAllocator(Alloc & _alloc) :
-            m_parentAllocator(&_alloc)
+            inline LinearAllocator()
             {
-                m_memory = _alloc.allocate(S, alignment);
+                m_memory = m_alloc.allocate(S, alignment);
                 STICK_ASSERT(m_memory);
                 m_position = m_memory.ptr;
             }
 
             inline ~LinearAllocator()
             {
-                m_parentAllocator->deallocate(m_memory);
+                m_alloc.deallocate(m_memory);
             }
 
             inline Block allocate(Size _byteCount, Size _alignment)
@@ -78,7 +77,7 @@ namespace stick
 
         private:
 
-            Alloc * m_parentAllocator;
+            ParentAllocator m_alloc;
             Block m_memory;
             void * m_position;
         };

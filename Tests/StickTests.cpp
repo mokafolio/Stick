@@ -23,6 +23,7 @@
 #include <Stick/Allocators/Mallocator.hpp>
 #include <Stick/Allocators/PoolAllocator.hpp>
 #include <Stick/Allocators/FreeListAllocator.hpp>
+#include <Stick/Allocators/Bucketizer.hpp>
 
 #include <limits>
 #include <atomic>
@@ -1351,8 +1352,7 @@ const Suite spec[] =
     },
     SUITE("Linear Allocator Tests")
     {
-        mem::Mallocator mallocator;
-        mem::LinearAllocator<mem::Mallocator, 1024> lalloc(mallocator);
+        mem::LinearAllocator<mem::Mallocator, 1024> lalloc;
 
         EXPECT(lalloc.block().size == 1024);
 
@@ -1377,8 +1377,7 @@ const Suite spec[] =
     },
     SUITE("Pool Allocator Tests")
     {
-        mem::Mallocator mallocator;
-        mem::PoolAllocator<mem::Mallocator, 17, 32, 1024> palloc(mallocator);
+        mem::PoolAllocator<mem::Mallocator, 17, 32, 1024> palloc;
 
         auto a = palloc.allocate(16, 4);
         EXPECT(a.ptr == nullptr);
@@ -1399,11 +1398,14 @@ const Suite spec[] =
         auto d = palloc.allocate(32, 4);
         EXPECT(d.ptr > c.ptr);
         EXPECT(d.size == 32);
+
+        mem::PoolAllocator<mem::Mallocator, mem::DynamicSizeFlag, mem::DynamicSizeFlag, 1024> palloc2;
+        palloc2.setMinMax(32, 64);
+        printf("ASKHJKSHGJKAHSGKJ\n");
     },
     SUITE("FreeListAllocator Tests")
     {
-        mem::Mallocator mallocator;
-        mem::FreeListAllocator<mem::Mallocator, 1088> falloc(mallocator);
+        mem::FreeListAllocator<mem::Mallocator, 1088> falloc;
 
         auto a = falloc.allocate(2048, 4);
         EXPECT(!a);
@@ -1461,6 +1463,11 @@ const Suite spec[] =
             if (i > 0)
                 EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
         }
+    },
+    SUITE("Bucketizer Tests")
+    {
+        using PoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 128>;
+        mem::Bucketizer<PoolType, 0, 1024, 64> bucketizer;
     }
 };
 

@@ -18,17 +18,16 @@ namespace stick
 
             // static_assert(S > sizeof(FreeBlock), "The memory is too small.")
 
-            inline FreeListAllocator(Alloc & _parentAllocator) :
-                m_parentAllocator(&_parentAllocator)
+            inline FreeListAllocator()
             {
-                m_memory = _parentAllocator.allocate(S, alignment);
+                m_memory = m_alloc.allocate(S, alignment);
                 STICK_ASSERT(m_memory);
                 deallocateAll();
             }
 
             inline ~FreeListAllocator()
             {
-                m_parentAllocator->deallocate(m_memory);
+                m_alloc.deallocate(m_memory);
             }
 
             inline Block allocate(Size _byteCount, Size _alignment)
@@ -177,7 +176,7 @@ namespace stick
                 Size adjustment;
             };
 
-            Alloc * m_parentAllocator;
+            ParentAllocator m_alloc;
             FreeBlock * m_freeList;
             Block m_memory;
         };

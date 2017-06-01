@@ -7,6 +7,11 @@ namespace stick
 {
     namespace mem
     {
+        inline Size roundToAlignment(Size _s, Size _alignment)
+        {
+            return _s + ((_s % _alignment == 0) ? 0 : (_alignment - _s % _alignment));
+        }
+
         inline Size alignmentAdjustment(const void * _ptr, Size _alignment)
         {
             Size adjustment =  _alignment - ( reinterpret_cast<UPtr>(_ptr) & static_cast<UPtr>(_alignment - 1) );
