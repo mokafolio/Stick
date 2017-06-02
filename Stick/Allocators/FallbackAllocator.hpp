@@ -1,6 +1,8 @@
 #ifndef STICK_ALLOCATORS_FALLBACKALLOCATOR_HPP
 #define STICK_ALLOCATORS_FALLBACKALLOCATOR_HPP
 
+#include <Stick/Allocators/Block.hpp>
+
 namespace stick
 {
     namespace mem

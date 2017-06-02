@@ -91,7 +91,7 @@ namespace stick
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                if (_alignment != alignment || _byteCount > MaxSize || _byteCount < MinSize)
+                if (_alignment != alignment || _byteCount > m_max.size() || _byteCount < m_min.size())
                     return {nullptr, 0};
 
                 void * ret = m_freeList;

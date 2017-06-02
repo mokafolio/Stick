@@ -1468,8 +1468,52 @@ const Suite spec[] =
     },
     SUITE("Bucketizer Tests")
     {
+
         using PoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 256>;
-        mem::Bucketizer<PoolType, 0, 1024, 32> bucketizer;
+        mem::Bucketizer<PoolType, 64, 128, 16> bucketizer;
+
+        auto mem = bucketizer.allocate(8, 4);
+        EXPECT(!mem);
+        auto mem2 = bucketizer.allocate(64, 4);
+        EXPECT(mem2);
+        auto mem3 = bucketizer.allocate(80, 4);
+        EXPECT(mem3);
+        auto mem4 = bucketizer.allocate(72, 4);
+        EXPECT(mem4);
+        auto mem5 = bucketizer.allocate(132, 4);
+        EXPECT(!mem5);
+        auto mem6 = bucketizer.allocate(128, 4);
+        EXPECT(!mem6);
+
+        // using PoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 1024>;
+        // using ByteAllocatorPool = mem::PoolAllocator<mem::Mallocator, 0, 8, 262144>;
+        // using ByteAllocator = mem::FallbackAllocator<ByteAllocatorPool, mem::Mallocator>;
+        // using Bucketizer128 = mem::Bucketizer<PoolType, 1, 128, 16>;
+        // using Bucketizer256 = mem::Bucketizer<PoolType, 129, 256, 32>;
+        // using Bucketizer512 = mem::Bucketizer<PoolType, 257, 512, 64>;
+        // using Bucketizer1024 = mem::Bucketizer<PoolType, 513, 1024, 128>;
+        // using Bucketizer2048 = mem::Bucketizer<PoolType, 1025, 2048, 256>;
+
+
+        // using DefaultAllocator = mem::Segregator <
+        //                          8, ByteAllocator,
+        //                          mem::Segregator<128, Bucketizer128, Mallocator >>;
+
+        // // using Segregator1024 = mem::Segregator<1024, Bucketizer1024, Bucketizer2048>;
+        // // using Segregator512 = mem::Segregator<512, Bucketizer512, Segregator1024>;
+        // // using Segregator256 = mem::Segregator<256, Bucketizer256, Segregator512>;
+        // // using Segregator128 = mem::Segregator<128, Bucketizer128, Segregator256>;
+        // // using DefaultAllocator = mem::FallbackAllocator<mem::Segregator<8, ByteAllocator, Segregator128>, mem::Mallocator>;
+
+        // // DefaultAllocator allocator;
+
+
+        // mem::SegregatorGroup<
+        // mem::T<8>, ByteAllocatorPool,
+        // mem::T<128>, mem::Mallocator, mem::Mallocator> grp;
+
+        // auto mem = grp.allocate(256, 4);
+        // EXPECT(mem);
     }
 };
 

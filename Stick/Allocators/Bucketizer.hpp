@@ -1,6 +1,8 @@
 #ifndef STICK_ALLOCATORS_BUCKETIZER_HPP
 #define STICK_ALLOCATORS_BUCKETIZER_HPP
 
+#include <Stick/Allocators/Block.hpp>
+
 namespace stick
 {
     namespace mem
@@ -30,9 +32,11 @@ namespace stick
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                Alloc * a = findAllocator(_byteCount)->allocate(_byteCount, _alignment);
-                if(a)
+                Alloc * a = findAllocator(_byteCount);
+                if (a)
+                {
                     return a->allocate(_byteCount, _alignment);
+                }
                 return {nullptr, 0};
             }
 
@@ -46,9 +50,12 @@ namespace stick
 
             inline Alloc * findAllocator(Size _s)
             {
-                STICK_ASSERT(_s >= MinSize && _s <= MaxSize);
-                auto v = roundToAlignment(_s, StepSize);
-                return &m_allocators[(v - MinSize) / StepSize];
+                if (_s >= MinSize && _s <= MaxSize)
+                {
+                    auto idx = (_s - MinSize) / StepSize;
+                    return &m_allocators[idx];
+                }
+                return nullptr;
             }
 
             Alloc m_allocators[bucketCount];
