@@ -2,6 +2,7 @@
 #define STICK_ALLOCATORS_ALLOCATORUTILITIES_HPP
 
 #include <Stick/Platform.hpp>
+#include <utility> //for std::declval
 
 namespace stick
 {
@@ -38,6 +39,19 @@ namespace stick
             }
             return adjustment;
         }
+
+
+        // template <class A, class B = void>
+        // struct HasOwns : std::false_type
+        // {
+        //     using type = bool;
+        // };
+
+        // template <class T>
+        // struct HasOwns<T, decltype(std::declval<T>().owns())> : std::true_type
+        // {
+        //     using type = bool;
+        // };
     }
 }
 

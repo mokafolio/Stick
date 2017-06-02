@@ -1514,6 +1514,56 @@ const Suite spec[] =
 
         // auto mem = grp.allocate(256, 4);
         // EXPECT(mem);
+    },
+    SUITE("Bucketizer Tests")
+    {
+
+        using PoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 256>;
+        mem::Bucketizer<PoolType, 65, 128, 16> bucketizer;
+
+        EXPECT(bucketizer.bucketCount == 4);
+
+        auto mem = bucketizer.allocate(8, 4);
+        EXPECT(!mem);
+        EXPECT(!bucketizer.owns(mem));
+        auto mem2 = bucketizer.allocate(65, 4);
+        EXPECT(mem2);
+        EXPECT(bucketizer.owns(mem2));
+        auto mem3 = bucketizer.allocate(80, 4);
+        EXPECT(mem3);
+        EXPECT(bucketizer.owns(mem3));
+        auto mem4 = bucketizer.allocate(72, 4);
+        EXPECT(mem4);
+        EXPECT(bucketizer.owns(mem4));
+        auto mem5 = bucketizer.allocate(132, 4);
+        EXPECT(!mem5);
+        EXPECT(!bucketizer.owns(mem5));
+        auto mem6 = bucketizer.allocate(128, 4);
+        EXPECT(mem6);
+        EXPECT(bucketizer.owns(mem6));
+
+
+    },
+    SUITE("Segregator Tests")
+    {
+        using BucketizerPoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 256>;
+        using SmallAllocator = mem::PoolAllocator<mem::Mallocator, 0, 8, 1024>;
+        using MediumAllocator = mem::Bucketizer<BucketizerPoolType, 9, 512, 32>;
+
+        using Allocator = mem::Segregator <
+                          mem::T<8>, SmallAllocator,
+                          mem::T<512>, MediumAllocator,
+                          mem::Mallocator >;
+
+        Allocator smartAllocator;
+
+        auto tinyChunk = smartAllocator.allocate(8, 4);
+        EXPECT(tinyChunk);
+        EXPECT(smartAllocator.smallAllocator().owns(tinyChunk));
+
+        auto mediumChunk = smartAllocator.allocate(128, 4);
+        EXPECT(mediumChunk);
+        EXPECT(smartAllocator.largeAllocator().smallAllocator().owns(mediumChunk));
     }
 };
 

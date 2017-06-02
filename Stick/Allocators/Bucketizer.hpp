@@ -21,6 +21,7 @@ namespace stick
             {
                 for (Size i = 0; i < bucketCount; ++i)
                 {
+                    printf("MIN %lu MAX %lu\n", MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
                     m_allocators[i].setMinMax(MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
                 }
             }
@@ -48,11 +49,13 @@ namespace stick
 
         private:
 
-            inline Alloc * findAllocator(Size _s)
+            inline Alloc * findAllocator(Size _s) 
             {
                 if (_s >= MinSize && _s <= MaxSize)
                 {
                     auto idx = (_s - MinSize) / StepSize;
+                    printf("FOUND IIIT %lu\n", idx);
+                    printf("SIZES %lu %lu\n", m_allocators[idx].min(), m_allocators[idx].max());
                     return &m_allocators[idx];
                 }
                 return nullptr;

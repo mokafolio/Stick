@@ -8,71 +8,6 @@ namespace stick
 {
     namespace mem
     {
-        template<Size Threshold, class Small, class Large>
-        class STICK_API Segregator
-        {
-        public:
-
-            using SmallAllocator = Small;
-            using LargeAllocator = Large;
-
-            static constexpr Size alignment = (Small::alignment > Large::alignment) ?
-                                              Small::alignment : Large::alignment;
-
-
-            inline bool owns(const Block & _blk)
-            {
-                if (_blk.size <= Threshold)
-                    return m_small.owns(_blk);
-                else
-                    return m_large.owns(_blk);
-            }
-
-            inline Block allocate(Size _byteCount, Size _alignment)
-            {
-                STICK_ASSERT(_byteCount);
-                if (_byteCount <= Threshold)
-                    return m_small.allocate(_byteCount, _alignment);
-                else
-                    return m_large.allocate(_byteCount, _alignment);
-            }
-
-            inline void deallocate(const Block & _blk)
-            {
-                if (_blk.size <= Threshold)
-                    m_small.deallocate(_blk);
-                else
-                    m_large.deallocate(_blk);
-            }
-
-            inline Size threshold() const
-            {
-                return Threshold;
-            }
-
-        private:
-
-            SmallAllocator m_small;
-            LargeAllocator m_large;
-        };
-
-        template<Size Threshold, class Alloc>
-        struct Step
-        {
-            static constexpr Size threshold = Threshold;
-            using Allocator = Alloc;
-        };
-
-        namespace detail
-        {
-            template <class... Args>
-            struct TypeList
-            {
-                template <std::size_t N>
-                using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
-            };
-        }
-
         template<Size S>
         struct Threshold
         {
@@ -83,12 +18,14 @@ namespace stick
         using T = Threshold<S>;
 
         template<class...>
-        class STICK_API SegregatorGroup;
+        class STICK_API Segregator;
 
         template<class Allocator>
-        class STICK_API SegregatorGroup<Allocator>
+        class STICK_API Segregator<Allocator>
         {
         public:
+
+            static constexpr Size alignment = Allocator::alignment;
 
             inline bool owns(const Block & _blk)
             {
@@ -97,7 +34,6 @@ namespace stick
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                printf("LAST ALLOCATOR\n");
                 return m_alloc.allocate(_byteCount, _alignment);
             }
 
@@ -112,9 +48,12 @@ namespace stick
         };
 
         template<>
-        class STICK_API SegregatorGroup<>
+        class STICK_API Segregator<>
         {
         public:
+
+            static constexpr Size alignment = -1;
+
 
             inline bool owns(const Block & _blk)
             {
@@ -133,9 +72,16 @@ namespace stick
         };
 
         template<Size Threshold, class Alloc, class...Args>
-        class STICK_API SegregatorGroup<T<Threshold>, Alloc, Args...>
+        class STICK_API Segregator<T<Threshold>, Alloc, Args...>
         {
         public:
+
+            using SmallAllocator = Alloc;
+            using LargeAllocator = Segregator<Args...>;
+
+            static constexpr Size alignment = (SmallAllocator::alignment > LargeAllocator::alignment) ?
+                                              SmallAllocator::alignment : LargeAllocator::alignment;
+
 
             inline bool owns(const Block & _blk)
             {
@@ -147,11 +93,9 @@ namespace stick
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                printf("MY THRESH %lu %lu\n", _byteCount, Threshold);
                 STICK_ASSERT(_byteCount);
                 if (_byteCount <= Threshold)
                 {
-                    printf("DO DA ALLOCATE\n");
                     return m_small.allocate(_byteCount, _alignment);
                 }
                 else
@@ -166,10 +110,25 @@ namespace stick
                     m_large.deallocate(_blk);
             }
 
+            inline const SmallAllocator & smallAllocator() const
+            {
+                return m_small;
+            }
+
+            inline const LargeAllocator & largeAllocator() const
+            {
+                return m_large;
+            }
+
+            inline const LargeAllocator & nextAllocator() const
+            {
+                return m_large;
+            }
+
         private:
 
-            Alloc m_small;
-            SegregatorGroup<Args...> m_large;
+            SmallAllocator m_small;
+            LargeAllocator m_large;
         };
     }
 }

@@ -134,6 +134,16 @@ namespace stick
                 return m_memory;
             }
 
+            inline Size min() const
+            {
+                return m_min.size();
+            }
+
+            inline Size max() const
+            {
+                return m_max.size();
+            }
+
         private:
 
             void initialize()
