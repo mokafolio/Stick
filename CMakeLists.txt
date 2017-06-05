@@ -7,6 +7,16 @@ option(AddTests "AddTests" ON)
 set (STICKDEPS pthread)
 
 set (STICKINC 
+Stick/Allocators/AllocatorUtilities.hpp
+Stick/Allocators/Block.hpp
+Stick/Allocators/Bucketizer.hpp
+Stick/Allocators/FallbackAllocator.hpp
+Stick/Allocators/FreeListAllocator.hpp
+Stick/Allocators/LinearAllocator.hpp
+Stick/Allocators/Mallocator.hpp
+Stick/Allocators/NoAllocator.hpp
+Stick/Allocators/PoolAllocator.hpp
+Stick/Allocators/Segregator.hpp
 Stick/Allocator.hpp
 Stick/ArgumentParser.hpp
 Stick/ConditionVariable.hpp
