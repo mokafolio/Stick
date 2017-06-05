@@ -12,6 +12,7 @@ Stick/Allocators/Block.hpp
 Stick/Allocators/Bucketizer.hpp
 Stick/Allocators/FallbackAllocator.hpp
 Stick/Allocators/FreeListAllocator.hpp
+Stick/Allocators/GlobalAllocator.hpp
 Stick/Allocators/LinearAllocator.hpp
 Stick/Allocators/Mallocator.hpp
 Stick/Allocators/NoAllocator.hpp
