@@ -316,7 +316,7 @@ namespace stick
 
             char * old = m_cStr;
             Size s = _count + 1;
-            m_cStr = static_cast<char *>(m_allocator->allocate(s).ptr);
+            m_cStr = static_cast<char *>(m_allocator->allocate(s, alignof(char)).ptr);
             //needed as allocator cannot guarantee that the memory is zeroed out
             //TODO: Add a allocateZeroed function to allocator? Would allow us to use calloc
             memset(m_cStr, 0, s);

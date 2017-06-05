@@ -266,7 +266,7 @@ namespace stick
 
         inline Node * createNode(const ValueType & _val)
         {
-            auto mem = m_alloc->allocate(sizeof(Node));
+            auto mem = m_alloc->allocate(sizeof(Node), alignof(Node));
             STICK_ASSERT(mem.ptr);
             return new (mem.ptr) Node(_val);
         }

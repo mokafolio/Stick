@@ -289,7 +289,7 @@ namespace stick
         RecursiveDirectoryIterator::~RecursiveDirectoryIterator()
         {
             if (m_node)
-                destroy(m_node);
+                defaultAllocator().destroy(m_node);
         }
 
         RecursiveDirectoryIterator::RecursiveDirectoryIterator(const RecursiveDirectoryIterator & _other)
@@ -344,14 +344,14 @@ namespace stick
                         {
                             Node * old = m_node;
                             m_node = m_node->m_parent;
-                            destroy(old);
+                            defaultAllocator().destroy(old);
                             //we allready visited the it position of parent, so we advance again
                             this->operator++();
                         }
                         else
                         {
                             //we reached the end!
-                            destroy(m_node);
+                            defaultAllocator().destroy(m_node);
                             m_node = nullptr;
                         }
                     }

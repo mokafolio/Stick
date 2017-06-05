@@ -138,7 +138,7 @@ namespace stick
             if (_s > c)
             {
                 STICK_ASSERT(m_allocator);
-                auto blk = m_allocator->allocate(_s * sizeof(T));
+                auto blk = m_allocator->allocate(_s * sizeof(T), alignof(T));
                 T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
                 T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
 
@@ -381,7 +381,7 @@ namespace stick
 
         inline Size capacity() const
         {
-            return m_data.byteCount / sizeof(T);
+            return m_data.size / sizeof(T);
         }
 
         inline T & first()
@@ -407,7 +407,7 @@ namespace stick
 
     private:
 
-        Block m_data;
+        mem::Block m_data;
         Size m_count;
         Allocator * m_allocator;
     };

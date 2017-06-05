@@ -18,7 +18,7 @@ namespace stick
 
         inline void operator() (T * _obj) const
         {
-            destroy(_obj);
+            defaultAllocator().destroy(_obj);
         }
     };
 

@@ -55,7 +55,7 @@ namespace stick
                 {
                     auto idx = (_s - MinSize) / StepSize;
                     printf("FOUND IIIT %lu\n", idx);
-                    printf("SIZES %lu %lu\n", m_allocators[idx].min(), m_allocators[idx].max());
+                    printf("SIZES %lu %lu %lu\n", m_allocators[idx].min(), m_allocators[idx].max(), bucketCount);
                     return &m_allocators[idx];
                 }
                 return nullptr;

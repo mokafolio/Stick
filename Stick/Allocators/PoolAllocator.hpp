@@ -57,11 +57,11 @@ namespace stick
 
             using ParentAllocator = Alloc;
 
+
             inline PoolAllocator()
             {
                 if (m_min.size() != detail::Undefined && m_max.size() != detail::Undefined)
                 {
-                    printf("CALL INIT\n");
                     initialize();
                 }
             }
@@ -91,13 +91,18 @@ namespace stick
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                if (_alignment != alignment || _byteCount > m_max.size() || _byteCount < m_min.size())
-                    return {nullptr, 0};
+                if (m_freeList &&
+                        _alignment == alignment &&
+                        _byteCount <= m_max.size() &&
+                        _byteCount >= m_min.size())
+                {
+                    void * ret = m_freeList;
+                    m_freeList = m_freeList->next;
 
-                void * ret = m_freeList;
-                m_freeList = m_freeList->next;
+                    return {ret, _byteCount};
+                }
 
-                return {ret, _byteCount};
+                return {nullptr, 0};
             }
 
             inline bool owns(const Block & _blk) const
@@ -148,6 +153,7 @@ namespace stick
 
             void initialize()
             {
+                m_freeList = nullptr;
                 Size size = m_max.size() * BucketCount;
                 m_memory = m_alloc.allocate(size, alignment);
                 STICK_ASSERT(m_memory);
@@ -155,7 +161,8 @@ namespace stick
             }
 
             ParentAllocator m_alloc;
-            struct Node { Node * next; } * m_freeList;
+            struct Node { Node * next; };
+            Node * m_freeList;
             Block m_memory;
             detail::DynamicSizeHelper<MinSize> m_min;
             detail::DynamicSizeHelper<MaxSize> m_max;

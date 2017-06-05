@@ -209,10 +209,11 @@ namespace stick
         inline HashMap(Size _initialBucketCount = 16, Allocator & _alloc = defaultAllocator()) :
             m_alloc(&_alloc),
             m_buckets(nullptr),
+            m_bucketAllocationSize(0),
             m_maxLoadFactor(1.0f),
             m_count(0)
         {
-            m_buckets = allocateBuckets(_initialBucketCount);
+            m_buckets = allocateBuckets(_initialBucketCount, &m_bucketAllocationSize);
             STICK_ASSERT(m_buckets);
             m_bucketCount = _initialBucketCount;
         }
@@ -220,11 +221,12 @@ namespace stick
         inline HashMap(const HashMap & _other) :
             m_alloc(_other.m_alloc),
             m_buckets(nullptr),
+            m_bucketAllocationSize(0),
             m_bucketCount(0),
             m_maxLoadFactor(_other.m_maxLoadFactor),
             m_count(_other.m_count)
         {
-            m_buckets = allocateBuckets(_other.m_bucketCount);
+            m_buckets = allocateBuckets(_other.m_bucketCount, &m_bucketAllocationSize);
             STICK_ASSERT(m_buckets);
             m_bucketCount = _other.m_bucketCount;
             //iterate over all the buckets and copy each linked list
@@ -238,6 +240,7 @@ namespace stick
         inline HashMap(HashMap && _other) :
             m_alloc(std::move(_other.m_alloc)),
             m_buckets(std::move(_other.m_buckets)),
+            m_bucketAllocationSize(std::move(_other.m_bucketAllocationSize)),
             m_bucketCount(std::move(_other.m_bucketCount)),
             m_maxLoadFactor(std::move(_other.m_maxLoadFactor)),
             m_count(std::move(_other.m_count))
@@ -248,11 +251,12 @@ namespace stick
         inline HashMap(std::initializer_list<KeyValuePair> _l, Allocator & _alloc = defaultAllocator()) :
             m_alloc(&_alloc),
             m_buckets(nullptr),
+            m_bucketAllocationSize(0),
             m_bucketCount(0),
             m_maxLoadFactor(1.0f),
             m_count(0)
         {
-            m_buckets = allocateBuckets(16);
+            m_buckets = allocateBuckets(16, &m_bucketAllocationSize);
             m_bucketCount = 16;
             STICK_ASSERT(m_buckets);
             insert(_l);
@@ -264,12 +268,13 @@ namespace stick
             if (m_buckets)
             {
                 clear();
+
                 //I guess technically buckets are pod types right now so we
                 //don't need to call the destructor...safety first though.
                 for (Size i = 0; i < m_bucketCount; ++i)
                     m_buckets[i].~Bucket();
 
-                m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+                m_alloc->deallocate({m_buckets, m_bucketAllocationSize});
             }
         }
 
@@ -277,13 +282,14 @@ namespace stick
         {
             clear();
             if (m_buckets)
-                m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+                m_alloc->deallocate({m_buckets, m_bucketAllocationSize});
 
             m_alloc = _other.m_alloc;
             m_bucketCount = _other.m_bucketCount;
+            m_bucketAllocationSize = _other.m_bucketAllocationSize;
             m_count = _other.m_count;
             m_maxLoadFactor = _other.m_maxLoadFactor;
-            m_buckets = allocateBuckets(m_bucketCount);
+            m_buckets = allocateBuckets(m_bucketCount, &m_bucketAllocationSize);
             STICK_ASSERT(m_buckets);
             for (Size i = 0; i < _other.m_bucketCount; ++i)
             {
@@ -297,13 +303,14 @@ namespace stick
         {
             clear();
             if (m_buckets)
-                m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+                m_alloc->deallocate({m_buckets, m_bucketAllocationSize});
 
             m_alloc = std::move(_other.m_alloc);
             m_bucketCount = std::move(_other.m_bucketCount);
             m_count = std::move(_other.m_count);
             m_maxLoadFactor = std::move(_other.m_maxLoadFactor);
             m_buckets = std::move(_other.m_buckets);
+            m_bucketAllocationSize = std::move(_other.m_bucketAllocationSize);
 
             _other.m_buckets = nullptr;
 
@@ -499,7 +506,8 @@ namespace stick
 
         inline void rehash(Size _bucketCount)
         {
-            Bucket * newBuckets = allocateBuckets(_bucketCount);
+            Size newBucketAllocationSize = 0;
+            Bucket * newBuckets = allocateBuckets(_bucketCount, &newBucketAllocationSize);
 
             for (Size i = 0; i < m_bucketCount; ++i)
             {
@@ -528,7 +536,8 @@ namespace stick
                 b.~Bucket();
             }
 
-            m_alloc->deallocate({m_buckets, sizeof(Bucket) * m_bucketCount});
+            m_alloc->deallocate({m_buckets, m_bucketAllocationSize});
+            m_bucketAllocationSize = newBucketAllocationSize;
             m_buckets = newBuckets;
             m_bucketCount = _bucketCount;
         }
@@ -603,16 +612,14 @@ namespace stick
 
         inline Node * createNode(KeyValuePair && _pair)
         {
-            auto mem = m_alloc->allocate(sizeof(Node));
-            Node * ret = new (mem.ptr) Node;
+            auto ret = m_alloc->create<Node>();
             ret->kv = std::move(_pair);
             return ret;
         }
 
         inline void destroyNode(Node * _n)
         {
-            _n->~Node();
-            m_alloc->deallocate({_n, sizeof(Node)});
+            m_alloc->destroy(_n);
         }
 
         inline Size bucketIndex(const KeyType & _key) const
@@ -638,9 +645,10 @@ namespace stick
             }
         }
 
-        inline Bucket * allocateBuckets(Size _i)
+        inline Bucket * allocateBuckets(Size _i, Size * _outSize)
         {
-            auto mem = m_alloc->allocate(sizeof(Bucket) * _i);
+            auto mem = m_alloc->allocate(sizeof(Bucket) * _i, alignof(Bucket));
+            *_outSize = mem.size;
             return new (mem.ptr) Bucket [_i];
         }
 
@@ -654,6 +662,7 @@ namespace stick
 
         Allocator * m_alloc;
         Bucket * m_buckets;
+        Size m_bucketAllocationSize;
         Size m_bucketCount;
         Float32 m_maxLoadFactor;
         Hash m_hasher;
