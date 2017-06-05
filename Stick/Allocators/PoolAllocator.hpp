@@ -107,7 +107,7 @@ namespace stick
 
             inline bool owns(const Block & _blk) const
             {
-                return _blk.size >= MinSize && _blk.size <= MaxSize;
+                return _blk.size >= m_min.size() && _blk.size <= m_max.size();
             }
 
             inline void deallocate(const Block & _blk)

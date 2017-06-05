@@ -1400,9 +1400,13 @@ const Suite spec[] =
         EXPECT(d.ptr > c.ptr);
         EXPECT(d.size == 32);
 
+        palloc.deallocate(b);
+        palloc.deallocate(c);
+        palloc.deallocate(d);
+
         mem::PoolAllocator<mem::Mallocator, mem::DynamicSizeFlag, mem::DynamicSizeFlag, 1024> palloc2;
         palloc2.setMinMax(32, 64);
-        printf("ASKHJKSHGJKAHSGKJ\n");
+        //@TODO: More!
     },
     SUITE("FreeListAllocator Tests")
     {
@@ -1464,6 +1468,7 @@ const Suite spec[] =
             if (i > 0)
                 EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
         }
+        //@TODO: More!
     },
     SUITE("Bucketizer Tests")
     {
@@ -1492,7 +1497,12 @@ const Suite spec[] =
         EXPECT(mem6);
         EXPECT(bucketizer.owns(mem6));
 
+        bucketizer.deallocate(mem2);
+        bucketizer.deallocate(mem3);
+        bucketizer.deallocate(mem4);
+        bucketizer.deallocate(mem6);
 
+        //@TODO: More!
     },
     SUITE("Segregator Tests")
     {
@@ -1503,17 +1513,31 @@ const Suite spec[] =
         using Allocator = mem::Segregator <
                           mem::T<8>, SmallAllocator,
                           mem::T<512>, MediumAllocator,
-                          mem::Mallocator >;
+                          mem::Mallocator>;
 
         Allocator smartAllocator;
 
         auto tinyChunk = smartAllocator.allocate(8, 4);
         EXPECT(tinyChunk);
+        //Note: Segregator "owns" only compiles if all allocators in the chain implement it.
+        //Since Mallocator does not, we directly get the allocators that we expect a chunk to be owned by
+        //in order to test ownership.
         EXPECT(smartAllocator.smallAllocator().owns(tinyChunk));
 
         auto mediumChunk = smartAllocator.allocate(128, 4);
         EXPECT(mediumChunk);
         EXPECT(smartAllocator.largeAllocator().smallAllocator().owns(mediumChunk));
+
+        auto largeChunk = smartAllocator.allocate(564, 4);
+        EXPECT(largeChunk);
+        //Note: Mallocator does not implement owns, so we won't check for it.
+
+
+        smartAllocator.deallocate(tinyChunk);
+        smartAllocator.deallocate(mediumChunk);
+        smartAllocator.deallocate(largeChunk);
+
+        //@TODO: More!
     }
 };
 

@@ -54,10 +54,11 @@ namespace stick
                 if (_s >= MinSize && _s <= MaxSize)
                 {
                     auto idx = (_s - MinSize) / StepSize;
-                    printf("FOUND IIIT %lu\n", idx);
+                    printf("FOUND IIIT %lu %lu\n", _s, idx);
                     printf("SIZES %lu %lu %lu\n", m_allocators[idx].min(), m_allocators[idx].max(), bucketCount);
                     return &m_allocators[idx];
                 }
+                printf("FUUUCK\n");
                 return nullptr;
             }
 
