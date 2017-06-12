@@ -10,6 +10,8 @@ namespace stick
         {
         public:
 
+            static constexpr Size alignment = Alloc::alignment;
+
             inline Block allocate(Size _byteCount, Size _alignment)
             {
                 return instance().allocate(_byteCount, _alignment);
