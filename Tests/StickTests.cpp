@@ -1415,11 +1415,11 @@ const Suite spec[] =
             EXPECT(a);
             auto b = palloc3.allocate(4, 4);
             EXPECT(b);
-            EXPECT(palloc3.pageCount() == 1);
+            EXPECT(palloc3.chunkCount() == 1);
             EXPECT(palloc3.freeCount() == 0);
             auto c = palloc3.allocate(4, 4);
             EXPECT(c);
-            EXPECT(palloc3.pageCount() == 2);
+            EXPECT(palloc3.chunkCount() == 2);
             EXPECT(palloc3.freeCount() == 1);
             palloc3.deallocateAll();
             EXPECT(palloc3.freeCount() == 4);
@@ -1435,7 +1435,7 @@ const Suite spec[] =
         auto b = falloc.allocate(32, 4);
         EXPECT(b);
         EXPECT(b.size == 32);
-        EXPECT(b.ptr > falloc.block().ptr);
+        // EXPECT(b.ptr > falloc.block().ptr);
         falloc.deallocate(b);
 
         mem::Block blocks[4];
@@ -1484,6 +1484,15 @@ const Suite spec[] =
             EXPECT(blocks[i]);
             if (i > 0)
                 EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
+        {
+            mem::FreeListAllocator<mem::Mallocator, 512> falloc2;
+            auto a = falloc2.allocate(1024, 4);
+            EXPECT(!a);
+            
+            auto b = falloc2.allocate(256, 4);
+            EXPECT(falloc2.freeCount() == 1);
+            EXPECT(b);
         }
         //@TODO: More!
     },

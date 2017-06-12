@@ -7,7 +7,7 @@ namespace stick
 {
     namespace mem
     {
-        struct MemoryChunk
+        struct STICK_API MemoryChunk
         {
             inline MemoryChunk() :
                 next(nullptr)
@@ -15,7 +15,7 @@ namespace stick
 
             }
 
-            inline MemoryChunk(const Block & _blk, Size _size, Size _count) :
+            inline MemoryChunk(const Block & _blk) :
                 next(nullptr),
                 memory(_blk)
             {

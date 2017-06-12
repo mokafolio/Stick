@@ -109,7 +109,7 @@ namespace stick
                 {
                     if (!m_freeList)
                     {
-                        addBlockPage();
+                        allocateChunk();
                     }
 
                     void * ret = m_freeList;
@@ -198,7 +198,7 @@ namespace stick
                 return ret;
             }
 
-            inline Size pageCount() const
+            inline Size chunkCount() const
             {
                 Size ret = 0;
                 auto * p = &m_firstBlock;
@@ -227,7 +227,7 @@ namespace stick
             //     m_firstBlock = MemoryChunk({(void *)((UPtr)mem.ptr + headerSize), mem.size - BucketCount}, m_max.size(), BucketCount);
             // }
 
-            void addBlockPage()
+            void allocateChunk()
             {
                 printf("ADD PAGE\n");
                 static constexpr Size headerSize = sizeof(MemoryChunk);
@@ -235,7 +235,7 @@ namespace stick
 
                 Size size = m_max.size() * BucketCount + headerAdjustment;
                 Block mem = m_alloc.allocate(size, alignment);
-                MemoryChunk blk({(void *)((UPtr)mem.ptr + headerAdjustment), mem.size - headerAdjustment}, m_max.size(), BucketCount);
+                MemoryChunk blk({(void *)((UPtr)mem.ptr + headerAdjustment), mem.size - headerAdjustment});
                 if (!m_firstBlock.memory)
                 {
                     m_firstBlock = std::move(blk);
@@ -260,6 +260,8 @@ namespace stick
 
                 p->next = nullptr;
 
+                //@TODO: I think its fair to assume that this will always be a fresh freelist
+                // as we only call this function when we are out of free buckets. Safety first for now though i guess.
                 if (!m_freeList)
                 {
                     printf("FRESH FREELIST\n");

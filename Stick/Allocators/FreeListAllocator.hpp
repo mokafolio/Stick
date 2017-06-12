@@ -1,7 +1,7 @@
 #ifndef STICK_ALLOCATORS_FREELISTALLOCATOR_HPP
 #define STICK_ALLOCATORS_FREELISTALLOCATOR_HPP
 
-#include <Stick/Allocators/Block.hpp>
+#include <Stick/Allocators/MemoryChunk.hpp>
 
 namespace stick
 {
@@ -18,21 +18,40 @@ namespace stick
 
             // static_assert(S > sizeof(FreeBlock), "The memory is too small.")
 
-            inline FreeListAllocator()
+            inline FreeListAllocator() :
+                m_freeList(nullptr)
             {
-                m_memory = m_alloc.allocate(S, alignment);
-                STICK_ASSERT(m_memory);
-                deallocateAll();
+                // m_memory = m_alloc.allocate(S, alignment);
+                // STICK_ASSERT(m_memory);
+                // deallocateAll();
             }
 
             inline ~FreeListAllocator()
             {
-                m_alloc.deallocate(m_memory);
+                // m_alloc.deallocate(m_memory);
+
+                // iterate over all allocater blocks and deallocate them
+                if (m_firstBlock.memory)
+                {
+                    static constexpr Size headerSize = sizeof(MemoryChunk);
+                    static constexpr Size headerAdjustment = headerSize % alignment == 0 ? headerSize : headerSize + headerSize + alignment - headerSize % alignment;
+                    MemoryChunk * pb = &m_firstBlock;
+                    while (pb)
+                    {
+                        m_alloc.deallocate({(void *)((UPtr)pb->memory.ptr - headerAdjustment), pb->memory.size + headerAdjustment});
+                        pb = pb->next;
+                    }
+                }
             }
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
                 STICK_ASSERT(_byteCount > 0);
+
+                if (_byteCount + sizeof(AllocationHeader) > S)
+                {
+                    return {nullptr, 0};
+                }
 
                 FreeBlock * prevBlock = nullptr;
                 FreeBlock * currentBlock = m_freeList;
@@ -41,8 +60,6 @@ namespace stick
                 {
                     Size adjustment = alignmentAdjustmentWithHeader(currentBlock, _alignment, sizeof(AllocationHeader));
                     Size totalSize = adjustment + _byteCount;
-
-                    STICK_ASSERT((UPtr)currentBlock + currentBlock->size <= m_memory.end());
 
                     if (currentBlock->size >= totalSize)
                     {
@@ -84,13 +101,20 @@ namespace stick
                     }
                 }
 
-                return {nullptr, 0};
+                allocateChunk();
+                return allocate(_byteCount, _alignment);
             }
 
             inline bool owns(const Block & _blk) const
             {
-                UPtr start = reinterpret_cast<UPtr>(_blk.ptr);
-                return start >= reinterpret_cast<UPtr>(m_memory.ptr) && start <= m_memory.end();
+                const MemoryChunk * pb = &m_firstBlock;
+                while (pb)
+                {
+                    auto ret = pb->owns(_blk);
+                    if (ret) return ret;
+                    pb = pb->next;
+                }
+                return false;
             }
 
             inline void deallocate(const Block & _blk)
@@ -98,7 +122,7 @@ namespace stick
                 STICK_ASSERT(owns(_blk));
 
                 UPtr hdr = reinterpret_cast<UPtr>(_blk.ptr) - sizeof(AllocationHeader);
-                AllocationHeader * header = reinterpret_cast<AllocationHeader*>(hdr);
+                AllocationHeader * header = reinterpret_cast<AllocationHeader *>(hdr);
 
                 FreeBlock * prevBlock = nullptr;
                 FreeBlock * currentBlock = m_freeList;
@@ -137,7 +161,7 @@ namespace stick
                     nextBlock->size = blockSize;
                     nextBlock->next = prevBlock->next;
 
-                    STICK_ASSERT((UPtr)nextBlock + nextBlock->size <= m_memory.end());
+                    STICK_ASSERT((UPtr)nextBlock + nextBlock->size <= chunk(_blk)->memory.end());
 
                     prevBlock->next = nextBlock;
                     prevBlock = nextBlock;
@@ -152,17 +176,97 @@ namespace stick
 
             inline void deallocateAll()
             {
-                m_freeList = reinterpret_cast<FreeBlock *>(m_memory.ptr);
-                m_freeList->size = S;
-                m_freeList->next = nullptr;
+                // m_freeList = reinterpret_cast<FreeBlock *>(m_memory.ptr);
+                // m_freeList->size = S;
+                // m_freeList->next = nullptr;
+
+                if (m_firstBlock.memory)
+                {
+                    const MemoryChunk * pb = &m_firstBlock;
+                    m_freeList = reinterpret_cast<FreeBlock *>(m_firstBlock.memory.ptr);
+                    FreeBlock * blk = m_freeList;
+                    pb = pb->next;
+                    while (pb)
+                    {
+                        FreeBlock * block = reinterpret_cast<FreeBlock *>(pb->memory.ptr);
+                        blk->next = block;
+                        blk = block;
+                        pb = pb->next;
+                    }
+                }
             }
 
-            inline const Block & block() const
+            inline Size freeCount() const
             {
-                return m_memory;
+                Size ret = 0;
+                FreeBlock * p = m_freeList;
+                while (p)
+                {
+                    p = p->next;
+                    ret++;
+                }
+                return ret;
+            }
+
+            inline Size chunkCount() const
+            {
+                Size ret = 0;
+                auto * p = &m_firstBlock;
+                while (p)
+                {
+                    p = p->next;
+                    ret++;
+                }
+                return ret;
             }
 
         private:
+
+            inline void allocateChunk()
+            {
+                static constexpr Size headerSize = sizeof(MemoryChunk);
+                static constexpr Size headerAdjustment = headerSize % alignment == 0 ? headerSize : headerSize + headerSize + alignment - headerSize % alignment;
+
+                Size size = S + headerAdjustment;
+                Block mem = m_alloc.allocate(size, alignment);
+                MemoryChunk blk({(void *)((UPtr)mem.ptr + headerAdjustment), mem.size - headerAdjustment});
+
+                if (!m_firstBlock.memory)
+                {
+                    m_firstBlock = std::move(blk);
+                }
+                else
+                {
+                    m_firstBlock.next = reinterpret_cast<MemoryChunk *>((UPtr)blk.memory.ptr - headerAdjustment);
+                    *m_firstBlock.next = std::move(blk);
+                }
+
+                if (!m_freeList)
+                {
+                    m_freeList = reinterpret_cast<FreeBlock *>(blk.memory.ptr);
+                    m_freeList->size = blk.memory.size;
+                    m_freeList->next = nullptr;
+                }
+                else
+                {
+                    FreeBlock * fblk = reinterpret_cast<FreeBlock *>(blk.memory.ptr);
+                    fblk->size = blk.memory.size;
+                    fblk->next = m_freeList;
+                    m_freeList = fblk;
+                }
+            }
+
+            inline const MemoryChunk * chunk(const Block & _blk) const
+            {
+                const MemoryChunk * pb = &m_firstBlock;
+                while (pb)
+                {
+                    if (pb->owns(_blk))
+                        return pb;
+                    pb = pb->next;
+                }
+                return nullptr;
+            }
 
             struct FreeBlock
             {
@@ -177,8 +281,8 @@ namespace stick
             };
 
             ParentAllocator m_alloc;
+            MemoryChunk m_firstBlock;
             FreeBlock * m_freeList;
-            Block m_memory;
         };
     }
 }
