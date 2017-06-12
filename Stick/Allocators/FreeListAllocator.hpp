@@ -38,6 +38,7 @@ namespace stick
                     MemoryChunk * pb = &m_firstBlock;
                     while (pb)
                     {
+                        printf("DEALLOC\n");
                         m_alloc.deallocate({(void *)((UPtr)pb->memory.ptr - headerAdjustment), pb->memory.size + headerAdjustment});
                         pb = pb->next;
                     }
@@ -185,14 +186,17 @@ namespace stick
                     const MemoryChunk * pb = &m_firstBlock;
                     m_freeList = reinterpret_cast<FreeBlock *>(m_firstBlock.memory.ptr);
                     FreeBlock * blk = m_freeList;
+                    blk->size = m_firstBlock.memory.size;
                     pb = pb->next;
                     while (pb)
                     {
                         FreeBlock * block = reinterpret_cast<FreeBlock *>(pb->memory.ptr);
+                        block->size = pb->memory.size;
                         blk->next = block;
                         blk = block;
                         pb = pb->next;
                     }
+                    blk->next = nullptr;
                 }
             }
 

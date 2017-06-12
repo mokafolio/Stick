@@ -1478,6 +1478,8 @@ const Suite spec[] =
         falloc.deallocate(blocks[1]);
         falloc.deallocate(blocks[3]);
 
+        EXPECT(falloc.chunkCount() == 1);
+
         for (int i = 0; i < 4; ++i)
         {
             blocks[i] = falloc.allocate(256, 4);
@@ -1489,10 +1491,36 @@ const Suite spec[] =
             mem::FreeListAllocator<mem::Mallocator, 512> falloc2;
             auto a = falloc2.allocate(1024, 4);
             EXPECT(!a);
-            
+
             auto b = falloc2.allocate(256, 4);
             EXPECT(falloc2.freeCount() == 1);
+            EXPECT(falloc2.chunkCount() == 1);
             EXPECT(b);
+
+            auto c = falloc2.allocate(128, 4);
+            EXPECT(falloc2.freeCount() == 1);
+            EXPECT(falloc2.chunkCount() == 1);
+            EXPECT(c);
+
+            auto d = falloc2.allocate(128, 4);
+            EXPECT(falloc2.freeCount() == 2);
+            EXPECT(falloc2.chunkCount() == 2);
+            EXPECT(d);
+
+            falloc2.deallocateAll();
+            EXPECT(falloc2.freeCount() == 2);
+            EXPECT(falloc2.chunkCount() == 2);
+
+            auto b2 = falloc2.allocate(256, 4);
+            EXPECT(b2);
+
+            auto c2 = falloc2.allocate(128, 4);
+            EXPECT(c2);
+
+            auto d2 = falloc2.allocate(128, 4);
+            EXPECT(falloc2.freeCount() == 2);
+            EXPECT(falloc2.chunkCount() == 2);
+            EXPECT(d2);
         }
         //@TODO: More!
     },
