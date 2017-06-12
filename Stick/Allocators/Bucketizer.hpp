@@ -43,8 +43,10 @@ namespace stick
 
             inline void deallocate(const Block & _blk)
             {
+                printf("A\n");
                 STICK_ASSERT(owns(_blk));
                 findAllocator(_blk.size)->deallocate(_blk);
+                printf("B\n");
             }
 
         private:

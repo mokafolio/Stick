@@ -1,7 +1,7 @@
 #ifndef STICK_ALLOCATORS_POOLALLOCATOR_HPP
 #define STICK_ALLOCATORS_POOLALLOCATOR_HPP
 
-#include <Stick/Allocators/Block.hpp>
+#include <Stick/Allocators/MemoryChunk.hpp>
 
 namespace stick
 {
@@ -57,48 +57,63 @@ namespace stick
 
             using ParentAllocator = Alloc;
 
-
-            inline PoolAllocator()
+            inline PoolAllocator() :
+                m_freeList(nullptr)
             {
-                if (m_min.size() != detail::Undefined && m_max.size() != detail::Undefined)
-                {
-                    initialize();
-                }
+                // if (m_min.size() != detail::Undefined && m_max.size() != detail::Undefined)
+                // {
+                //     initialize();
+                // }
             }
 
-            inline PoolAllocator(Size _min, Size _max)
+            inline PoolAllocator(Size _min, Size _max) :
+                m_freeList(nullptr)
             {
                 setMinMax(_min, _max);
             }
 
             inline ~PoolAllocator()
             {
-                m_alloc.deallocate(m_memory);
+                printf("I AM DEAD\n");
+                // iterate over all allocater blocks and deallocate them
+                if (m_firstBlock.memory)
+                {
+                    static constexpr Size headerSize = sizeof(MemoryChunk);
+                    static constexpr Size headerAdjustment = headerSize % alignment == 0 ? headerSize : headerSize + headerSize + alignment - headerSize % alignment;
+                    MemoryChunk * pb = &m_firstBlock;
+                    while (pb)
+                    {
+                        m_alloc.deallocate({(void *)((UPtr)pb->memory.ptr - headerAdjustment), pb->memory.size + headerAdjustment});
+                        pb = pb->next;
+                    }
+                }
             }
 
             inline void setMinMax(Size _min, Size _max)
             {
                 //this function should only be called once
-                STICK_ASSERT(!m_memory);
                 STICK_ASSERT(m_min.size() == detail::Undefined);
                 STICK_ASSERT(m_max.size() == detail::Undefined);
 
                 m_min.set(_min);
                 m_max.set(_max);
 
-                initialize();
+                // initialize();
             }
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                if (m_freeList &&
-                        _alignment == alignment &&
+                if (_alignment == alignment &&
                         _byteCount <= m_max.size() &&
                         _byteCount >= m_min.size())
                 {
+                    if (!m_freeList)
+                    {
+                        addBlockPage();
+                    }
+
                     void * ret = m_freeList;
                     m_freeList = m_freeList->next;
-
                     return {ret, _byteCount};
                 }
 
@@ -107,7 +122,14 @@ namespace stick
 
             inline bool owns(const Block & _blk) const
             {
-                return _blk.size >= m_min.size() && _blk.size <= m_max.size();
+                const MemoryChunk * pb = &m_firstBlock;
+                while (pb)
+                {
+                    auto ret = pb->owns(_blk);
+                    if (ret) return ret;
+                    pb = pb->next;
+                }
+                return false;
             }
 
             inline void deallocate(const Block & _blk)
@@ -120,23 +142,38 @@ namespace stick
 
             inline void deallocateAll()
             {
-                m_freeList = reinterpret_cast<Node *>(m_memory.ptr);
+                // m_freeList = reinterpret_cast<Node *>(m_memory.ptr);
 
-                // build the linked list of buckets
+                // // build the linked list of buckets
+                // Node * p = m_freeList;
+                // for (Size i = 1; i < BucketCount; ++i)
+                // {
+                //     UPtr ptr = reinterpret_cast<UPtr>(p) + m_max.size();
+                //     p->next = reinterpret_cast<Node *>(ptr);
+                //     p = p->next;
+                // }
+
+                // p->next = nullptr;
+                // m_firstBlock.deallocateAll(m_max.size(), BucketCount);
+                MemoryChunk * pb = &m_firstBlock;
+                m_freeList = reinterpret_cast<Node *>(m_firstBlock.memory.ptr);
                 Node * p = m_freeList;
-                for (Size i = 1; i < BucketCount; ++i)
+                while (pb)
                 {
-                    UPtr ptr = reinterpret_cast<UPtr>(p) + m_max.size();
-                    p->next = reinterpret_cast<Node *>(ptr);
-                    p = p->next;
+                    Node * p2 = reinterpret_cast<Node *>(pb->memory.ptr);
+                    if (pb != &m_firstBlock)
+                    {
+                        p->next = p2;
+                        p = p2;
+                    }
+                    for (Size i = 1; i < BucketCount; ++i)
+                    {
+                        UPtr ptr = reinterpret_cast<UPtr>(p2) + m_max.size();
+                        p->next = reinterpret_cast<Node *>(ptr);
+                        p = p->next;
+                    }
+                    pb = pb->next;
                 }
-
-                p->next = nullptr;
-            }
-
-            inline const Block & block() const
-            {
-                return m_memory;
             }
 
             inline Size min() const
@@ -149,23 +186,99 @@ namespace stick
                 return m_max.size();
             }
 
+            inline Size freeCount() const
+            {
+                Size ret = 0;
+                Node * p = m_freeList;
+                while (p)
+                {
+                    p = p->next;
+                    ret++;
+                }
+                return ret;
+            }
+
+            inline Size pageCount() const
+            {
+                Size ret = 0;
+                auto * p = &m_firstBlock;
+                while (p)
+                {
+                    p = p->next;
+                    ret++;
+                }
+                return ret;
+            }
+
         private:
 
-            void initialize()
+            // void initialize()
+            // {
+            //     // STICK_ASSERT(m_max.size() % alignment == 0);
+            //     // m_freeList = nullptr;
+            //     // Size size = m_max.size() * BucketCount;
+            //     // m_memory = m_alloc.allocate(size, alignment);
+            //     // STICK_ASSERT(m_memory);
+            //     // deallocateAll();
+
+            //     static constexpr Size headerSize = sizeof(MemoryChunk);
+            //     Size size = m_max.size() * BucketCount + headerSize;
+            //     Block mem = m_alloc.allocate(size, alignment);
+            //     m_firstBlock = MemoryChunk({(void *)((UPtr)mem.ptr + headerSize), mem.size - BucketCount}, m_max.size(), BucketCount);
+            // }
+
+            void addBlockPage()
             {
-                m_freeList = nullptr;
-                Size size = m_max.size() * BucketCount;
-                m_memory = m_alloc.allocate(size, alignment);
-                STICK_ASSERT(m_memory);
-                deallocateAll();
+                printf("ADD PAGE\n");
+                static constexpr Size headerSize = sizeof(MemoryChunk);
+                static constexpr Size headerAdjustment = headerSize % alignment == 0 ? headerSize : headerSize + headerSize + alignment - headerSize % alignment;
+
+                Size size = m_max.size() * BucketCount + headerAdjustment;
+                Block mem = m_alloc.allocate(size, alignment);
+                MemoryChunk blk({(void *)((UPtr)mem.ptr + headerAdjustment), mem.size - headerAdjustment}, m_max.size(), BucketCount);
+                if (!m_firstBlock.memory)
+                {
+                    m_firstBlock = std::move(blk);
+                    printf("FIRST BLOCK\n");
+                }
+                else
+                {
+                    printf("ADDING BLOCK\n");
+                    m_firstBlock.next = reinterpret_cast<MemoryChunk*>((UPtr)blk.memory.ptr - headerAdjustment);
+                    *m_firstBlock.next = std::move(blk);
+                }
+
+                // build the linked list of buckets
+                Node * p = reinterpret_cast<Node *>(blk.memory.ptr);
+                Node * first = p;
+                for (Size i = 1; i < BucketCount; ++i)
+                {
+                    UPtr ptr = reinterpret_cast<UPtr>(p) + m_max.size();
+                    p->next = reinterpret_cast<Node *>(ptr);
+                    p = p->next;
+                }
+
+                p->next = nullptr;
+
+                if (!m_freeList)
+                {
+                    printf("FRESH FREELIST\n");
+                    m_freeList = first;
+                }
+                else
+                {
+                    printf("ADD TO FREELIST\n");
+                    p->next = m_freeList;
+                    m_freeList = first;
+                }
             }
 
             ParentAllocator m_alloc;
-            struct Node { Node * next; };
-            Node * m_freeList;
-            Block m_memory;
             detail::DynamicSizeHelper<MinSize> m_min;
             detail::DynamicSizeHelper<MaxSize> m_max;
+            MemoryChunk m_firstBlock;
+            struct Node { Node * next; };
+            Node * m_freeList;
         };
     }
 }

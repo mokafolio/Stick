@@ -15,6 +15,7 @@ Stick/Allocators/FreeListAllocator.hpp
 Stick/Allocators/GlobalAllocator.hpp
 Stick/Allocators/LinearAllocator.hpp
 Stick/Allocators/Mallocator.hpp
+Stick/Allocators/MemoryChunk.hpp
 Stick/Allocators/NoAllocator.hpp
 Stick/Allocators/PoolAllocator.hpp
 Stick/Allocators/Segregator.hpp

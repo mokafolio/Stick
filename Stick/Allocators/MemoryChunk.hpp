@@ -1,0 +1,42 @@
+#ifndef STICK_ALLOCATORS_MEMORYCHUNK_HPP
+#define STICK_ALLOCATORS_MEMORYCHUNK_HPP
+
+#include <Stick/Allocators/Block.hpp>
+
+namespace stick
+{
+    namespace mem
+    {
+        struct MemoryChunk
+        {
+            inline MemoryChunk() :
+                next(nullptr)
+            {
+
+            }
+
+            inline MemoryChunk(const Block & _blk, Size _size, Size _count) :
+                next(nullptr),
+                memory(_blk)
+            {
+
+            }
+
+            MemoryChunk(const MemoryChunk & ) = default;
+            MemoryChunk(MemoryChunk &&) = default;
+            MemoryChunk & operator = (const MemoryChunk &) = default;
+            MemoryChunk & operator = (MemoryChunk &&) = default;
+
+            inline bool owns(const Block & _blk) const
+            {
+                STICK_ASSERT(memory);
+                return _blk.ptr >= memory.ptr && reinterpret_cast<UPtr>(_blk.ptr) <= reinterpret_cast<UPtr>(memory.ptr) + memory.size;
+            }
+
+            Block memory;
+            MemoryChunk * next;
+        };
+    }
+}
+
+#endif //STICK_ALLOCATORS_MEMORYCHUNK_HPP

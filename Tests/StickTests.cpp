@@ -1387,13 +1387,13 @@ const Suite spec[] =
         EXPECT(a2.ptr == nullptr);
 
         auto b = palloc.allocate(32, 4);
-        EXPECT(b.ptr == palloc.block().ptr);
+        // EXPECT(b.ptr == palloc.block().ptr);
         EXPECT(b.size == 32);
 
         palloc.deallocate(b);
 
         auto c = palloc.allocate(24, 4);
-        EXPECT(c.ptr == palloc.block().ptr);
+        // EXPECT(c.ptr == palloc.block().ptr);
         EXPECT(c.size == 24);
 
         auto d = palloc.allocate(32, 4);
@@ -1404,9 +1404,26 @@ const Suite spec[] =
         palloc.deallocate(c);
         palloc.deallocate(d);
 
+        //Just testing if this properly compiles
         mem::PoolAllocator<mem::Mallocator, mem::DynamicSizeFlag, mem::DynamicSizeFlag, 1024> palloc2;
         palloc2.setMinMax(32, 64);
         //@TODO: More!
+
+        {
+            mem::PoolAllocator<mem::Mallocator, 0, 8, 2> palloc3;
+            auto a = palloc3.allocate(4, 4);
+            EXPECT(a);
+            auto b = palloc3.allocate(4, 4);
+            EXPECT(b);
+            EXPECT(palloc3.pageCount() == 1);
+            EXPECT(palloc3.freeCount() == 0);
+            auto c = palloc3.allocate(4, 4);
+            EXPECT(c);
+            EXPECT(palloc3.pageCount() == 2);
+            EXPECT(palloc3.freeCount() == 1);
+            palloc3.deallocateAll();
+            EXPECT(palloc3.freeCount() == 4);
+        }
     },
     SUITE("FreeListAllocator Tests")
     {
@@ -1484,7 +1501,7 @@ const Suite spec[] =
         auto mem2 = bucketizer.allocate(65, 4);
         EXPECT(mem2);
         EXPECT(bucketizer.owns(mem2));
-        auto mem3 = bucketizer.allocate(80, 4);
+        auto mem3 = bucketizer.allocate(72, 4);
         EXPECT(mem3);
         EXPECT(bucketizer.owns(mem3));
         auto mem4 = bucketizer.allocate(72, 4);
@@ -1513,7 +1530,7 @@ const Suite spec[] =
         using Allocator = mem::Segregator <
                           mem::T<8>, SmallAllocator,
                           mem::T<512>, MediumAllocator,
-                          mem::Mallocator>;
+                          mem::Mallocator >;
 
         Allocator smartAllocator;
 
