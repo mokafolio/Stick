@@ -11,6 +11,12 @@ namespace stick
     {
     public:
 
+        inline DefaultCleanup() :
+        allocator(nullptr)
+        {
+
+        }
+
         inline DefaultCleanup(Allocator & _alloc) :
             allocator(&_alloc)
         {
@@ -131,9 +137,9 @@ namespace stick
     };
 
     template<class T, class...Args> 
-    inline UniquePtr<T> makeUnique(Allocator & _alloc, Args ... _args)
+    inline UniquePtr<T> makeUnique(Allocator & _alloc, Args && ... _args)
     {
-        return UniquePtr<T>(_alloc.create<T>(_args...), _alloc);
+        return UniquePtr<T>(_alloc.create<T>(std::forward<Args>(_args)...), _alloc);
     }
 }
 
