@@ -12,13 +12,27 @@ namespace stick
     public:
 
         inline DefaultCleanup() :
-        allocator(nullptr)
+            allocator(nullptr)
         {
 
         }
 
         inline DefaultCleanup(Allocator & _alloc) :
             allocator(&_alloc)
+        {
+
+        }
+
+        template<class U>
+        DefaultCleanup(const DefaultCleanup<U> & _other) :
+            allocator(_other.allocator)
+        {
+
+        }
+
+        template<class U>
+        DefaultCleanup(DefaultCleanup<U> && _other) :
+            allocator(std::move(_other.allocator))
         {
 
         }
@@ -31,15 +45,19 @@ namespace stick
         Allocator * allocator;
     };
 
-    template<class T, template<class> class C = DefaultCleanup>
+    template<class T, class C = DefaultCleanup<T>>
     class UniquePtr
     {
+
+        template<class T2, class C2>
+        friend class UniquePtr;
+
     public:
 
         typedef T ValueType;
         typedef T & ReferenceType;
         typedef T * PointerType;
-        typedef C<T> Cleanup;
+        typedef C Cleanup;
 
         inline UniquePtr() :
             m_obj(nullptr)
@@ -47,21 +65,24 @@ namespace stick
 
         }
 
-        inline UniquePtr(PointerType _ptr, Allocator & _alloc) :
+        template<class O>
+        inline UniquePtr(O * _ptr, Allocator & _alloc) :
             m_obj(_ptr),
             m_cleanup(_alloc)
         {
 
         }
 
-        inline UniquePtr(PointerType _ptr, const Cleanup & _c) :
+        template<class O>
+        inline UniquePtr(O * _ptr, const Cleanup & _c) :
             m_obj(_ptr),
             m_cleanup(_c)
         {
 
         }
 
-        inline UniquePtr(UniquePtr && _other) :
+        template<class O, class C2>
+        inline UniquePtr(UniquePtr<O, C2> && _other) :
             m_obj(std::move(_other.m_obj)),
             m_cleanup(std::move(_other.m_cleanup))
         {
@@ -136,7 +157,7 @@ namespace stick
         Cleanup m_cleanup;
     };
 
-    template<class T, class...Args> 
+    template<class T, class...Args>
     inline UniquePtr<T> makeUnique(Allocator & _alloc, Args && ... _args)
     {
         return UniquePtr<T>(_alloc.create<T>(std::forward<Args>(_args)...), _alloc);
