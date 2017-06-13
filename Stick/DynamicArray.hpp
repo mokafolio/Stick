@@ -102,7 +102,6 @@ namespace stick
 
         inline void resize(Size _s)
         {
-            printf("RESIZE\n");
             Size oldSize = m_count;
             reserve(_s);
             m_count = _s;
@@ -134,15 +133,11 @@ namespace stick
             auto c = capacity();
             if (_s > c)
             {
-                printf("RESERVE AKGLASJLGA\n");
                 STICK_ASSERT(m_allocator);
-                printf("ALLOCATION SIZE %lu ALIGN %lu\n", _s * sizeof(T), alignof(T));
                 auto blk = m_allocator->allocate(_s * sizeof(T), alignof(T));
                 STICK_ASSERT(blk);
                 T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
                 T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
-
-                printf("RESERVE 2\n");
 
                 //move the existing elements over
                 for (Size i = 0; i < m_count; ++i)
@@ -156,12 +151,8 @@ namespace stick
                     sourcePtr[i].~T();
                 }
 
-                printf("RESERVE 3\n");
-
                 if (m_data)
                     m_allocator->deallocate(m_data);
-
-                printf("RESERVE 4\n");
 
                 m_data = blk;
             }
@@ -178,7 +169,6 @@ namespace stick
             {
                 reserve(max((Size)1, m_count * 2));
             }
-            printf("APPEND\n");
             new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(_element);
         }
 
@@ -188,7 +178,6 @@ namespace stick
             {
                 reserve(max((Size)1, m_count * 2));
             }
-            printf("APPEND\n");
             new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(std::move(_element));
         }
 
@@ -298,10 +287,8 @@ namespace stick
 
         inline void deallocate()
         {
-            printf("DEALLOC DynamicArray\n");
             if (m_data)
             {
-                printf("DEALLOC 2\n");
                 //call the destructors
                 clear();
                 //and release the memory
