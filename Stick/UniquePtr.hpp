@@ -11,15 +11,18 @@ namespace stick
     {
     public:
 
-        inline DefaultCleanup()
+        inline DefaultCleanup(Allocator & _alloc) :
+            allocator(&_alloc)
         {
 
         }
 
         inline void operator() (T * _obj) const
         {
-            defaultAllocator().destroy(_obj);
+            allocator->destroy(_obj);
         }
+
+        Allocator * allocator;
     };
 
     template<class T, template<class> class C = DefaultCleanup>
@@ -38,7 +41,14 @@ namespace stick
 
         }
 
-        inline UniquePtr(PointerType _ptr, const Cleanup & _c = Cleanup()) :
+        inline UniquePtr(PointerType _ptr, Allocator & _alloc) :
+            m_obj(_ptr),
+            m_cleanup(_alloc)
+        {
+
+        }
+
+        inline UniquePtr(PointerType _ptr, const Cleanup & _c) :
             m_obj(_ptr),
             m_cleanup(_c)
         {
@@ -119,6 +129,12 @@ namespace stick
         PointerType m_obj;
         Cleanup m_cleanup;
     };
+
+    template<class T, class...Args> 
+    inline UniquePtr<T> makeUnique(Allocator & _alloc, Args ... _args)
+    {
+        return UniquePtr<T>(_alloc.create<T>(_args...), _alloc);
+    }
 }
 
 #endif //STICK_UNIQUEPTR_HPP

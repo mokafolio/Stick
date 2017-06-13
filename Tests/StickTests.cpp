@@ -396,8 +396,8 @@ const Suite spec[] =
         EXPECT(!arr[7]);
 
         DynamicArray<UniquePtr<Float32>> vv;
-        vv.append(defaultAllocator().create<Float32>(3.0));
-        vv.insert(vv.end(), defaultAllocator().create<Float32>(2.0));
+        vv.append(UniquePtr<Float32>(defaultAllocator().create<Float32>(3.0), defaultAllocator()));
+        vv.insert(vv.end(), UniquePtr<Float32>(defaultAllocator().create<Float32>(2.0), defaultAllocator()));
     },
     SUITE("Result Tests")
     {
@@ -1182,18 +1182,18 @@ const Suite spec[] =
     SUITE("UniquePtr Tests")
     {
         DestructorTester::reset();
-        UniquePtr<DestructorTester> a(defaultAllocator().create<DestructorTester>());
+        UniquePtr<DestructorTester> a = makeUnique<DestructorTester>(defaultAllocator());
         a.reset();
         EXPECT(DestructorTester::destructionCount == 1);
         {
-            UniquePtr<DestructorTester> b(defaultAllocator().create<DestructorTester>());
+            UniquePtr<DestructorTester> b = makeUnique<DestructorTester>(defaultAllocator());
         }
         EXPECT(DestructorTester::destructionCount == 2);
-        a = UniquePtr<DestructorTester>(defaultAllocator().create<DestructorTester>());
+        a = makeUnique<DestructorTester>(defaultAllocator());
         a.reset();
         EXPECT(DestructorTester::destructionCount == 3);
         {
-            UniquePtr<DestructorTester> e(defaultAllocator().create<DestructorTester>());
+            UniquePtr<DestructorTester> e(makeUnique<DestructorTester>(defaultAllocator()));
             UniquePtr<DestructorTester> d(std::move(e));
         }
         EXPECT(DestructorTester::destructionCount == 4);
@@ -1452,66 +1452,66 @@ const Suite spec[] =
     },
     SUITE("FreeListAllocator Tests")
     {
-        // mem::FreeListAllocator<mem::Mallocator, 1088> falloc;
+        mem::FreeListAllocator<mem::Mallocator, 1088> falloc;
 
-        // auto a = falloc.allocate(2048, 4);
-        // EXPECT(!a);
+        auto a = falloc.allocate(2048, 4);
+        EXPECT(!a);
 
-        // auto b = falloc.allocate(32, 4);
-        // EXPECT(b);
-        // EXPECT(b.size == 32);
-        // // EXPECT(b.ptr > falloc.block().ptr);
-        // falloc.deallocate(b);
+        auto b = falloc.allocate(32, 4);
+        EXPECT(b);
+        EXPECT(b.size == 32);
+        // EXPECT(b.ptr > falloc.block().ptr);
+        falloc.deallocate(b);
 
-        // mem::Block blocks[4];
-        // for (int i = 0; i < 4; ++i)
-        // {
-        //     blocks[i] = falloc.allocate(256, 4);
-        //     EXPECT(blocks[i]);
-        //     if (i > 0)
-        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        // }
+        mem::Block blocks[4];
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
 
-        // falloc.deallocate(blocks[1]);
-        // falloc.deallocate(blocks[3]);
-        // falloc.deallocate(blocks[0]);
-        // falloc.deallocate(blocks[2]);
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
 
-        // for (int i = 0; i < 4; ++i)
-        // {
-        //     blocks[i] = falloc.allocate(256, 4);
-        //     EXPECT(blocks[i]);
-        //     if (i > 0)
-        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        // }
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
 
-        // falloc.deallocate(blocks[1]);
-        // falloc.deallocate(blocks[3]);
-        // falloc.deallocate(blocks[0]);
-        // falloc.deallocate(blocks[2]);
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
 
-        // for (int i = 0; i < 4; ++i)
-        // {
-        //     blocks[i] = falloc.allocate(256, 4);
-        //     EXPECT(blocks[i]);
-        //     if (i > 0)
-        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        // }
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
 
-        // falloc.deallocate(blocks[0]);
-        // falloc.deallocate(blocks[2]);
-        // falloc.deallocate(blocks[1]);
-        // falloc.deallocate(blocks[3]);
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
 
-        // EXPECT(falloc.chunkCount() == 1);
+        EXPECT(falloc.chunkCount() == 1);
 
-        // for (int i = 0; i < 4; ++i)
-        // {
-        //     blocks[i] = falloc.allocate(256, 4);
-        //     EXPECT(blocks[i]);
-        //     if (i > 0)
-        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        // }
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
         {
             mem::FreeListAllocator<mem::Mallocator, 512> falloc2;
             auto a = falloc2.allocate(1024, 4);
@@ -1616,16 +1616,17 @@ const Suite spec[] =
         smartAllocator.deallocate(mediumChunk);
         smartAllocator.deallocate(largeChunk);
 
-        // CustomAllocator alloc;
-        // DynamicArray<Float32> arr(alloc);
-        // arr.append(1);
-        // arr.append(2);
-        // arr.append(3);
-        // arr.append(4);
-        // arr.append(5);
-        // arr.append(6);
+        CustomAllocator alloc;
+        DynamicArray<Float32> arr(alloc);
+        arr.append(1);
+        arr.append(2);
+        arr.append(3);
+        arr.append(4);
+        arr.append(5);
+        arr.append(6);
 
         // DynamicArray<UniquePtr<Float32>> arr2(alloc);
+        // arr2.append(alloc.create<Float32>(1));
 
         //@TODO: More!
     }
