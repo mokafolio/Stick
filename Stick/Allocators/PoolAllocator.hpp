@@ -102,14 +102,16 @@ namespace stick
 
             inline Block allocate(Size _byteCount, Size _alignment)
             {
-                if (_alignment == alignment &&
-                        _byteCount <= m_max.size() &&
+                if (_byteCount <= m_max.size() &&
                         _byteCount >= m_min.size())
                 {
                     if (!m_freeList)
                     {
                         allocateChunk();
                     }
+
+                    if(reinterpret_cast<UPtr>(m_freeList) % _alignment != 0)
+                        return {nullptr, 0};
 
                     void * ret = m_freeList;
                     m_freeList = m_freeList->next;
@@ -243,7 +245,7 @@ namespace stick
                 }
                 else
                 {
-                    m_firstBlock.next = reinterpret_cast<MemoryChunk*>((UPtr)blk.memory.ptr - headerAdjustment);
+                    m_firstBlock.next = reinterpret_cast<MemoryChunk *>((UPtr)blk.memory.ptr - headerAdjustment);
                     *m_firstBlock.next = std::move(blk);
                 }
 
