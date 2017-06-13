@@ -218,7 +218,6 @@ namespace stick
                 auto * p = &m_firstBlock;
                 while (p)
                 {
-                    printf("COUNTING BRO\n");
                     p = p->next;
                     ret++;
                 }

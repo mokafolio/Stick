@@ -136,10 +136,8 @@ namespace stick
 
             inline void deallocate(const Block & _blk)
             {
-                printf("DEALLOC\n");
                 STICK_ASSERT(m_firstBlock.memory);
                 STICK_ASSERT(owns(_blk));
-                printf("DEALLOC 2\n");
                 auto p = reinterpret_cast<Node *>(_blk.ptr);
                 p->next = m_freeList;
                 m_freeList = p;

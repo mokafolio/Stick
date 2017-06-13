@@ -21,9 +21,7 @@ namespace stick
             {
                 for (Size i = 0; i < bucketCount; ++i)
                 {
-                    printf("MIN %lu MAX %lu\n", MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
                     m_allocators[i].setMinMax(MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
-                    printf("DEAD?\n");
                 }
             }
 
@@ -45,10 +43,8 @@ namespace stick
 
             inline void deallocate(const Block & _blk)
             {
-                printf("A\n");
                 STICK_ASSERT(owns(_blk));
                 findAllocator(_blk.size)->deallocate(_blk);
-                printf("B\n");
             }
 
         private:
@@ -58,11 +54,8 @@ namespace stick
                 if (_s >= MinSize && _s <= MaxSize)
                 {
                     auto idx = (_s - MinSize) / StepSize;
-                    printf("FOUND IIIT %lu %lu\n", _s, idx);
-                    printf("SIZES %lu %lu %lu\n", m_allocators[idx].min(), m_allocators[idx].max(), bucketCount);
                     return &m_allocators[idx];
                 }
-                printf("FUUUCK\n");
                 return nullptr;
             }
 
