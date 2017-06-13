@@ -82,8 +82,9 @@ namespace stick
                     MemoryChunk * pb = &m_firstBlock;
                     while (pb)
                     {
+                        MemoryChunk * tmp = pb->next;
                         m_alloc.deallocate({(void *)((UPtr)pb->memory.ptr - headerAdjustment), pb->memory.size + headerAdjustment});
-                        pb = pb->next;
+                        pb = tmp;
                     }
                 }
             }

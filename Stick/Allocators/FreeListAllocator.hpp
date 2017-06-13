@@ -38,9 +38,9 @@ namespace stick
                     MemoryChunk * pb = &m_firstBlock;
                     while (pb)
                     {
-                        printf("DEALLOC\n");
+                        MemoryChunk * tmp = pb->next;
                         m_alloc.deallocate({(void *)((UPtr)pb->memory.ptr - headerAdjustment), pb->memory.size + headerAdjustment});
-                        pb = pb->next;
+                        pb = tmp;
                     }
                 }
             }
@@ -218,6 +218,7 @@ namespace stick
                 auto * p = &m_firstBlock;
                 while (p)
                 {
+                    printf("COUNTING BRO\n");
                     p = p->next;
                     ret++;
                 }

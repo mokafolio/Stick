@@ -1452,66 +1452,66 @@ const Suite spec[] =
     },
     SUITE("FreeListAllocator Tests")
     {
-        mem::FreeListAllocator<mem::Mallocator, 1088> falloc;
+        // mem::FreeListAllocator<mem::Mallocator, 1088> falloc;
 
-        auto a = falloc.allocate(2048, 4);
-        EXPECT(!a);
+        // auto a = falloc.allocate(2048, 4);
+        // EXPECT(!a);
 
-        auto b = falloc.allocate(32, 4);
-        EXPECT(b);
-        EXPECT(b.size == 32);
-        // EXPECT(b.ptr > falloc.block().ptr);
-        falloc.deallocate(b);
+        // auto b = falloc.allocate(32, 4);
+        // EXPECT(b);
+        // EXPECT(b.size == 32);
+        // // EXPECT(b.ptr > falloc.block().ptr);
+        // falloc.deallocate(b);
 
-        mem::Block blocks[4];
-        for (int i = 0; i < 4; ++i)
-        {
-            blocks[i] = falloc.allocate(256, 4);
-            EXPECT(blocks[i]);
-            if (i > 0)
-                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        }
+        // mem::Block blocks[4];
+        // for (int i = 0; i < 4; ++i)
+        // {
+        //     blocks[i] = falloc.allocate(256, 4);
+        //     EXPECT(blocks[i]);
+        //     if (i > 0)
+        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        // }
 
-        falloc.deallocate(blocks[1]);
-        falloc.deallocate(blocks[3]);
-        falloc.deallocate(blocks[0]);
-        falloc.deallocate(blocks[2]);
+        // falloc.deallocate(blocks[1]);
+        // falloc.deallocate(blocks[3]);
+        // falloc.deallocate(blocks[0]);
+        // falloc.deallocate(blocks[2]);
 
-        for (int i = 0; i < 4; ++i)
-        {
-            blocks[i] = falloc.allocate(256, 4);
-            EXPECT(blocks[i]);
-            if (i > 0)
-                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        }
+        // for (int i = 0; i < 4; ++i)
+        // {
+        //     blocks[i] = falloc.allocate(256, 4);
+        //     EXPECT(blocks[i]);
+        //     if (i > 0)
+        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        // }
 
-        falloc.deallocate(blocks[1]);
-        falloc.deallocate(blocks[3]);
-        falloc.deallocate(blocks[0]);
-        falloc.deallocate(blocks[2]);
+        // falloc.deallocate(blocks[1]);
+        // falloc.deallocate(blocks[3]);
+        // falloc.deallocate(blocks[0]);
+        // falloc.deallocate(blocks[2]);
 
-        for (int i = 0; i < 4; ++i)
-        {
-            blocks[i] = falloc.allocate(256, 4);
-            EXPECT(blocks[i]);
-            if (i > 0)
-                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        }
+        // for (int i = 0; i < 4; ++i)
+        // {
+        //     blocks[i] = falloc.allocate(256, 4);
+        //     EXPECT(blocks[i]);
+        //     if (i > 0)
+        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        // }
 
-        falloc.deallocate(blocks[0]);
-        falloc.deallocate(blocks[2]);
-        falloc.deallocate(blocks[1]);
-        falloc.deallocate(blocks[3]);
+        // falloc.deallocate(blocks[0]);
+        // falloc.deallocate(blocks[2]);
+        // falloc.deallocate(blocks[1]);
+        // falloc.deallocate(blocks[3]);
 
-        EXPECT(falloc.chunkCount() == 1);
+        // EXPECT(falloc.chunkCount() == 1);
 
-        for (int i = 0; i < 4; ++i)
-        {
-            blocks[i] = falloc.allocate(256, 4);
-            EXPECT(blocks[i]);
-            if (i > 0)
-                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
-        }
+        // for (int i = 0; i < 4; ++i)
+        // {
+        //     blocks[i] = falloc.allocate(256, 4);
+        //     EXPECT(blocks[i]);
+        //     if (i > 0)
+        //         EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        // }
         {
             mem::FreeListAllocator<mem::Mallocator, 512> falloc2;
             auto a = falloc2.allocate(1024, 4);
@@ -1532,20 +1532,20 @@ const Suite spec[] =
             EXPECT(falloc2.chunkCount() == 2);
             EXPECT(d);
 
-            falloc2.deallocateAll();
-            EXPECT(falloc2.freeCount() == 2);
-            EXPECT(falloc2.chunkCount() == 2);
+            // falloc2.deallocateAll();
+            // EXPECT(falloc2.freeCount() == 2);
+            // EXPECT(falloc2.chunkCount() == 2);
 
-            auto b2 = falloc2.allocate(256, 4);
-            EXPECT(b2);
+            // auto b2 = falloc2.allocate(256, 4);
+            // EXPECT(b2);
 
-            auto c2 = falloc2.allocate(128, 4);
-            EXPECT(c2);
+            // auto c2 = falloc2.allocate(128, 4);
+            // EXPECT(c2);
 
-            auto d2 = falloc2.allocate(128, 4);
-            EXPECT(falloc2.freeCount() == 2);
-            EXPECT(falloc2.chunkCount() == 2);
-            EXPECT(d2);
+            // auto d2 = falloc2.allocate(128, 4);
+            // EXPECT(falloc2.freeCount() == 2);
+            // EXPECT(falloc2.chunkCount() == 2);
+            // EXPECT(d2);
         }
         //@TODO: More!
     },
@@ -1616,14 +1616,16 @@ const Suite spec[] =
         smartAllocator.deallocate(mediumChunk);
         smartAllocator.deallocate(largeChunk);
 
-        CustomAllocator alloc;
-        DynamicArray<Float32> arr(alloc);
-        arr.append(1);
-        arr.append(2);
-        arr.append(3);
-        arr.append(4);
-        arr.append(5);
-        arr.append(6);
+        // CustomAllocator alloc;
+        // DynamicArray<Float32> arr(alloc);
+        // arr.append(1);
+        // arr.append(2);
+        // arr.append(3);
+        // arr.append(4);
+        // arr.append(5);
+        // arr.append(6);
+
+        // DynamicArray<UniquePtr<Float32>> arr2(alloc);
 
         //@TODO: More!
     }
