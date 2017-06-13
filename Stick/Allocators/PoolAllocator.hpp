@@ -74,7 +74,6 @@ namespace stick
 
             inline ~PoolAllocator()
             {
-                printf("I AM DEAD\n");
                 // iterate over all allocater blocks and deallocate them
                 if (m_firstBlock.memory)
                 {
@@ -134,7 +133,10 @@ namespace stick
 
             inline void deallocate(const Block & _blk)
             {
+                printf("DEALLOC\n");
+                STICK_ASSERT(m_firstBlock.memory);
                 STICK_ASSERT(owns(_blk));
+                printf("DEALLOC 2\n");
                 auto p = reinterpret_cast<Node *>(_blk.ptr);
                 p->next = m_freeList;
                 m_freeList = p;
@@ -229,7 +231,6 @@ namespace stick
 
             void allocateChunk()
             {
-                printf("ADD PAGE\n");
                 static constexpr Size headerSize = sizeof(MemoryChunk);
                 static constexpr Size headerAdjustment = headerSize % alignment == 0 ? headerSize : headerSize + headerSize + alignment - headerSize % alignment;
 
@@ -239,11 +240,9 @@ namespace stick
                 if (!m_firstBlock.memory)
                 {
                     m_firstBlock = std::move(blk);
-                    printf("FIRST BLOCK\n");
                 }
                 else
                 {
-                    printf("ADDING BLOCK\n");
                     m_firstBlock.next = reinterpret_cast<MemoryChunk*>((UPtr)blk.memory.ptr - headerAdjustment);
                     *m_firstBlock.next = std::move(blk);
                 }
@@ -264,12 +263,10 @@ namespace stick
                 // as we only call this function when we are out of free buckets. Safety first for now though i guess.
                 if (!m_freeList)
                 {
-                    printf("FRESH FREELIST\n");
                     m_freeList = first;
                 }
                 else
                 {
-                    printf("ADD TO FREELIST\n");
                     p->next = m_freeList;
                     m_freeList = first;
                 }

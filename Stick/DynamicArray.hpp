@@ -154,7 +154,9 @@ namespace stick
                     sourcePtr[i].~T();
                 }
 
-                m_allocator->deallocate(m_data);
+                if(m_data)
+                    m_allocator->deallocate(m_data);
+                
                 m_data = blk;
             }
         }
@@ -288,8 +290,10 @@ namespace stick
 
         inline void deallocate()
         {
+            printf("DEALLOC\n");
             if (m_data.ptr)
             {
+                printf("DEALLOC 2\n");
                 //call the destructors
                 clear();
                 //and release the memory

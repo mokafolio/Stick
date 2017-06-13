@@ -19,7 +19,7 @@ namespace stick
                 next(nullptr),
                 memory(_blk)
             {
-
+                STICK_ASSERT(memory);
             }
 
             MemoryChunk(const MemoryChunk & ) = default;

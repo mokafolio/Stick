@@ -84,6 +84,31 @@ struct DestructorTester
 
 int DestructorTester::destructionCount = 0;
 
+
+struct CustomAllocator : public Allocator
+{
+    using BucketizerPoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 256>;
+    using SmallAllocator = mem::PoolAllocator<mem::Mallocator, 0, 8, 1024>;
+    using MediumAllocator = mem::Bucketizer<BucketizerPoolType, 9, 512, 32>;
+
+    using Allocator = mem::Segregator <
+                      mem::T<8>, SmallAllocator,
+                      mem::T<512>, MediumAllocator,
+                      mem::Mallocator >;
+
+    inline mem::Block allocate(Size _byteCount, Size _alignment) override
+    {
+        return m_alloc.allocate(_byteCount, _alignment);
+    }
+
+    inline void deallocate(const mem::Block & _block) override
+    {
+        m_alloc.deallocate(_block);
+    }
+
+    Allocator m_alloc;
+};
+
 struct NoMove
 {
     NoMove()
@@ -1590,6 +1615,15 @@ const Suite spec[] =
         smartAllocator.deallocate(tinyChunk);
         smartAllocator.deallocate(mediumChunk);
         smartAllocator.deallocate(largeChunk);
+
+        CustomAllocator alloc;
+        DynamicArray<Float32> arr(alloc);
+        arr.append(1);
+        arr.append(2);
+        arr.append(3);
+        arr.append(4);
+        arr.append(5);
+        arr.append(6);
 
         //@TODO: More!
     }

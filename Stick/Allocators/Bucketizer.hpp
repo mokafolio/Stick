@@ -23,11 +23,13 @@ namespace stick
                 {
                     printf("MIN %lu MAX %lu\n", MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
                     m_allocators[i].setMinMax(MinSize + i * StepSize, MinSize + (i + 1) * StepSize - 1);
+                    printf("DEAD?\n");
                 }
             }
 
             inline bool owns(const Block & _blk) const
             {
+                //TODO: Forward to the actual buckets?
                 return _blk.size >= MinSize && _blk.size <= MaxSize;
             }
 
