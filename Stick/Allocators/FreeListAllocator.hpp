@@ -113,7 +113,6 @@ namespace stick
                 const MemoryChunk * pb = &m_firstBlock;
                 while (pb)
                 {
-                    printf("CHECK DA OWNASHIP %lu %lu\n", _blk.ptr, _blk.size);
                     auto ret = pb->owns(_blk);
                     if (ret) return ret;
                     pb = pb->next;
@@ -156,6 +155,7 @@ namespace stick
                 //adjacent block that we can seamlessly merge with the previous one
                 else if (reinterpret_cast<UPtr>(prevBlock) + prevBlock->size == blockStart)
                 {
+                    STICK_ASSERT(chunk({prevBlock, prevBlock->size}) == chunk({(void*)blockStart, blockSize}));
                     prevBlock->size += blockSize;
                 }
                 //append to previous block
@@ -173,6 +173,8 @@ namespace stick
 
                 if (currentBlock != nullptr && reinterpret_cast<UPtr>(currentBlock) == blockEnd)
                 {
+                    STICK_ASSERT(chunk({prevBlock, prevBlock->size}) == chunk({currentBlock, currentBlock->size}));
+
                     prevBlock->size += currentBlock->size;
                     prevBlock->next = currentBlock->next;
                 }
@@ -238,7 +240,6 @@ namespace stick
                 Block mem = m_alloc.allocate(size, alignment);
                 MemoryChunk blk({(void *)((UPtr)mem.ptr + headerAdjustment), mem.size - headerAdjustment});
 
-                printf("ALLOCATE NEW CHUNK\n");
                 if (!m_firstBlock.memory)
                 {
                     m_firstBlock = std::move(blk);
@@ -259,9 +260,14 @@ namespace stick
                 else
                 {
                     FreeBlock * fblk = reinterpret_cast<FreeBlock *>(blk.memory.ptr);
+                    FreeBlock * last = m_freeList;
+                    while(last->next)
+                    {
+                        last = last->next;
+                    }
                     fblk->size = blk.memory.size;
-                    fblk->next = m_freeList;
-                    m_freeList = fblk;
+                    fblk->next = nullptr;
+                    last->next = fblk;
                 }
             }
 

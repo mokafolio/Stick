@@ -1578,16 +1578,12 @@ const Suite spec[] =
             {
                 EXPECT(falloc2.owns(blocks[i]));
             }
+            EXPECT(falloc2.chunkCount() == 3);
 
-            printf("falloc2 chunk count %lu\n", falloc2.chunkCount());
             falloc2.deallocate(blocks[1]);
-            printf("askfjh 2\n");
             falloc2.deallocate(blocks[3]);
-            printf("askfjh 3\n");
             falloc2.deallocate(blocks[0]);
-            printf("askfjh 4\n");
             falloc2.deallocate(blocks[2]);
-            printf("askfjh 5\n");
         }
         //@TODO: More!
     },
