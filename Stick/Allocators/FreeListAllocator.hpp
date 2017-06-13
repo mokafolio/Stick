@@ -51,7 +51,7 @@ namespace stick
 
                 if (_byteCount + sizeof(AllocationHeader) > S)
                 {
-                    return {nullptr, 0};
+                    return Block();
                 }
 
                 FreeBlock * prevBlock = nullptr;
@@ -93,6 +93,8 @@ namespace stick
                         header->size = totalSize;
                         header->adjustment = adjustment;
 
+                        STICK_ASSERT(owns({reinterpret_cast<void *>(alignedAddr), _byteCount}));
+
                         return {reinterpret_cast<void *>(alignedAddr), _byteCount};
                     }
                     else
@@ -111,6 +113,7 @@ namespace stick
                 const MemoryChunk * pb = &m_firstBlock;
                 while (pb)
                 {
+                    printf("CHECK DA OWNASHIP %lu %lu\n", _blk.ptr, _blk.size);
                     auto ret = pb->owns(_blk);
                     if (ret) return ret;
                     pb = pb->next;
@@ -235,14 +238,16 @@ namespace stick
                 Block mem = m_alloc.allocate(size, alignment);
                 MemoryChunk blk({(void *)((UPtr)mem.ptr + headerAdjustment), mem.size - headerAdjustment});
 
+                printf("ALLOCATE NEW CHUNK\n");
                 if (!m_firstBlock.memory)
                 {
                     m_firstBlock = std::move(blk);
                 }
                 else
                 {
-                    m_firstBlock.next = reinterpret_cast<MemoryChunk *>((UPtr)blk.memory.ptr - headerAdjustment);
-                    *m_firstBlock.next = std::move(blk);
+                    MemoryChunk * last = m_firstBlock.lastChunk();
+                    last->next = reinterpret_cast<MemoryChunk *>((UPtr)blk.memory.ptr - headerAdjustment);
+                    *last->next = std::move(blk);
                 }
 
                 if (!m_freeList)

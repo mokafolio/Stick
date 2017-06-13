@@ -1472,17 +1472,9 @@ const Suite spec[] =
                 EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
         }
 
-        falloc.deallocate(blocks[1]);
-        falloc.deallocate(blocks[3]);
-        falloc.deallocate(blocks[0]);
-        falloc.deallocate(blocks[2]);
-
         for (int i = 0; i < 4; ++i)
         {
-            blocks[i] = falloc.allocate(256, 4);
-            EXPECT(blocks[i]);
-            if (i > 0)
-                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+            EXPECT(falloc.owns(blocks[i]));
         }
 
         falloc.deallocate(blocks[1]);
@@ -1496,6 +1488,29 @@ const Suite spec[] =
             EXPECT(blocks[i]);
             if (i > 0)
                 EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
+
+        for (int i = 0; i < 4; ++i)
+        {
+            EXPECT(falloc.owns(blocks[i]));
+        }
+
+        falloc.deallocate(blocks[1]);
+        falloc.deallocate(blocks[3]);
+        falloc.deallocate(blocks[0]);
+        falloc.deallocate(blocks[2]);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            blocks[i] = falloc.allocate(256, 4);
+            EXPECT(blocks[i]);
+            if (i > 0)
+                EXPECT(blocks[i].ptr > blocks[i - 1].ptr);
+        }
+
+        for (int i = 0; i < 4; ++i)
+        {
+            EXPECT(falloc.owns(blocks[i]));
         }
 
         falloc.deallocate(blocks[0]);
@@ -1521,31 +1536,58 @@ const Suite spec[] =
             EXPECT(falloc2.freeCount() == 1);
             EXPECT(falloc2.chunkCount() == 1);
             EXPECT(b);
+            EXPECT(falloc2.owns(b));
 
             auto c = falloc2.allocate(128, 4);
             EXPECT(falloc2.freeCount() == 1);
             EXPECT(falloc2.chunkCount() == 1);
             EXPECT(c);
+            EXPECT(falloc2.owns(c));
 
             auto d = falloc2.allocate(128, 4);
             EXPECT(falloc2.freeCount() == 2);
             EXPECT(falloc2.chunkCount() == 2);
             EXPECT(d);
+            EXPECT(falloc2.owns(d));
 
-            // falloc2.deallocateAll();
-            // EXPECT(falloc2.freeCount() == 2);
-            // EXPECT(falloc2.chunkCount() == 2);
+            falloc2.deallocateAll();
+            EXPECT(falloc2.freeCount() == 2);
+            EXPECT(falloc2.chunkCount() == 2);
 
-            // auto b2 = falloc2.allocate(256, 4);
-            // EXPECT(b2);
+            auto b2 = falloc2.allocate(256, 4);
+            EXPECT(b2);
+            EXPECT(falloc2.owns(b2));
 
-            // auto c2 = falloc2.allocate(128, 4);
-            // EXPECT(c2);
+            auto c2 = falloc2.allocate(128, 4);
+            EXPECT(c2);
+            EXPECT(falloc2.owns(c2));
 
-            // auto d2 = falloc2.allocate(128, 4);
-            // EXPECT(falloc2.freeCount() == 2);
-            // EXPECT(falloc2.chunkCount() == 2);
-            // EXPECT(d2);
+            auto d2 = falloc2.allocate(128, 4);
+            EXPECT(falloc2.freeCount() == 2);
+            EXPECT(falloc2.chunkCount() == 2);
+            EXPECT(d2);
+            EXPECT(falloc2.owns(d2));
+
+            mem::Block blocks[4];
+            for (int i = 0; i < 4; ++i)
+            {
+                blocks[i] = falloc2.allocate(128, 4);
+                EXPECT(blocks[i]);
+            }
+            for (int i = 0; i < 4; ++i)
+            {
+                EXPECT(falloc2.owns(blocks[i]));
+            }
+
+            printf("falloc2 chunk count %lu\n", falloc2.chunkCount());
+            falloc2.deallocate(blocks[1]);
+            printf("askfjh 2\n");
+            falloc2.deallocate(blocks[3]);
+            printf("askfjh 3\n");
+            falloc2.deallocate(blocks[0]);
+            printf("askfjh 4\n");
+            falloc2.deallocate(blocks[2]);
+            printf("askfjh 5\n");
         }
         //@TODO: More!
     },

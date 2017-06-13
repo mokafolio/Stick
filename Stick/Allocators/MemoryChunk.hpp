@@ -30,7 +30,18 @@ namespace stick
             inline bool owns(const Block & _blk) const
             {
                 STICK_ASSERT(memory);
+                printf("%lu %lu\n", memory.ptr, memory.end());
                 return _blk.ptr >= memory.ptr && reinterpret_cast<UPtr>(_blk.ptr) <= reinterpret_cast<UPtr>(memory.ptr) + memory.size;
+            }
+
+            inline MemoryChunk * lastChunk()
+            {
+                MemoryChunk * ret = this;
+                while(ret->next)
+                {
+                    ret = ret->next;
+                }
+                return ret;
             }
 
             Block memory;

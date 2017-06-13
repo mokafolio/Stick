@@ -111,7 +111,7 @@ namespace stick
                         allocateChunk();
                     }
 
-                    if(reinterpret_cast<UPtr>(m_freeList) % _alignment != 0)
+                    if (reinterpret_cast<UPtr>(m_freeList) % _alignment != 0)
                         return {nullptr, 0};
 
                     void * ret = m_freeList;
@@ -244,8 +244,9 @@ namespace stick
                 }
                 else
                 {
-                    m_firstBlock.next = reinterpret_cast<MemoryChunk *>((UPtr)blk.memory.ptr - headerAdjustment);
-                    *m_firstBlock.next = std::move(blk);
+                    MemoryChunk * last = m_firstBlock.lastChunk();
+                    last->next = reinterpret_cast<MemoryChunk *>((UPtr)blk.memory.ptr - headerAdjustment);
+                    *last->next = std::move(blk);
                 }
 
                 // build the linked list of buckets
