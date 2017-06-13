@@ -156,7 +156,7 @@ namespace stick
 
                 if(m_data)
                     m_allocator->deallocate(m_data);
-                
+
                 m_data = blk;
             }
         }
@@ -291,7 +291,7 @@ namespace stick
         inline void deallocate()
         {
             printf("DEALLOC\n");
-            if (m_data.ptr)
+            if (m_data)
             {
                 printf("DEALLOC 2\n");
                 //call the destructors
