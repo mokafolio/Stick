@@ -162,6 +162,12 @@ namespace stick
     {
         return UniquePtr<T>(_alloc.create<T>(std::forward<Args>(_args)...), _alloc);
     }
+
+    template<class T, class...Args>
+    inline UniquePtr<T> makeUnique(Args && ... _args)
+    {
+        return UniquePtr<T>(defaultAllocator().create<T>(std::forward<Args>(_args)...), defaultAllocator());
+    }
 }
 
 #endif //STICK_UNIQUEPTR_HPP

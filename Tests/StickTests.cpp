@@ -20,6 +20,7 @@
 #include <Stick/Variant.hpp>
 
 #include <Stick/Allocators/LinearAllocator.hpp>
+#include <Stick/Allocators/GlobalAllocator.hpp>
 #include <Stick/Allocators/Mallocator.hpp>
 #include <Stick/Allocators/PoolAllocator.hpp>
 #include <Stick/Allocators/FallbackAllocator.hpp>
@@ -1667,6 +1668,88 @@ const Suite spec[] =
         // arr2.append(alloc.create<Float32>(1));
 
         //@TODO: More!
+    },
+    SUITE("Allocator Performance")
+    {
+        using MainAllocator = mem::GlobalAllocator <
+                              mem::Mallocator
+                              >;
+
+        // using MainAllocator = mem::Mallocator;
+
+        // using MainAllocator = stick::mem::GlobalAllocator<mem::FallbackAllocator<stick::mem::FreeListAllocator<stick::mem::Mallocator, 81920000>, mem::Mallocator>>;
+
+        using Palloc = mem::PoolAllocator<MainAllocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 1024>;
+        using SmallAllocator = mem::PoolAllocator<MainAllocator, 0, 8, 1024>;
+
+        using SomeAllocator = mem::Segregator <
+                              mem::T<8>, SmallAllocator,
+                              mem::T<128>, mem::Bucketizer<Palloc, 1, 128, 16>,
+                              mem::T<256>, mem::Bucketizer<Palloc, 129, 256, 32>,
+                              mem::T<512>, mem::Bucketizer<Palloc, 257, 512, 64>,
+                              mem::T<1024>, mem::Bucketizer<Palloc, 513, 1024, 128>,
+                              mem::T<2048>, mem::Bucketizer<Palloc, 1025, 2048, 256>,
+                              mem::T<4096>, mem::Bucketizer<Palloc, 2049, 4096, 512>,
+                              mem::Mallocator >;
+
+        SomeAllocator alloc;
+        SystemClock clock;
+        mem::Block blocks[1000];
+        auto start = clock.now();
+        for (int j = 0; j < 1000; j++)
+        {
+            for (int i = 0; i < 1000; ++i)
+            {
+                blocks[i] = alloc.allocate(32, 4);
+            }
+
+            for (int i = 0; i < 500; ++i)
+            {
+                alloc.deallocate(blocks[i]);
+            }
+
+            for (int i = 0; i < 500; ++i)
+            {
+                blocks[i] = alloc.allocate(i, 4);
+            }
+
+            for (int i = 0; i < 1000; ++i)
+            {
+                alloc.deallocate(blocks[i]);
+            }
+
+            // alloc.deallocateAll();
+        }
+
+        auto duration = clock.now() - start;
+        printf("MS: %f\n", duration.milliseconds());
+
+        mem::Mallocator alloc2;
+        auto start2 = clock.now();
+        for (int j = 0; j < 1000; j++)
+        {
+            for (int i = 0; i < 1000; ++i)
+            {
+                blocks[i] = alloc2.allocate(32, 4);
+            }
+
+            for (int i = 0; i < 500; ++i)
+            {
+                alloc2.deallocate(blocks[i]);
+            }
+
+            for (int i = 0; i < 500; ++i)
+            {
+                blocks[i] = alloc2.allocate(1024, 4);
+            }
+
+            for (int i = 0; i < 1000; ++i)
+            {
+                alloc2.deallocate(blocks[i]);
+            }
+        }
+        auto duration2 = clock.now() - start2;
+        printf("MS: %f\n", duration2.milliseconds());
     }
 };
 

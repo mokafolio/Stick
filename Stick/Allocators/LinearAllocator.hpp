@@ -7,7 +7,7 @@
 namespace stick
 {
     namespace mem
-    {   
+    {
         template<class Alloc, Size S>
         class STICK_API LinearAllocator
         {
@@ -34,13 +34,12 @@ namespace stick
                 STICK_ASSERT(_byteCount > 0);
 
                 Size adjustment = alignmentAdjustment(m_position, _alignment);
-                Size totalSize = adjustment + _byteCount;
 
-                if(m_memory.end() - reinterpret_cast<UPtr>(m_position) < totalSize)
+                if (m_memory.size - ((UPtr)m_position - (UPtr)m_memory.ptr) < adjustment + _byteCount)
                     return {nullptr, 0};
 
-                void * alignedAddr = reinterpret_cast<void*>(reinterpret_cast<UPtr>(m_position) + adjustment);
-                m_position = reinterpret_cast<void*>(reinterpret_cast<UPtr>(alignedAddr) + _byteCount);
+                void * alignedAddr = reinterpret_cast<void *>(reinterpret_cast<UPtr>(m_position) + adjustment);
+                m_position = reinterpret_cast<void *>(reinterpret_cast<UPtr>(alignedAddr) + _byteCount);
                 return {alignedAddr, _byteCount};
             }
 
@@ -53,8 +52,8 @@ namespace stick
             inline void deallocate(const Block & _blk)
             {
                 // if this is the last element we allocated, we can deallocate it
-                void * tmp = m_position - _blk.size;
-                if(tmp == _blk.ptr)
+                void * tmp = reinterpret_cast<void *>(reinterpret_cast<UPtr>(m_position) - _blk.size);
+                if (tmp == _blk.ptr)
                     m_position = tmp;
 
                 //... otherwise we can't :(
@@ -70,7 +69,7 @@ namespace stick
                 return m_memory;
             }
 
-            void * currentPosition() const
+            inline void * currentPosition() const
             {
                 return m_position;
             }
