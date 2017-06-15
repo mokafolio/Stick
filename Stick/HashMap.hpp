@@ -608,6 +608,11 @@ namespace stick
             return ConstIter();
         }
 
+        Allocator & allocator() const
+        {
+            return *m_alloc;
+        }
+
     private:
 
         inline Node * createNode(KeyValuePair && _pair)
