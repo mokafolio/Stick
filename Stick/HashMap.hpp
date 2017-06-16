@@ -75,13 +75,17 @@ namespace stick
         struct Node
         {
             Node() :
-                next(nullptr)
+                prev(nullptr),
+                next(nullptr),
+                bucketIndex(-1)
             {
 
             }
 
             KeyValuePair kv;
+            Node * prev;
             Node * next;
+            Size bucketIndex;
         };
 
         struct Bucket
@@ -109,6 +113,15 @@ namespace stick
                 map(nullptr),
                 bucketIndex(0),
                 node(nullptr)
+            {
+
+            }
+
+            template<class B>
+            IterT(const IterT<B> & _other) :
+                map(_other.map),
+                bucketIndex(_other.bucketIndex),
+                node(_other.node)
             {
 
             }
@@ -189,8 +202,6 @@ namespace stick
             {
                 return &node->kv;
             }
-
-        private:
 
             T * map;
             Size bucketIndex;
@@ -341,7 +352,7 @@ namespace stick
 
             //check if the key allready exists
             Node * n, *prev;
-            findHelper(b, _val.key, n, prev);
+            findHelper(bi, _val.key, n, prev);
 
             //the key allready exists, change the value
             if (n)
@@ -352,9 +363,12 @@ namespace stick
             else
             {
                 //otherwise create the node n stuff
-                n = createNode({_val.key, _val.value});
+                n = createNode({_val.key, _val.value}, bi);
                 if (prev)
+                {
+                    n->prev = prev;
                     prev->next = n;
+                }
                 else
                     b.first = n;
                 ++m_count;
@@ -375,23 +389,29 @@ namespace stick
             Bucket & b = m_buckets[bi];
 
             //check if the key allready exists
-            Node * n, *prev;
-            findHelper(b, _val.key, n, prev);
+            Node * n, * prev;
+            findHelper(bi, _val.key, n, prev);
 
             //the key allready exists, change the value
             if (n)
             {
+                STICK_ASSERT(prev == n->prev);
                 n->kv.value = std::move(_val.value);
                 return {Iter(*this, bi, n), false};
             }
             else
             {
                 //otherwise create the node n stuff
-                n = createNode({_val.key, std::move(_val.value)});
+                n = createNode({_val.key, std::move(_val.value)}, bi);
                 if (prev)
+                {
+                    n->prev = prev;
                     prev->next = n;
+                }
                 else
+                {
                     b.first = n;
+                }
                 ++m_count;
             }
 
@@ -422,9 +442,8 @@ namespace stick
         inline Iter find(const KeyType & _key)
         {
             Size bi = bucketIndex(_key);
-            Bucket & b = m_buckets[bi];
-            Node * n, *prev;
-            findHelper(b, _key, n, prev);
+            Node * n, * prev;
+            findHelper(bi, _key, n, prev);
             if (!n)
                 return end();
             else
@@ -434,9 +453,8 @@ namespace stick
         inline ConstIter find(const KeyType & _key) const
         {
             Size bi = bucketIndex(_key);
-            Bucket & b = m_buckets[bi];
-            Node * n, *prev;
-            findHelper(b, _key, n, prev);
+            Node * n, * prev;
+            findHelper(bi, _key, n, prev);
             if (!n)
                 return end();
             else
@@ -459,31 +477,38 @@ namespace stick
 
         inline Iter remove(const KeyType & _key)
         {
-            Size bi = bucketIndex(_key);
-            Bucket & b = m_buckets[bi];
-            Node * n, *prev;
-            findHelper(b, _key, n, prev);
+            auto it = find(_key);
+            return remove(it);
+        }
 
-            if (!n)
-                return end();
+        inline Iter remove(ConstIter _it)
+        {
+            if (!_it.node)
+                return Iter();
+
+            Bucket & b = m_buckets[_it.bucketIndex];
 
             Iter ret;
-            if (n->next)
-                ret = Iter(*this, bi, n->next);
+            if (_it.node->next)
+            {
+                ret = Iter(*this, _it.node->next->bucketIndex, _it.node->next);
+            }
             else
                 ret = end();
 
-            if (!prev)
+            if (!_it.node->prev)
             {
-                b.first = n->next;
+                b.first = _it.node->next;
             }
             else
             {
-                prev->next = n->next;
+                _it.node->prev->next = _it.node->next;
             }
+            _it.node->next->prev = _it.node->prev;
 
-            destroyNode(n);
+            destroyNode(_it.node);
             --m_count;
+
             return ret;
         }
 
@@ -521,6 +546,7 @@ namespace stick
                     if (!newBuckets[bucketIndex].first)
                     {
                         newBuckets[bucketIndex].first = n;
+                        n->prev = nullptr;
                     }
                     else
                     {
@@ -528,6 +554,7 @@ namespace stick
                         while (n2->next)
                             n2 = n2->next;
                         n2->next = n;
+                        n->prev = n2;
                     }
                     n->next = nullptr;
                     n = nextn;
@@ -615,9 +642,10 @@ namespace stick
 
     private:
 
-        inline Node * createNode(KeyValuePair && _pair)
+        inline Node * createNode(KeyValuePair && _pair, Size _bucketIndex)
         {
             auto ret = m_alloc->create<Node>();
+            ret->bucketIndex = _bucketIndex;
             ret->kv = std::move(_pair);
             return ret;
         }
@@ -632,21 +660,26 @@ namespace stick
             return m_hasher(_key) % bucketCount();
         }
 
-        inline void findHelper(Bucket & _bucket, const KeyType & _key, Node *& _outNode, Node *& _prev) const
+        inline void findHelper(Size _bucketIdx, const KeyType & _key, Node *& _outNode, Node *& _prev) const
         {
+            printf("FIND HELPER\n");
+            Bucket & b = m_buckets[_bucketIdx];
             _outNode = nullptr;
-            Node * n = _bucket.first;
             _prev = nullptr;
+            Node * n = b.first;
 
             while (n)
             {
+                printf("FIND HELPER LOOOP\n");
                 if (_key == n->kv.key)
                 {
                     _outNode = n;
+                    STICK_ASSERT(n->prev == _prev);
                     return;
                 }
                 _prev = n;
                 n = n->next;
+                printf("FIND HELPER LOOOP END\n");
             }
         }
 
@@ -659,9 +692,19 @@ namespace stick
 
         inline Node * copyNode(Node * _node)
         {
-            Node * ret = createNode({_node->kv.key, _node->kv.value});
+            STICK_ASSERT(_node);
+            printf("COPY NODE\n");
+            Node * ret = createNode({_node->kv.key, _node->kv.value}, _node->bucketIndex);
             if (_node->next)
-                ret->next = copyNode(_node->next);
+            {
+                printf("A\n");
+                Node * next = copyNode(_node->next);
+                printf("B\n");
+                next->prev = ret;
+                ret->next = next;
+                printf("C\n");
+            }
+            printf("COPY ONDE END\n");
             return ret;
         }
 
