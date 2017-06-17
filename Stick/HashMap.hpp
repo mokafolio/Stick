@@ -662,7 +662,6 @@ namespace stick
 
         inline void findHelper(Size _bucketIdx, const KeyType & _key, Node *& _outNode, Node *& _prev) const
         {
-            printf("FIND HELPER\n");
             Bucket & b = m_buckets[_bucketIdx];
             _outNode = nullptr;
             _prev = nullptr;
@@ -670,7 +669,6 @@ namespace stick
 
             while (n)
             {
-                printf("FIND HELPER LOOOP\n");
                 if (_key == n->kv.key)
                 {
                     _outNode = n;
@@ -679,7 +677,6 @@ namespace stick
                 }
                 _prev = n;
                 n = n->next;
-                printf("FIND HELPER LOOOP END\n");
             }
         }
 
@@ -693,18 +690,13 @@ namespace stick
         inline Node * copyNode(Node * _node)
         {
             STICK_ASSERT(_node);
-            printf("COPY NODE\n");
             Node * ret = createNode({_node->kv.key, _node->kv.value}, _node->bucketIndex);
             if (_node->next)
             {
-                printf("A\n");
                 Node * next = copyNode(_node->next);
-                printf("B\n");
                 next->prev = ret;
                 ret->next = next;
-                printf("C\n");
             }
-            printf("COPY ONDE END\n");
             return ret;
         }
 
