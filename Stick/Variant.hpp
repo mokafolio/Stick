@@ -224,7 +224,7 @@ namespace stick
         template<class T>
         inline const T & get() const
         {
-            return *reinterpret_cast<T *>(&m_storage);
+            return *reinterpret_cast<const T *>(&m_storage);
         }
 
         template<class T>
