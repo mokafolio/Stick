@@ -11,7 +11,34 @@
 
 namespace stick
 {
-    class Mutex
+    class STICK_API NoMutex
+    {
+    public:
+
+        inline NoMutex()
+        {
+        }
+
+        inline ~NoMutex()
+        {
+        }
+
+        inline Error lock()
+        {
+            return Error();
+        }
+
+        inline bool tryLock()
+        {
+            return true;
+        }
+
+        inline void unlock()
+        {
+        }
+    };
+
+    class STICK_API Mutex
     {
     public:
 

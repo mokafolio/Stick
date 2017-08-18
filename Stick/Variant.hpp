@@ -53,7 +53,7 @@ namespace stick
             inline static void copy(TypeID _typeID, const void * _from, void * _to)
             {
                 if (_typeID == TypeInfoT<T>::typeID())
-                    new (_to) T(*(const T*)(_from));
+                    new (_to) T(*(const T *)(_from));
                 else
                     VariantHelper<Ts...>::copy(_typeID, _from, _to);
             }
@@ -196,7 +196,7 @@ namespace stick
         }
 
         template<class T>
-        inline Maybe<T> get()
+        inline Maybe<T> maybe()
         {
             if (m_typeID == TypeInfoT<T>::typeID())
             {
@@ -206,6 +206,12 @@ namespace stick
             {
                 return Maybe<T>();
             }
+        }
+
+        template<class T>
+        inline Maybe<T> get()
+        {
+            return *reinterpret_cast<T *>(&m_storage);
         }
 
 

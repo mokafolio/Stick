@@ -14,7 +14,7 @@ namespace stick
 {
     typedef Size ThreadID;
 
-    class Thread
+    class STICK_API Thread
     {
     public:
 
