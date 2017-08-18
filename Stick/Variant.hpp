@@ -196,6 +196,19 @@ namespace stick
         }
 
         template<class T>
+        inline Maybe<const T&> maybe() const
+        {
+            if (m_typeID == TypeInfoT<T>::typeID())
+            {
+                return *reinterpret_cast<T *>(&m_storage);
+            }
+            else
+            {
+                return Maybe<const T&>();
+            }
+        }
+
+        template<class T>
         inline Maybe<T&> maybe()
         {
             if (m_typeID == TypeInfoT<T>::typeID())
@@ -209,11 +222,16 @@ namespace stick
         }
 
         template<class T>
-        inline T & get()
+        inline const T & get() const
         {
             return *reinterpret_cast<T *>(&m_storage);
         }
 
+        template<class T>
+        inline T & get()
+        {
+            return const_cast<T&>(const_cast<const Variant*>(this)->get<T>());
+        }
 
     private:
 
