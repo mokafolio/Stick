@@ -209,7 +209,7 @@ namespace stick
         }
 
         template<class T>
-        inline Maybe<T> get()
+        inline T get()
         {
             return *reinterpret_cast<T *>(&m_storage);
         }
