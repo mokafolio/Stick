@@ -1285,10 +1285,10 @@ const Suite spec[] =
         EXPECT(!a.is<Int32>());
         EXPECT(!a.is<Float32>());
         EXPECT(a.is<String>());
-        EXPECT(!a.get<Int32>());
-        EXPECT(!a.get<Float32>());
-        EXPECT(a.get<String>());
-        EXPECT(*a.get<String>() == "test");
+        EXPECT(!a.maybe<Int32>());
+        EXPECT(!a.maybe<Float32>());
+        EXPECT(a.maybe<String>());
+        EXPECT(*a.maybe<String>() == "test");
 
         Variant<Float32, String> b = a;
 
@@ -1296,34 +1296,34 @@ const Suite spec[] =
         EXPECT(!b.is<Int32>());
         EXPECT(!b.is<Float32>());
         EXPECT(b.is<String>());
-        EXPECT(!b.get<Int32>());
-        EXPECT(!b.get<Float32>());
-        EXPECT(b.get<String>());
-        EXPECT(*b.get<String>() == "test");
+        EXPECT(!b.maybe<Int32>());
+        EXPECT(!b.maybe<Float32>());
+        EXPECT(b.maybe<String>());
+        EXPECT(*b.maybe<String>() == "test");
 
         Variant<Float32, String> c(3.0);
         c = b;
         EXPECT(!c.is<Int32>());
         EXPECT(!c.is<Float32>());
         EXPECT(c.is<String>());
-        EXPECT(!c.get<Int32>());
-        EXPECT(!c.get<Float32>());
-        EXPECT(c.get<String>());
-        EXPECT(*c.get<String>() == "test");
+        EXPECT(!c.maybe<Int32>());
+        EXPECT(!c.maybe<Float32>());
+        EXPECT(c.maybe<String>());
+        EXPECT(*c.maybe<String>() == "test");
 
         c = 1.0f;
         EXPECT(!c.is<Int32>());
         EXPECT(c.is<Float32>());
         EXPECT(!c.is<String>());
-        EXPECT(!c.get<Int32>());
-        EXPECT(c.get<Float32>());
-        EXPECT(!c.get<String>());
-        EXPECT(*c.get<Float32>() == 1.0f);
+        EXPECT(!c.maybe<Int32>());
+        EXPECT(c.maybe<Float32>());
+        EXPECT(!c.maybe<String>());
+        EXPECT(*c.maybe<Float32>() == 1.0f);
 
         Variant<Float32, String> d(std::move(c));
         EXPECT(d.isValid());
         EXPECT(!c.isValid());
-        EXPECT(*d.get<Float32>() == 1.0f);
+        EXPECT(*d.maybe<Float32>() == 1.0f);
     },
     SUITE("ArgumentParser Tests")
     {
