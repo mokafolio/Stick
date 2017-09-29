@@ -5,6 +5,7 @@
 #include <Stick/Map.hpp>
 #include <Stick/HashMap.hpp>
 #include <Stick/Error.hpp>
+#include <Stick/EventForwarder.hpp>
 #include <Stick/Thread.hpp>
 #include <Stick/ConditionVariable.hpp>
 #include <Stick/HighResolutionClock.hpp>
@@ -36,6 +37,46 @@
 #include <condition_variable>
 
 using namespace stick;
+
+struct TestEvent : public EventT<TestEvent>
+{
+    TestEvent(Int32 _num = 128) :
+        someMember(_num)
+    {
+
+    }
+
+    Int32 someMember = 128;
+};
+
+struct TestEvent2 : public EventT<TestEvent2>
+{
+    TestEvent2(Int32 _num = 64) :
+        someMember(_num)
+    {
+
+    }
+
+    Int32 someMember = 64;
+};
+
+static TestEvent lastTestEvent;
+static bool bWasCalled = false;
+static void freeFunctionCallback(const TestEvent & _evt)
+{
+    lastTestEvent = _evt;
+    bWasCalled = true;
+}
+
+struct TestClass
+{
+    void memberCallback(const TestEvent & _evt)
+    {
+        counter++;
+    }
+
+    Int32 counter = 0;
+};
 
 /*
 void printNode(const char * _prefix, RBTree<Int32> & _tree, RBTree<Int32>::Node * _n, Size _depth)
@@ -1668,8 +1709,7 @@ const Suite spec[] =
         // arr2.append(alloc.create<Float32>(1));
 
         //@TODO: More!
-    }
-    // ,
+    },
     // SUITE("Allocator Performance")
     // {
     //     using MainAllocator = mem::GlobalAllocator <
@@ -1752,6 +1792,110 @@ const Suite spec[] =
     //     auto duration2 = clock.now() - start2;
     //     printf("MS: %f\n", duration2.milliseconds());
     // }
+    SUITE("Callback Tests")
+    {
+        //@Note: This is not really testing much but rather checking if
+        //things compile as expected :)
+        using Callback = stick::detail::CallbackT<void, stick::Event>;
+
+        Callback cb(&freeFunctionCallback);
+
+        TestClass tc;
+        Callback cb2(&tc, &TestClass::memberCallback);
+
+
+        bool bLamdaCalled = false;
+        Callback cb3([&](const TestEvent & _evt) { bLamdaCalled = true; });
+
+        cb.call(TestEvent());
+        EXPECT(bWasCalled);
+
+        cb2.call(TestEvent());
+        EXPECT(tc.counter == 1);
+
+        cb3.call(TestEvent());
+        EXPECT(bLamdaCalled);
+    },
+    SUITE("EventPublisher Tests")
+    {
+        using EventPublisher = EventPublisherT<Event, stick::detail::PublishingPolicyBasic>;
+        bWasCalled = false;
+        EventPublisher publisher;
+
+        publisher.addEventCallback(&freeFunctionCallback);
+        TestClass tc;
+        publisher.addEventCallback(EventPublisher::Callback(&tc, &TestClass::memberCallback));
+
+        bool bLamdaCalled = false;
+        publisher.addEventCallback([&](const TestEvent & _evt) { bLamdaCalled = true; });
+
+        publisher.publish(TestEvent());
+        EXPECT(bWasCalled);
+        EXPECT(tc.counter == 1);
+        EXPECT(bLamdaCalled);
+    },
+    SUITE("EventForwarder Tests")
+    {
+        using EventForwarder = EventForwarderT<Event, stick::detail::ForwardingPolicyBasic, stick::detail::PublishingPolicyBasic>;
+        bWasCalled = false;
+        EventForwarder publisher;
+
+        publisher.addEventCallback(&freeFunctionCallback);
+        TestClass tc;
+        publisher.addEventCallback(EventForwarder::Callback(&tc, &TestClass::memberCallback));
+
+        bool bLamdaCalled = false;
+        publisher.addEventCallback([&](const TestEvent & _evt) { bLamdaCalled = true; });
+
+        publisher.addEventFilter([&](const TestEvent & _evt){ return _evt.someMember < 128; });
+        publisher.addEventModifier([&](const TestEvent & _evt){ auto ret = stick::makeUnique<TestEvent>(_evt); ret->someMember = 99; return ret; });
+
+        EventForwarder child;
+        publisher.addForwarder(child);
+
+        int childCalledCount = 0;
+        int testEvent2Called = 0;
+        child.addEventCallback([&](const TestEvent2 & _evt) { testEvent2Called++; });
+        child.addEventCallback([&](const TestEvent & _evt) { childCalledCount++; child.publish(TestEvent2(), true); });
+
+        publisher.publish(TestEvent(), true);
+        //this event should be filtered
+        publisher.publish(TestEvent(20), true);
+        EXPECT(bWasCalled);
+        //check if the event modifier worked
+        EXPECT(lastTestEvent.someMember == 99);
+        EXPECT(tc.counter == 1);
+        EXPECT(bLamdaCalled);
+        EXPECT(childCalledCount == 1);
+        EXPECT(testEvent2Called == 1);
+    },
+    SUITE("Advanced EventForwarder Tests")
+    {
+        //check if the passed along arguments work as expected
+        using EventForwarder = EventForwarderT<Event, stick::detail::ForwardingPolicyBasic, stick::detail::PublishingPolicyBasic, stick::Int32 *>;
+        bWasCalled = false;
+        Int32 a = 100;
+        EventForwarder publisher(stick::defaultAllocator(), &a);
+
+        Int32 b = 27;
+        EventForwarder publisher2(stick::defaultAllocator(), &b);
+        publisher.addForwarder(publisher2);
+
+        publisher.addEventCallback([](const TestEvent & _evt, Int32 * _arg)
+        {
+            *_arg = 54;
+        });
+
+        publisher2.addEventCallback([](const TestEvent & _evt, Int32 * _arg)
+        {
+            *_arg = 13;
+        });
+
+        publisher.publish(TestEvent(), true);
+
+        EXPECT(a == 54);
+        EXPECT(b == 13);
+    }
 };
 
 int main(int _argc, const char * _args[])

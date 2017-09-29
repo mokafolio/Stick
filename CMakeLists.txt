@@ -21,12 +21,16 @@ Stick/Allocators/PoolAllocator.hpp
 Stick/Allocators/Segregator.hpp
 Stick/Allocator.hpp
 Stick/ArgumentParser.hpp
+Stick/CallbackID.hpp
 Stick/ConditionVariable.hpp
 Stick/Duration.hpp
 Stick/DynamicArray.hpp
 Stick/Error.hpp
 Stick/ErrorCategory.hpp
 Stick/ErrorCodes.hpp
+Stick/Event.hpp
+Stick/EventForwarder.hpp
+Stick/EventPublisher.hpp
 Stick/FileSystem.hpp
 Stick/FileUtilities.hpp
 Stick/HashMap.hpp
@@ -52,7 +56,10 @@ Stick/UniquePtr.hpp
 Stick/URI.hpp
 Stick/Utility.hpp
 Stick/Variant.hpp
-Stick/Detail/MurmurHash2.hpp
+Stick/Private/Callback.hpp
+Stick/Private/FunctionTraits.hpp
+Stick/Private/MappedCallbackStorage.hpp
+Stick/Private/MurmurHash2.hpp
 )
 
 set (STICKSRC 
@@ -60,6 +67,7 @@ Stick/ArgumentParser.cpp
 Stick/ConditionVariable.cpp
 Stick/Error.cpp 
 Stick/ErrorCategory.cpp
+Stick/Event.cpp
 Stick/FileSystem.cpp
 Stick/FileUtilities.cpp
 Stick/HighResolutionClock.cpp 
