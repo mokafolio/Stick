@@ -58,6 +58,7 @@ Stick/Utility.hpp
 Stick/Variant.hpp
 Stick/Private/Callback.hpp
 Stick/Private/FunctionTraits.hpp
+Stick/Private/IndexSequence.hpp
 Stick/Private/MappedCallbackStorage.hpp
 Stick/Private/MurmurHash2.hpp
 )

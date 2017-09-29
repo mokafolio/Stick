@@ -2,6 +2,7 @@
 #define STICK_PRIVATE_CALLBACK_HPP
 
 #include <Stick/TypeInfo.hpp>
+#include <Stick/Allocator.hpp>
 #include <Stick/Private/FunctionTraits.hpp>
 
 namespace stick
