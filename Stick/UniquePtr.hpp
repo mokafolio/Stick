@@ -151,6 +151,11 @@ namespace stick
             return m_obj;
         }
 
+        inline Allocator * allocator() const
+        {
+            return m_cleanup->allocator;
+        }
+
     private:
 
         PointerType m_obj;
