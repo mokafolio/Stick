@@ -198,8 +198,8 @@ namespace stick
 
         }
 
-        inline Result(T && _result) :
-            m_value(std::forward<T>(_result))
+        inline Result(T & _result) :
+            m_value(_result)
         {
 
         }
