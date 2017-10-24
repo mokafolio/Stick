@@ -1,7 +1,7 @@
 #ifndef STICK_PLATFORM_HPP
 #define STICK_PLATFORM_HPP
 
-#include <assert.h>
+#include <cassert>
 
 //ASSERT
 #if !defined(NDEBUG)
