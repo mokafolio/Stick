@@ -1365,6 +1365,36 @@ const Suite spec[] =
         EXPECT(d.isValid());
         EXPECT(!c.isValid());
         EXPECT(*d.maybe<Float32>() == 1.0f);
+
+        //const tests
+        Variant<const String, Int32, const Float32> e("test");
+        EXPECT(e.isValid());
+        EXPECT(e.is<const String>());
+        EXPECT(!e.is<String>());
+        EXPECT(e.get<const String>() == "test");
+
+        const String str("blubber");
+        Variant<Int32, const String *> f(&str);
+        EXPECT(f.isValid());
+        EXPECT(f.is<const String *>());
+        EXPECT(!f.is<Int32>());
+        EXPECT(*f.get<const String *>() == "blubber");
+
+        //reference tests
+        String testStr("BLUUUUB");
+        Variant<bool, String &> g(testStr);
+        EXPECT(g.isValid());
+        EXPECT(g.is<String &>());
+        EXPECT(g.get<String &>() == "BLUUUUB");
+        g.get<String&>() = "changed";
+        EXPECT(g.get<String &>() == "changed");
+
+        //const ref tests
+        const String testStr2("wooop");
+        Variant<const String &, Float32> h(testStr2);
+        EXPECT(h.isValid());
+        EXPECT(h.is<const String &>());
+        EXPECT(h.get<const String &>() == "wooop");
     },
     SUITE("ArgumentParser Tests")
     {
@@ -1847,8 +1877,8 @@ const Suite spec[] =
         bool bLamdaCalled = false;
         publisher.addEventCallback([&](const TestEvent & _evt) { bLamdaCalled = true; });
 
-        publisher.addEventFilter([&](const TestEvent & _evt){ return _evt.someMember < 128; });
-        publisher.addEventModifier([&](const TestEvent & _evt){ auto ret = stick::makeUnique<TestEvent>(_evt); ret->someMember = 99; return ret; });
+        publisher.addEventFilter([&](const TestEvent & _evt) { return _evt.someMember < 128; });
+        publisher.addEventModifier([&](const TestEvent & _evt) { auto ret = stick::makeUnique<TestEvent>(_evt); ret->someMember = 99; return ret; });
 
         EventForwarder child;
         publisher.addForwarder(child);

@@ -1,7 +1,7 @@
 #ifndef STICK_STICKRESULT_HPP
 #define STICK_STICKRESULT_HPP
 
-#include <Stick/Maybe.hpp>
+#include <Stick/Variant.hpp>
 #include <Stick/Error.hpp>
 
 // @TODO: Use Variant instead of Maybe (at least for the non reference version)
@@ -76,83 +76,80 @@ namespace stick
         }
 
         inline Result(const Result & _result) :
-            m_error(_result.m_error),
-            m_value(_result.m_value)
+            m_variant(_result.m_variant)
         {
 
         }
 
         inline Result(Result && _result) :
-            m_error(std::move(_result.m_error)),
-            m_value(std::move(_result.m_value))
+            m_variant(_result.m_variant)
         {
 
         }
 
         inline Result(const T & _result) :
-            m_value(_result)
+            m_variant(_result)
         {
 
         }
 
         inline Result(T && _result) :
-            m_value(std::forward<T>(_result))
+            m_variant(std::forward<T>(_result))
         {
 
         }
 
         inline Result(const Error & _error) :
-            m_error(_error)
+            m_variant(_error)
         {
 
         }
 
         inline Result & operator = (const Result & _result)
         {
-            m_value = _result.m_value;
-            m_error = _result.m_error;
+            m_variant = _result.m_variant;
             return *this;
         }
 
         inline Result & operator = (Result && _result)
         {
-            m_value = std::move(_result.m_value);
-            m_error = std::move(_result.m_error);
+            m_variant = std::move(_result.m_variant);
             return *this;
         }
 
         inline operator bool() const
         {
-            return !static_cast<bool>(m_error);
+            return !static_cast<bool>(m_variant.template is<Error>());
         }
 
         inline const Error & error() const
         {
-            return m_error;
+            STICK_ASSERT(m_variant.template is<Error>());
+            return m_variant.template get<Error>();;
         }
 
         inline void setError(const Error & _error)
         {
-            m_error = _error;
+            m_variant = _error;
         }
 
         inline void setError(Error && _error)
         {
-            m_error = std::move(_error);
+            m_variant = std::move(_error);
         }
 
         inline const T & ensure() const
         {
-            if (!this->m_value)
+            if (!m_variant.isValid() || m_variant.template  is<Error>())
             {
                 printf("Called ensure on an empty result.\n");
-                if (m_error)
+                if (m_variant.template  is<Error>())
                 {
-                    printf("The result holds the following error message: %s.\nThe generic error description is: %s.\n", m_error.message().cString(), m_error.description().cString());
+                    printf("The result holds the following error message: %s.\nThe generic error description is: %s.\n", m_variant.template get<Error>().message().cString(), m_variant.template get<Error>().description().cString());
                 }
                 exit(EXIT_FAILURE);
             }
-            return *(this->m_value);
+            return m_variant.template get<T>();
         }
 
         inline T & ensure()
@@ -162,18 +159,17 @@ namespace stick
 
         T & get()
         {
-            return *m_value;
+            return m_variant.template get<T>();
         }
 
         const T & get() const
         {
-            return *m_value;
+            return m_variant.template get<T>();
         }
 
     private:
 
-        Error m_error;
-        stick::Maybe<T> m_value;
+        Variant<Error, T> m_variant;
     };
 
     template<class T>
