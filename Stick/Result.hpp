@@ -82,7 +82,7 @@ namespace stick
         }
 
         inline Result(Result && _result) :
-            m_variant(_result.m_variant)
+            m_variant(std::move(_result.m_variant))
         {
 
         }
