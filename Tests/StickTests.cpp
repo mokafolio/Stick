@@ -454,6 +454,10 @@ const Suite spec[] =
         Result<Int32> d(std::move(c));
         EXPECT(d);
         EXPECT(d.get() == 20);
+
+        String str("test");
+        Result<String&> e(str);
+        EXPECT(e.ensure() == "test");
     },
     SUITE("DynamicArray Tests")
     {
