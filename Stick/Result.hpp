@@ -119,7 +119,7 @@ namespace stick
 
         inline operator bool() const
         {
-            return !static_cast<bool>(m_variant.template is<Error>());
+            return m_variant.isValid() && !m_variant.template is<Error>();
         }
 
         inline const Error & error() const
@@ -208,7 +208,7 @@ namespace stick
 
         inline operator bool() const
         {
-            return !static_cast<bool>(m_variant.template is<Error>());
+            return m_variant.isValid() && !m_variant.template is<Error>();
         }
 
         inline const Error & error() const
