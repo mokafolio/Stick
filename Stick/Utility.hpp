@@ -35,24 +35,6 @@ namespace stick
     }
 
     template<class T>
-    struct RemoveReference
-    {
-        typedef T Type;
-    };
-
-    template<class T>
-    struct RemoveReference<T &>
-    {
-        typedef T Type;
-    };
-
-    template<class T>
-    struct RemoveReference < T && >
-    {
-        typedef T Type;
-    };
-
-    template<class T>
     inline T min(const T & _a, const T & _b)
     {
         return _a < _b ? _a : _b;
@@ -70,15 +52,15 @@ namespace stick
     public:
 
         ScopeExit(F && _func) :
-            m_function(move(_func)),
+            m_function(std::move(_func)),
             m_bCallInDestructor(true)
         {
 
         }
 
         ScopeExit(ScopeExit && _ex) :
-            m_function(move(_ex.m_function)),
-            m_bCallInDestructor(move(_ex.m_bCallInDestructor))
+            m_function(std::move(_ex.m_function)),
+            m_bCallInDestructor(std::move(_ex.m_bCallInDestructor))
         {
 
         }
@@ -105,9 +87,9 @@ namespace stick
     };
 
     template<class F>
-    ScopeExit<typename RemoveReference<F>::Type> makeScopeExit(F && _f)
+    ScopeExit<typename std::remove_reference<F>::type> makeScopeExit(F && _f)
     {
-        return ScopeExit<typename RemoveReference<F>::Type>(std::forward<F>(_f));
+        return ScopeExit<typename std::remove_reference<F>::type>(std::forward<F>(_f));
     }
 
     template<class InputIter, class T>
