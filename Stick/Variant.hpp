@@ -5,6 +5,8 @@
 #include <Stick/Maybe.hpp>
 #include <type_traits>
 
+#include <functional> //for reference_wrapper?
+
 namespace stick
 {
     namespace detail
