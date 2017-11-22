@@ -15,6 +15,7 @@
 #include <Stick/Path.hpp>
 #include <Stick/FileUtilities.hpp>
 #include <Stick/TypeInfo.hpp>
+#include <Stick/TypeList.hpp>
 #include <Stick/UniquePtr.hpp>
 #include <Stick/Maybe.hpp>
 #include <Stick/FileSystem.hpp>
@@ -1929,6 +1930,42 @@ const Suite spec[] =
 
         EXPECT(a == 54);
         EXPECT(b == 13);
+    },
+    SUITE("TypeList Tests")
+    {
+        EXPECT(MakeTypeList<>::List::count == 0);
+
+        using List = typename MakeTypeList<Int32, Float32, String>::List;
+        EXPECT((HasType<List, Int32>::value));
+        EXPECT((HasType<List, Float32>::value));
+        EXPECT((HasType<List, String>::value));
+        EXPECT((!HasType<List, UInt64>::value));
+        EXPECT(List::count == 3);
+
+        EXPECT((std::is_same<typename TypeAt<List, 0>::Type, Int32>::value));
+        EXPECT((std::is_same<typename TypeAt<List, 1>::Type, Float32>::value));
+        EXPECT((std::is_same<typename TypeAt<List, 2>::Type, String>::value));
+        EXPECT((std::is_same<typename TypeAt<List, 3>::Type, TypeListNil>::value));
+
+        using Prepend = typename PrependType<List, UInt64>::List;
+        EXPECT((HasType<Prepend, Int32>::value));
+        EXPECT((HasType<Prepend, Float32>::value));
+        EXPECT((HasType<Prepend, String>::value));
+        EXPECT((HasType<Prepend, UInt64>::value));
+        EXPECT(Prepend::count == 4);
+
+        // printf("TYPE NAME %s\n", typeid(typename TypeAt<Added, 1>::Type).name());
+        EXPECT((std::is_same<typename TypeAt<Prepend, 0>::Type, UInt64>::value));
+        EXPECT((std::is_same<typename TypeAt<Prepend, 1>::Type, Int32>::value));
+        EXPECT((std::is_same<typename TypeAt<Prepend, 2>::Type, Float32>::value));
+        EXPECT((std::is_same<typename TypeAt<Prepend, 3>::Type, String>::value));
+
+        using Append = typename AppendType<List, UInt8>::List;
+        EXPECT((HasType<Append, Int32>::value));
+        EXPECT((HasType<Append, Float32>::value));
+        EXPECT((HasType<Append, String>::value));
+        EXPECT((HasType<Append, UInt8>::value));
+        EXPECT(Append::count == 4);
     }
 };
 

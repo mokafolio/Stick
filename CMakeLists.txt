@@ -52,6 +52,7 @@ Stick/Test.hpp
 Stick/Thread.hpp
 Stick/TimePoint.hpp
 Stick/TypeInfo.hpp
+Stick/TypeList.hpp
 Stick/UniquePtr.hpp
 Stick/URI.hpp
 Stick/Utility.hpp
