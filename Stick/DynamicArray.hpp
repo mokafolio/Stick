@@ -246,12 +246,6 @@ namespace stick
             Size index = (_first - begin());
             Size endIndex = m_count - diff;
 
-            //call the destructors of the removed elements
-            for (Size i = 0; i < idiff; ++i)
-            {
-                (*this)[index + i].~T();
-            }
-
             //fill the resulting gap if needed by shifting the remaining elements down
             if (diff)
             {
@@ -259,6 +253,12 @@ namespace stick
                 {
                     (*this)[index + i] = std::move((*this)[endIndex + i]);
                 }
+            }
+
+            //call the destructors of the removed elements that were not overwritten
+            for (Size i = 0; i < idiff; ++i)
+            {
+                (*this)[index + diff + i].~T();
             }
 
             m_count -= idiff;
