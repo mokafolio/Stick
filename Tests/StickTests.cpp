@@ -1954,7 +1954,6 @@ const Suite spec[] =
         EXPECT((HasType<Prepend, UInt64>::value));
         EXPECT(Prepend::count == 4);
 
-        // printf("TYPE NAME %s\n", typeid(typename TypeAt<Added, 1>::Type).name());
         EXPECT((std::is_same<typename TypeAt<Prepend, 0>::Type, UInt64>::value));
         EXPECT((std::is_same<typename TypeAt<Prepend, 1>::Type, Int32>::value));
         EXPECT((std::is_same<typename TypeAt<Prepend, 2>::Type, Float32>::value));

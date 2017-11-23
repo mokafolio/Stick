@@ -20,57 +20,63 @@ namespace stick
         static constexpr Size count = 0;
     };
 
-    template<class L, class T>
-    struct HasTypeHelper
+    namespace detail
     {
-        static constexpr bool value = std::is_same<typename L::Head, T>::value ? true : HasTypeHelper<typename L::Tail, T>::value;
-    };
+        template<class L, class T>
+        struct HasTypeHelper
+        {
+            static constexpr bool value = std::is_same<typename L::Head, T>::value ? true : HasTypeHelper<typename L::Tail, T>::value;
+        };
 
-    template<class T>
-    struct HasTypeHelper<TypeListNil, T>
-    {
-        static constexpr bool value = false;
-    };
+        template<class T>
+        struct HasTypeHelper<TypeListNil, T>
+        {
+            static constexpr bool value = false;
+        };
+    }
 
     template<class L, class T>
     struct HasType
     {
-        static constexpr bool value = HasTypeHelper<L, T>::value;
+        static constexpr bool value = detail::HasTypeHelper<L, T>::value;
     };
 
-    template<class L, Size IDX>
-    struct IndexComparator
+    namespace detail
     {
-        static constexpr bool value = L::count - 1 == IDX;
-        using Head = typename L::Head;
-        using Tail = typename L::Tail;
-    };
+        template<class L, Size IDX>
+        struct IndexComparator
+        {
+            static constexpr bool value = L::count - 1 == IDX;
+            using Head = typename L::Head;
+            using Tail = typename L::Tail;
+        };
 
-    template<Size IDX>
-    struct IndexComparator<TypeListNil, IDX>
-    {
-        static constexpr bool value = false;
-        using Head = TypeListNil;
-        using Tail = TypeListNil;
-    };
+        template<Size IDX>
+        struct IndexComparator<TypeListNil, IDX>
+        {
+            static constexpr bool value = false;
+            using Head = TypeListNil;
+            using Tail = TypeListNil;
+        };
 
-    template<class L, Size IDX>
-    struct TypeAtHelper
-    {
-        using Comperator = IndexComparator<L, IDX>;
-        using Type = typename std::conditional<Comperator::value, typename Comperator::Head, typename TypeAtHelper<typename Comperator::Tail, IDX>::Type>::type;
-    };
+        template<class L, Size IDX>
+        struct TypeAtHelper
+        {
+            using Comperator = IndexComparator<L, IDX>;
+            using Type = typename std::conditional<Comperator::value, typename Comperator::Head, typename TypeAtHelper<typename Comperator::Tail, IDX>::Type>::type;
+        };
 
-    template<Size IDX>
-    struct TypeAtHelper<TypeListNil, IDX>
-    {
-        using Type = TypeListNil;
-    };
+        template<Size IDX>
+        struct TypeAtHelper<TypeListNil, IDX>
+        {
+            using Type = TypeListNil;
+        };
+    }
 
     template<class L, Size IDX>
     struct TypeAt
     {
-        using Type = typename TypeAtHelper < L, L::count - 1 - IDX >::Type;
+        using Type = typename detail::TypeAtHelper < L, L::count - 1 - IDX >::Type;
     };
 
     template<class...Args>
@@ -92,12 +98,6 @@ namespace stick
     struct PrependType
     {
         using List = TypeList<T, L>;
-    };
-
-    template<class T, class...Args>
-    struct TypeListBuilder
-    {
-        using List = TypeList<Args..., T>;
     };
 
     template<class L, class T>
