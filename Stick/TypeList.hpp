@@ -111,6 +111,27 @@ namespace stick
     {
         using List = TypeList<T, TypeListNil>;
     };
+
+    namespace detail
+    {
+        template<class L, class H, class T>
+        struct AppendTypeListHelper
+        {
+            using List = TypeList<typename L::Head, typename AppendTypeListHelper<typename L::Tail, H, T>::List>;
+        };
+
+        template<class H, class T>
+        struct AppendTypeListHelper<TypeListNil, H, T>
+        {
+            using List = TypeList<H, T>;
+        };
+    }
+
+    template<class L, class L2>
+    struct AppendTypeList
+    {
+        using List = typename detail::AppendTypeListHelper<L, typename L2::Head, typename L2::Tail>::List;
+    };
 }
 
 #endif //STICK_TYPELIST_HPP

@@ -457,7 +457,7 @@ const Suite spec[] =
         EXPECT(d.get() == 20);
 
         String str("test");
-        Result<String&> e(str);
+        Result<String &> e(str);
         EXPECT(e.ensure() == "test");
     },
     SUITE("DynamicArray Tests")
@@ -1391,7 +1391,7 @@ const Suite spec[] =
         EXPECT(g.isValid());
         EXPECT(g.is<String &>());
         EXPECT(g.get<String &>() == "BLUUUUB");
-        g.get<String&>() = "changed";
+        g.get<String &>() = "changed";
         EXPECT(g.get<String &>() == "changed");
 
         //const ref tests
@@ -1933,6 +1933,7 @@ const Suite spec[] =
     },
     SUITE("TypeList Tests")
     {
+        //@TODO: Turn all these EXPECT into static_assert?
         EXPECT(MakeTypeList<>::List::count == 0);
 
         using List = typename MakeTypeList<Int32, Float32, String>::List;
@@ -1965,6 +1966,15 @@ const Suite spec[] =
         EXPECT((HasType<Append, String>::value));
         EXPECT((HasType<Append, UInt8>::value));
         EXPECT(Append::count == 4);
+
+        using AList = typename MakeTypeList<Float32, String>::List;
+        using BList = typename MakeTypeList<Int32, Size>::List;
+        using Merged = typename AppendTypeList<AList, BList>::List;
+        EXPECT(Merged::count == 4);
+        EXPECT((std::is_same<typename TypeAt<Merged, 0>::Type, Float32>::value));
+        EXPECT((std::is_same<typename TypeAt<Merged, 1>::Type, String>::value));
+        EXPECT((std::is_same<typename TypeAt<Merged, 2>::Type, Int32>::value));
+        EXPECT((std::is_same<typename TypeAt<Merged, 3>::Type, Size>::value));
     }
 };
 
