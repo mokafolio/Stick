@@ -294,7 +294,7 @@ namespace stick
             }
             else
             {
-                return Maybe<const typename detail::ReturnTypeTraits<T>::ReferenceType>();
+                return Maybe<const typename detail::ReturnTypeTraits<T>::ConstReferenceType>();
             }
         }
 
