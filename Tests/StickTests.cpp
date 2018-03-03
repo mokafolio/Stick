@@ -1,4 +1,5 @@
 #include <Stick/ArgumentParser.hpp>
+#include <Stick/Array.hpp>
 #include <Stick/String.hpp>
 #include <Stick/DynamicArray.hpp>
 #include <Stick/RBTree.hpp>
@@ -459,6 +460,22 @@ const Suite spec[] =
         String str("test");
         Result<String &> e(str);
         EXPECT(e.ensure() == "test");
+    },
+    SUITE("Array Tests")
+    {
+        Array<Int32, 4> array = {4, 2, 3, 1};
+        EXPECT(array[0] == 4);
+        EXPECT(array[1] == 2);
+        EXPECT(array[2] == 3);
+        EXPECT(array[3] == 1);
+
+        Int32 expected[] = {4, 2, 3, 1};
+        Int32 i = 0;
+        for(Int32 el : array)
+        {
+            EXPECT(expected[i] == array[i]);
+            ++i;
+        }
     },
     SUITE("DynamicArray Tests")
     {
