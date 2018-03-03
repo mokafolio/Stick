@@ -476,6 +476,13 @@ const Suite spec[] =
             EXPECT(expected[i] == array[i]);
             ++i;
         }
+
+        i = 3;
+        for(auto it = array.rbegin(); it != array.rend(); ++it)
+        {
+            EXPECT(expected[i] == *it);
+            --i;
+        }
     },
     SUITE("DynamicArray Tests")
     {
