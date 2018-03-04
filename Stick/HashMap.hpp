@@ -57,6 +57,27 @@ namespace stick
         }
     };
 
+    /*template<class T, template<class> class H = DefaultHash>
+    struct CachingKey
+    {
+        using KeyType = T;
+
+        CachingKey(const KeyType & _key)
+        {
+
+        }
+
+        CachingKey(KeyType && _key) :
+        key(std::forward<KeyType>(_key)),
+        cachedHash()
+        {
+
+        }
+
+        KeyType key;
+        Size cachedHash;
+    };*/
+
     template<class K, class V, template<class> class H = DefaultHash>
     class HashMap
     {
@@ -77,7 +98,8 @@ namespace stick
             Node() :
                 prev(nullptr),
                 next(nullptr),
-                bucketIndex(-1)
+                bucketIndex(-1),
+                id(-1)
             {
 
             }
@@ -86,6 +108,7 @@ namespace stick
             Node * prev;
             Node * next;
             Size bucketIndex;
+            Size id;
         };
 
         struct Bucket
@@ -97,6 +120,12 @@ namespace stick
             }
 
             Node * first;
+        };
+
+        struct Handle
+        {
+            Size bucketIndex;
+            Size id;
         };
 
         template<class T>
@@ -203,6 +232,11 @@ namespace stick
                 return &node->kv;
             }
 
+            inline Handle handle() const
+            {
+                return {bucketIndex, node->id};
+            }
+
             T * map;
             Size bucketIndex;
             Node * node;
@@ -214,6 +248,7 @@ namespace stick
         struct InsertResult
         {
             Iter iterator;
+            Handle handle;
             bool inserted;
         };
 
@@ -222,7 +257,8 @@ namespace stick
             m_buckets(nullptr),
             m_bucketAllocationSize(0),
             m_maxLoadFactor(1.0f),
-            m_count(0)
+            m_count(0),
+            m_nextNodeID(0)
         {
             m_buckets = allocateBuckets(_initialBucketCount, &m_bucketAllocationSize);
             STICK_ASSERT(m_buckets);
@@ -235,7 +271,8 @@ namespace stick
             m_bucketAllocationSize(0),
             m_bucketCount(0),
             m_maxLoadFactor(_other.m_maxLoadFactor),
-            m_count(_other.m_count)
+            m_count(_other.m_count),
+            m_nextNodeID(_other.m_nextNodeID)
         {
             m_buckets = allocateBuckets(_other.m_bucketCount, &m_bucketAllocationSize);
             STICK_ASSERT(m_buckets);
@@ -254,7 +291,8 @@ namespace stick
             m_bucketAllocationSize(std::move(_other.m_bucketAllocationSize)),
             m_bucketCount(std::move(_other.m_bucketCount)),
             m_maxLoadFactor(std::move(_other.m_maxLoadFactor)),
-            m_count(std::move(_other.m_count))
+            m_count(std::move(_other.m_count)),
+            m_nextNodeID(std::move(_other.m_nextNodeID))
         {
             _other.m_buckets = nullptr;
         }
@@ -265,7 +303,8 @@ namespace stick
             m_bucketAllocationSize(0),
             m_bucketCount(0),
             m_maxLoadFactor(1.0f),
-            m_count(0)
+            m_count(0),
+            m_nextNodeID(0)
         {
             m_buckets = allocateBuckets(16, &m_bucketAllocationSize);
             m_bucketCount = 16;
@@ -640,12 +679,18 @@ namespace stick
             return *m_alloc;
         }
 
+        inline Size bucketIndex(const KeyType & _key) const
+        {
+            return m_hasher(_key) % bucketCount();
+        }
+
     private:
 
         inline Node * createNode(KeyValuePair && _pair, Size _bucketIndex)
         {
             auto ret = m_alloc->create<Node>();
             ret->bucketIndex = _bucketIndex;
+            ret->id = m_nextNodeID++;
             ret->kv = std::move(_pair);
             return ret;
         }
@@ -653,11 +698,6 @@ namespace stick
         inline void destroyNode(Node * _n)
         {
             m_alloc->destroy(_n);
-        }
-
-        inline Size bucketIndex(const KeyType & _key) const
-        {
-            return m_hasher(_key) % bucketCount();
         }
 
         inline void findHelper(Size _bucketIdx, const KeyType & _key, Node *& _outNode, Node *& _prev) const
@@ -669,6 +709,11 @@ namespace stick
 
             while (n)
             {
+                //@TODO: if there is no next, can we skip the comparison?
+                if (!n->next)
+                {
+                    _outNode = n;
+                }
                 if (_key == n->kv.key)
                 {
                     _outNode = n;
@@ -707,6 +752,7 @@ namespace stick
         Float32 m_maxLoadFactor;
         Hash m_hasher;
         Size m_count;
+        Size m_nextNodeID;
     };
 }
 
