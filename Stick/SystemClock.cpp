@@ -11,7 +11,7 @@ namespace stick
 
     SystemClock::TimePoint SystemClock::now()
     {
-        //@TODO use clock_gettime on systems that support it (i.e. osx sierra and later)
+        //@TODO use clock_gettime on osx sierra and later
         timeval val;
         gettimeofday(&val, 0);
         return TimePoint(val.tv_sec * 1000000000 + val.tv_usec * 1000);

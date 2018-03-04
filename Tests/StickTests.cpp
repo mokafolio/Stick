@@ -468,6 +468,7 @@ const Suite spec[] =
         EXPECT(array[1] == 2);
         EXPECT(array[2] == 3);
         EXPECT(array[3] == 1);
+        EXPECT(array.count() == 4);
 
         Int32 expected[] = {4, 2, 3, 1};
         Int32 i = 0;
