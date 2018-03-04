@@ -479,34 +479,22 @@ namespace stick
 
         inline Iter find(const KeyType & _key)
         {
-            Size bi = bucketIndex(_key);
-            Node * n, * prev;
-            findHelper(bi, _key, n, prev);
-            if (!n)
-                return end();
-            else
-                return Iter(*this, bi, n);
+            return HashMap::findByKey<Iter>(*this, _key);
         }
 
         inline ConstIter find(const KeyType & _key) const
         {
-            Size bi = bucketIndex(_key);
-            Node * n, * prev;
-            findHelper(bi, _key, n, prev);
-            if (!n)
-                return end();
-            else
-                return ConstIter(*this, bi, n);
+            return HashMap::findByKey<ConstIter>(*this, _key);
         }
 
         inline Iter find(const Handle & _handle)
         {
-            return findByHandle<Iter>(_handle);
+            return HashMap::findByHandle<Iter>(*this, _handle);
         }
 
         inline ConstIter find(const Handle & _handle) const
         {
-            return const_cast<HashMap*>(this)->findByHandle<ConstIter>(_handle);
+            return HashMap::findByHandle<ConstIter>(*this, _handle);
         }
 
         //@TODO: Add a KeyType && _key overloaded version of it?
@@ -750,20 +738,32 @@ namespace stick
             }
         }
 
-        template<class IterT>
-        inline IterT findByHandle(const Handle & _handle)
+        template<class IterT, class MapType>
+        inline static IterT findByHandle(MapType && _map, const Handle & _handle)
         {
-            if (_handle.bucketIndex < m_bucketCount)
+            if (_handle.bucketIndex < _map.m_bucketCount)
             {
                 Node * n, * prev;
-                findByHandleHelper(_handle, n , prev);
+                _map.findByHandleHelper(_handle, n , prev);
                 if (!n)
-                    return end();
+                    return _map.end();
                 else
-                    return IterT(*this, _handle.bucketIndex, n);
+                    return IterT(std::forward<MapType>(_map), _handle.bucketIndex, n);
             }
 
-            return end();
+            return _map.end();
+        }
+
+        template<class IterT, class MapType>
+        inline static IterT findByKey(MapType && _map, const KeyType & _key)
+        {
+            Size bi = _map.bucketIndex(_key);
+            Node * n, * prev;
+            _map.findHelper(bi, _key, n, prev);
+            if (!n)
+                return _map.end();
+            else
+                return IterT(std::forward<MapType>(_map), bi, n);
         }
 
         inline Bucket * allocateBuckets(Size _i, Size * _outSize)
