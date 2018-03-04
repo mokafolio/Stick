@@ -16,6 +16,64 @@ namespace stick
 
         inline Duration() = default;
 
+        inline Duration operator - (const Duration & _other) const
+        {
+            return Duration(m_nanoseconds - _other.m_nanoseconds);
+        }
+
+        inline Duration operator + (const Duration & _other) const
+        {
+            return Duration(m_nanoseconds + _other.m_nanoseconds);
+        }
+
+        template<class T>
+        inline Duration operator * (T _scalar) const
+        {
+            return Duration(m_nanoseconds * _scalar);
+        }
+
+        template<class T>
+        inline Duration operator / (T _scalar) const
+        {
+            return Duration(m_nanoseconds / _scalar);
+        }
+
+        inline Duration & operator -= (const Duration & _other)
+        {
+            m_nanoseconds -= _other.m_nanoseconds;
+            return *this;
+        }
+
+        inline Duration & operator += (const Duration & _other)
+        {
+            m_nanoseconds += _other.m_nanoseconds;
+            return *this;
+        }
+
+        template<class T>
+        inline Duration operator *= (T _scalar)
+        {
+            m_nanoseconds *= _scalar;
+            return *this;
+        }
+
+        template<class T>
+        inline Duration operator /= (T _scalar)
+        {
+            m_nanoseconds /= _scalar;
+            return *this;
+        }
+
+        inline bool operator == (const Duration & _other) const
+        {
+            return m_nanoseconds == _other.m_nanoseconds;
+        }
+
+        inline bool operator != (const Duration & _other) const
+        {
+            return m_nanoseconds != _other.m_nanoseconds;
+        }
+
         static Duration fromHours(FloatRep _hours)
         {
             return fromMinutes(_hours * 60.0);
@@ -79,7 +137,7 @@ namespace stick
     private:
 
         inline Duration(Rep _nanos) :
-        m_nanoseconds(_nanos)
+            m_nanoseconds(_nanos)
         {
 
         }
