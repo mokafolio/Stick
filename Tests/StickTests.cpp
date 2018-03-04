@@ -472,14 +472,14 @@ const Suite spec[] =
 
         Int32 expected[] = {4, 2, 3, 1};
         Int32 i = 0;
-        for(Int32 el : array)
+        for (Int32 el : array)
         {
             EXPECT(expected[i] == array[i]);
             ++i;
         }
 
         i = 3;
-        for(auto it = array.rbegin(); it != array.rend(); ++it)
+        for (auto it = array.rbegin(); it != array.rend(); ++it)
         {
             EXPECT(expected[i] == *it);
             --i;
@@ -1085,6 +1085,7 @@ const Suite spec[] =
         EXPECT(res.iterator->key == "blubb");
         EXPECT(res.iterator->value == 4);
         EXPECT(res.inserted == true);
+
         res = hm.insert("blubb", 5);
         EXPECT(res.iterator->value == 5);
         EXPECT(res.inserted == false);
@@ -1154,6 +1155,17 @@ const Suite spec[] =
         blaMap[(const void *)1] = "test2";
         EXPECT(blaMap[0] == "test");
         EXPECT(blaMap[(const void *)1] == "test2");
+
+        //check if the handle stuff works
+        HashMap<String, Int32> handledMap;
+        handledMap.insert("a", 2);
+        handledMap.insert("b", 3);
+        auto ires = handledMap.insert("test", 1);
+        handledMap.insert("c", 99);
+
+        const HashMap<String, Int32> & cHandledMap = handledMap;
+        auto handle = ires.iterator.handle();
+        EXPECT(cHandledMap.find(handle) == ires.iterator);
     },
     SUITE("Thread Tests")
     {

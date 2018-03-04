@@ -248,7 +248,6 @@ namespace stick
         struct InsertResult
         {
             Iter iterator;
-            Handle handle;
             bool inserted;
         };
 
@@ -500,6 +499,17 @@ namespace stick
                 return ConstIter(*this, bi, n);
         }
 
+        inline Iter find(const Handle & _handle)
+        {
+            return findByHandle<Iter>(_handle);
+        }
+
+        inline ConstIter find(const Handle & _handle) const
+        {
+            return const_cast<HashMap*>(this)->findByHandle<ConstIter>(_handle);
+        }
+
+        //@TODO: Add a KeyType && _key overloaded version of it?
         inline ValueType & operator [] (const KeyType & _key)
         {
             auto it = find(_key);
@@ -709,11 +719,6 @@ namespace stick
 
             while (n)
             {
-                //@TODO: if there is no next, can we skip the comparison?
-                if (!n->next)
-                {
-                    _outNode = n;
-                }
                 if (_key == n->kv.key)
                 {
                     _outNode = n;
@@ -723,6 +728,42 @@ namespace stick
                 _prev = n;
                 n = n->next;
             }
+        }
+
+        inline void findByHandleHelper(const Handle & _handle, Node *& _outNode, Node *& _prev) const
+        {
+            Bucket & b = m_buckets[_handle.bucketIndex];
+            _outNode = nullptr;
+            _prev = nullptr;
+            Node * n = b.first;
+
+            while (n)
+            {
+                if (_handle.id == n->id)
+                {
+                    _outNode = n;
+                    STICK_ASSERT(n->prev == _prev);
+                    return;
+                }
+                _prev = n;
+                n = n->next;
+            }
+        }
+
+        template<class IterT>
+        inline IterT findByHandle(const Handle & _handle)
+        {
+            if (_handle.bucketIndex < m_bucketCount)
+            {
+                Node * n, * prev;
+                findByHandleHelper(_handle, n , prev);
+                if (!n)
+                    return end();
+                else
+                    return IterT(*this, _handle.bucketIndex, n);
+            }
+
+            return end();
         }
 
         inline Bucket * allocateBuckets(Size _i, Size * _outSize)
