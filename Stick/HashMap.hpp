@@ -534,14 +534,12 @@ namespace stick
                 ret = end();
 
             if (!_it.node->prev)
-            {
                 b.first = _it.node->next;
-            }
             else
-            {
                 _it.node->prev->next = _it.node->next;
-            }
-            _it.node->next->prev = _it.node->prev;
+
+            if(_it.node->next)
+                _it.node->next->prev = _it.node->prev;
 
             destroyNode(_it.node);
             --m_count;

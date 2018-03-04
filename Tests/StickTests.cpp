@@ -1162,10 +1162,14 @@ const Suite spec[] =
         handledMap.insert("b", 3);
         auto ires = handledMap.insert("test", 1);
         handledMap.insert("c", 99);
+        handledMap.insert("d", 1234);
 
         const HashMap<String, Int32> & cHandledMap = handledMap;
         auto handle = ires.iterator.handle();
         EXPECT(cHandledMap.find(handle) == ires.iterator);
+        handledMap.remove("test");
+        EXPECT(handledMap.find(handle) == handledMap.end());
+        EXPECT(handledMap.count() == 4);
     },
     SUITE("Thread Tests")
     {
