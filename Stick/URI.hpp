@@ -178,7 +178,20 @@ namespace stick
     };
 
     //to string conversion (will percent encode the URI)
+    //@TODO: add optional allocator argument
     String toString(const URI & _uri);
+
+    template<>
+    struct DefaultHash<URI>
+    {
+        Size operator()(const URI & _uri) const
+        {
+            //@TODO: this is slow
+            //@TODO: Take allocator into account
+            String str = toString(_uri);
+            return detail::murmur2(str.cString(), str.length(), 0);
+        }
+    };
 }
 
 #endif //STICK_URI_HPP
