@@ -3,10 +3,10 @@
 
 namespace stick
 {
-    Result<ByteArray> loadBinaryFile(const URI & _uri, Allocator & _alloc)
+    Result<ByteArray> loadBinaryFile(const String & _uri, Allocator & _alloc)
     {
         ByteArray ba(_alloc);
-        FILE * fp = fopen(toString(_uri).cString(), "rb");
+        FILE * fp = fopen(_uri.cString(), "rb");
         if (!fp)
         {
             return Error(ec::SystemErrorCode(errno), "fopen failed.", STICK_FILE, STICK_LINE);
@@ -41,10 +41,10 @@ namespace stick
         return ba;
     }
 
-    Result<String> loadTextFile(const URI & _uri, Allocator & _alloc)
+    Result<String> loadTextFile(const String & _uri, Allocator & _alloc)
     {
         String str(_alloc);
-        FILE * fp = fopen(toString(_uri).cString(), "r");
+        FILE * fp = fopen(_uri.cString(), "r");
         if (!fp)
         {
             return Error(ec::SystemErrorCode(errno), "fopen failed", STICK_FILE, STICK_LINE);
@@ -79,9 +79,9 @@ namespace stick
         return str;
     }
 
-    Error saveBinaryFile(const ByteArray & _data, const URI & _uri)
+    Error saveBinaryFile(const ByteArray & _data, const String & _uri)
     {
-        FILE * fp = fopen(toString(_uri).cString(), "wb");
+        FILE * fp = fopen(_uri.cString(), "wb");
         if (!fp)
         {
             return Error(ec::SystemErrorCode(errno), "fopen failed", STICK_FILE, STICK_LINE);
@@ -98,9 +98,9 @@ namespace stick
         return Error();
     }
 
-    Error saveTextFile(const String & _text, const URI & _uri)
+    Error saveTextFile(const String & _text, const String & _uri)
     {
-        FILE * fp = fopen(toString(_uri).cString(), "w");
+        FILE * fp = fopen(_uri.cString(), "w");
         if (!fp)
         {
             return Error(ec::SystemErrorCode(errno), "fopen failed", STICK_FILE, STICK_LINE);

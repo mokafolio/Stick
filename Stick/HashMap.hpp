@@ -69,7 +69,7 @@ namespace stick
 
             IterT() :
                 map(nullptr),
-                bucketIndex(0),
+                bucketIndex(-1),
                 node(nullptr)
             {
 
@@ -163,7 +163,7 @@ namespace stick
 
             inline Handle handle() const
             {
-                return {bucketIndex, node->id};
+                return {bucketIndex, node ? node->id : -1};
             }
 
             T * map;

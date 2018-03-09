@@ -10,13 +10,13 @@ namespace stick
 {
     typedef DynamicArray<char> ByteArray;
 
-    Result<ByteArray> loadBinaryFile(const URI & _uri, Allocator & _alloc = defaultAllocator());
+    Result<ByteArray> loadBinaryFile(const String & _uri, Allocator & _alloc = defaultAllocator());
 
-    Result<String> loadTextFile(const URI & _uri, Allocator & _alloc = defaultAllocator());
+    Result<String> loadTextFile(const String & _uri, Allocator & _alloc = defaultAllocator());
 
-    Error saveBinaryFile(const ByteArray & _data, const URI & _uri);
+    Error saveBinaryFile(const ByteArray & _data, const String & _uri);
 
-    Error saveTextFile(const String & _text, const URI & _uri);
+    Error saveTextFile(const String & _text, const String & _uri);
 }
 
 #endif //STICK_FILEUTILITIES_HPP

@@ -1238,7 +1238,7 @@ const Suite spec[] =
     },
     SUITE("FileUtilities Tests")
     {
-        URI uri("../../Tests/TestFiles/SomeTextFile.txt");
+        String uri("../../Tests/TestFiles/SomeTextFile.txt");
         auto err = saveTextFile("This is some text", uri);
         EXPECT(!err);
         auto result = loadTextFile(uri);
@@ -1249,7 +1249,7 @@ const Suite spec[] =
         auto result2 = loadTextFile("I/do/not/exist");
         EXPECT(!result2);
 
-        URI uri2("../../Tests/TestFiles/SomeBinaryData.dat");
+        String uri2("../../Tests/TestFiles/SomeBinaryData.dat");
         ByteArray data = {1, 2, 127, 3, 4};
         err = saveBinaryFile(data, uri2);
         EXPECT(!err);
@@ -2032,11 +2032,16 @@ const Suite spec[] =
     },
     SUITE("Resource Tests")
     {
+        // ResourceManager manager;
+        // auto result = manager.load<TestResource>("../../Tests/TestFiles/ResourceTest.txt");
+        // EXPECT(result);
+        // ResourceHandleT<TestResource> handle = result.get();
+        // EXPECT(handle->text == "Hello World!");
+
+        using ResourceManager = ResourceManagerT<DefaultStoragePolicy, ManualOwnershipPolicy>;
         ResourceManager manager;
-        auto result = manager.load<TestResource>(stick::URI("../../Tests/TestFiles/ResourceTest.txt"));
-        EXPECT(result);
-        ResourceT<TestResource> handle = result.get();
-        EXPECT(handle->text == "Hello World!");
+
+        using TestResourceHandle = ResourceManager::Handle<TestResource>;
     }
 };
 
