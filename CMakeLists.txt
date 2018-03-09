@@ -33,6 +33,7 @@ Stick/EventForwarder.hpp
 Stick/EventPublisher.hpp
 Stick/FileSystem.hpp
 Stick/FileUtilities.hpp
+Stick/Hash.hpp
 Stick/HashMap.hpp
 Stick/HighResolutionClock.hpp
 Stick/Iterator.hpp
