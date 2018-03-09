@@ -21,6 +21,7 @@
 #include <Stick/Maybe.hpp>
 #include <Stick/FileSystem.hpp>
 #include <Stick/Variant.hpp>
+#include <Stick/Resource.hpp>
 
 #include <Stick/Allocators/LinearAllocator.hpp>
 #include <Stick/Allocators/GlobalAllocator.hpp>
@@ -172,6 +173,18 @@ struct NoMove
 
     NoMove(NoMove && _other) = delete;
     NoMove & operator = (NoMove && _other) = delete;
+};
+
+//test classes for Resource tests
+struct TestResource
+{
+    inline Error parse(const char * _data, Size _byteCount)
+    {
+        text = String(_data, _data + _byteCount);
+        return Error();
+    }
+
+    String text;
 };
 
 const Suite spec[] =
@@ -2016,6 +2029,14 @@ const Suite spec[] =
         EXPECT((std::is_same<typename TypeAt<Merged, 1>::Type, String>::value));
         EXPECT((std::is_same<typename TypeAt<Merged, 2>::Type, Int32>::value));
         EXPECT((std::is_same<typename TypeAt<Merged, 3>::Type, Size>::value));
+    },
+    SUITE("Resource Tests")
+    {
+        ResourceManager manager;
+        auto result = manager.load<TestResource>(stick::URI("../../Tests/TestFiles/ResourceTest.txt"));
+        EXPECT(result);
+        ResourceT<TestResource> handle = result.get();
+        EXPECT(handle->text == "Hello World!");
     }
 };
 

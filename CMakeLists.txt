@@ -44,6 +44,7 @@ Stick/Path.hpp
 Stick/Platform.hpp
 Stick/Print.hpp
 Stick/RBTree.hpp
+Stick/Resource.hpp
 Stick/Result.hpp
 Stick/ScopedLock.hpp
 Stick/String.hpp
