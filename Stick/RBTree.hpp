@@ -1,5 +1,5 @@
-#ifndef STICK_STICKRBTREE_HPP
-#define STICK_STICKRBTREE_HPP
+#ifndef STICK_RBTREE_HPP
+#define STICK_RBTREE_HPP
 
 #include <Stick/Allocator.hpp>
 #include <Stick/Iterator.hpp>
@@ -557,4 +557,4 @@ namespace stick
     };
 }
 
-#endif //STICK_STICKRBTREE_HPP
+#endif //STICK_RBTREE_HPP

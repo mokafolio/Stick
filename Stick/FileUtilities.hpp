@@ -1,5 +1,5 @@
-#ifndef STICK_STICKFILEUTILITIES_HPP
-#define STICK_STICKFILEUTILITIES_HPP
+#ifndef STICK_FILEUTILITIES_HPP
+#define STICK_FILEUTILITIES_HPP
 
 #include <Stick/String.hpp>
 #include <Stick/DynamicArray.hpp>
@@ -19,4 +19,4 @@ namespace stick
     Error saveTextFile(const String & _text, const URI & _uri);
 }
 
-#endif //STICK_STICKFILEUTILITIES_HPP
+#endif //STICK_FILEUTILITIES_HPP

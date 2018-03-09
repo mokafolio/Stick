@@ -1,5 +1,5 @@
-#ifndef STICK_STICKRESULT_HPP
-#define STICK_STICKRESULT_HPP
+#ifndef STICK_RESULT_HPP
+#define STICK_RESULT_HPP
 
 #include <Stick/Variant.hpp>
 #include <Stick/Error.hpp>
@@ -271,4 +271,4 @@ namespace stick
     typedef Result<stick::String> TextResult;
 }
 
-#endif //STICK_STICKRESULT_HPP
+#endif //STICK_RESULT_HPP

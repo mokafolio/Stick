@@ -1,5 +1,5 @@
-#ifndef STICK_STICKSTRINGCONVERSION_HPP
-#define STICK_STICKSTRINGCONVERSION_HPP
+#ifndef STICK_STRINGCONVERSION_HPP
+#define STICK_STRINGCONVERSION_HPP
 
 #include <stdio.h>
 #include <Stick/String.hpp>
@@ -149,4 +149,4 @@ namespace stick
     }
 }
 
-#endif //STICK_STICKSTRINGCONVERSION_HPP
+#endif //STICK_STRINGCONVERSION_HPP

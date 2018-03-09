@@ -1,5 +1,5 @@
-#ifndef STICK_STICKPATH_HPP
-#define STICK_STICKPATH_HPP
+#ifndef STICK_PATH_HPP
+#define STICK_PATH_HPP
 
 #include <Stick/String.hpp>
 #include <Stick/DynamicArray.hpp>
@@ -110,4 +110,4 @@ namespace stick
     }
 }
 
-#endif //STICK_STICKPATH_HPP
+#endif //STICK_PATH_HPP

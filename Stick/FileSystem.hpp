@@ -1,5 +1,5 @@
-#ifndef STICK_STICKFILESYSTEM_HPP
-#define STICK_STICKFILESYSTEM_HPP
+#ifndef STICK_FILESYSTEM_HPP
+#define STICK_FILESYSTEM_HPP
 
 #include <Stick/String.hpp>
 #include <Stick/Result.hpp>
@@ -481,4 +481,4 @@ namespace stick
     }
 }
 
-#endif //STICK_STICKFILESYSTEM_HPP
+#endif //STICK_FILESYSTEM_HPP

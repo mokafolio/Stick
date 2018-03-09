@@ -1,5 +1,5 @@
-#ifndef STICK_STICKERRORCATEGORY_HPP
-#define STICK_STICKERRORCATEGORY_HPP
+#ifndef STICK_ERRORCATEGORY_HPP
+#define STICK_ERRORCATEGORY_HPP
 
 #include <Stick/String.hpp>
 #include <Stick/ErrorCodes.hpp>
@@ -146,4 +146,4 @@ namespace stick
     }
 }
 
-#endif //STICK_STICKERRORCATEGORY_HPP
+#endif //STICK_ERRORCATEGORY_HPP

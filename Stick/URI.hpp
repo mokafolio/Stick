@@ -1,5 +1,5 @@
-#ifndef STICK_STICKURI_HPP
-#define STICK_STICKURI_HPP
+#ifndef STICK_URI_HPP
+#define STICK_URI_HPP
 
 #include <Stick/String.hpp>
 #include <Stick/Error.hpp>
@@ -181,4 +181,4 @@ namespace stick
     String toString(const URI & _uri);
 }
 
-#endif //STICK_STICKURI_HPP
+#endif //STICK_URI_HPP

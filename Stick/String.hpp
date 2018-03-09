@@ -4,6 +4,11 @@
 #include <Stick/Allocator.hpp>
 #include <Stick/Iterator.hpp>
 #include <Stick/Utility.hpp>
+
+// for string hashing
+#include <Stick/Hash.hpp>
+#include <Stick/Private/MurmurHash2.hpp>
+
 #include <string.h>
 #include <cctype> //for toupper
 #include <algorithm> //for transform
@@ -699,6 +704,15 @@ namespace stick
         int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
         return ret;
     }
+
+    template<>
+    struct DefaultHash<String>
+    {
+        Size operator()(const String & _str) const
+        {
+            return detail::murmur2(_str.cString(), _str.length(), 0);
+        }
+    };
 }
 
 #endif //STICK_STRING_HPP

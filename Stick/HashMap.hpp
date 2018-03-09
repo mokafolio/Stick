@@ -1,83 +1,12 @@
-#ifndef STICK_STICKHASHMAP_HPP
-#define STICK_STICKHASHMAP_HPP
+#ifndef STICK_HASHMAP_HPP
+#define STICK_HASHMAP_HPP
 
 #include <Stick/Allocator.hpp>
-#include <Stick/String.hpp>
-#include <Stick/Private/MurmurHash2.hpp>
+#include <Stick/Hash.hpp>
 #include <initializer_list>
 
 namespace stick
 {
-    template<class T>
-    struct DefaultHash;
-
-    template<>
-    struct DefaultHash<String>
-    {
-        Size operator()(const String & _str) const
-        {
-            return detail::murmur2(_str.cString(), _str.length(), 0);
-        }
-    };
-
-    template<>
-    struct DefaultHash<Int32>
-    {
-        Size operator()(Int32 _i) const
-        {
-            return _i;
-        }
-    };
-
-    template<>
-    struct DefaultHash<UInt32>
-    {
-        Size operator()(Int32 _i) const
-        {
-            return _i;
-        }
-    };
-
-
-    template<>
-    struct DefaultHash<Size>
-    {
-        Size operator()(Size _i) const
-        {
-            return _i;
-        }
-    };
-
-    template<class T>
-    struct DefaultHash<T *>
-    {
-        Size operator()(T * _i) const
-        {
-            return reinterpret_cast<Size>(_i);
-        }
-    };
-
-    /*template<class T, template<class> class H = DefaultHash>
-    struct CachingKey
-    {
-        using KeyType = T;
-
-        CachingKey(const KeyType & _key)
-        {
-
-        }
-
-        CachingKey(KeyType && _key) :
-        key(std::forward<KeyType>(_key)),
-        cachedHash()
-        {
-
-        }
-
-        KeyType key;
-        Size cachedHash;
-    };*/
-
     template<class K, class V, template<class> class H = DefaultHash>
     class HashMap
     {
@@ -538,7 +467,7 @@ namespace stick
             else
                 _it.node->prev->next = _it.node->next;
 
-            if(_it.node->next)
+            if (_it.node->next)
                 _it.node->next->prev = _it.node->prev;
 
             destroyNode(_it.node);
@@ -795,4 +724,4 @@ namespace stick
     };
 }
 
-#endif //STICK_STICKHASHMAP_HPP
+#endif //STICK_HASHMAP_HPP

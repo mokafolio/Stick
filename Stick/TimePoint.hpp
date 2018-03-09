@@ -1,5 +1,5 @@
-#ifndef STICK_STICKTIMEPOINT_HPP
-#define STICK_STICKTIMEPOINT_HPP
+#ifndef STICK_TIMEPOINT_HPP
+#define STICK_TIMEPOINT_HPP
 
 #include <Stick/Duration.hpp>
 
@@ -41,4 +41,4 @@ namespace stick
     };
 }
 
-#endif //STICK_STICKTIMEPOINT_HPP
+#endif //STICK_TIMEPOINT_HPP

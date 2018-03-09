@@ -1,5 +1,5 @@
-#ifndef STICK_STICKERROR_HPP
-#define STICK_STICKERROR_HPP
+#ifndef STICK_ERROR_HPP
+#define STICK_ERROR_HPP
 
 #include <Stick/String.hpp>
 #include <Stick/Utility.hpp>
@@ -148,4 +148,4 @@ namespace stick
     }
 }
 
-#endif //STICK_STICKERROR_HPP
+#endif //STICK_ERROR_HPP
