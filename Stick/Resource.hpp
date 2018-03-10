@@ -278,6 +278,14 @@ namespace stick
 
     using ResourceUniquePtr = UniquePtr<Resource>;
 
+    template<class ResourceT>
+    class ManualOwnershipPolicy
+    {
+        using ResourceStorage = ResourceT;
+
+
+    };
+
     class StoragePolicyBase
     {
     public:
@@ -285,14 +293,22 @@ namespace stick
         virtual ~StoragePolicyBase() {}
     };
 
-    template<class ResourceT>
+    template<class ResourceT, template<class> class OwnershipPolicy>
     class DefaultStoragePolicy : public StoragePolicyBase
     {
     public:
 
         using ResourceType = ResourceT;
-        using Map = HashMap<String, UniquePtr<ResourceT>>;
+        using OwnershipType = OwnershipPolicy<ResourceT>;
+        using ResourceStorage = typename OwnershipType::ResourceStorage;
+        using Map = HashMap<String, UniquePtr<ResourceStorage>>;
         using HandleType = typename Map::Handle;
+
+        struct Allocation
+        {
+            HandleType handle;
+            ResourceType * resource;
+        };
 
         inline DefaultStoragePolicy(Allocator & _alloc) :
             m_map(_alloc)
@@ -300,22 +316,40 @@ namespace stick
 
         }
 
-        inline ResourceType * find(const String & _uri) const
+        // inline ResourceType * find(const String & _uri) const
+        // {
+        //     auto it = m_map.find(_uri);
+        //     if (it != m_map.end()) return it->value.get();
+        //     return nullptr;
+        // }
+
+        // inline bool isValidHandle(const HandleType & _handle)
+        // {
+        //     return _handle.bucketIndex != -1;
+        // }
+
+        // inline Allocation allocateResource(const String & _uri)
+        // {
+        //     auto res = m_map.insert(_uri, makeUnique<ResourceType>(m_map.allocator()));
+        //     return {res.iterator.handle(), res.iterator->value.get()};
+        // }
+
+        template<class ManagerType>
+        inline ResourceType * load(const String & _uri, ManagerType * _manager)
         {
             auto it = m_map.find(_uri);
-            if(it != m_map.end()) return it->value.get();
-            return nullptr;
+            if (it != m_map.end())
+            {
+                return it->value.get();
+            }
+
+            auto uptr = makeUnique<ResourceStorage>(m_map.allocator());
+            Error err = _manager->load(uptr.get(), _uri);
+            if (err) return err;
+            return m_map.insert(_uri, uptr).iterator->value.get();
         }
 
-        inline bool isValidHandle(const HandleType & _handle)
-        {
-            return _handle.bucketIndex != -1;
-        }
 
-        inline ResourceType * allocateResource(const String & _uri)
-        {
-            return m_map.insert(_uri, makeUnique<ResourceType>(m_map.allocator())).iterator->value.get();
-        }
 
         // template<template<class> class HandleT, class T>
         // inline Result<HandleT<T>> load(const String & _uri)
@@ -335,14 +369,12 @@ namespace stick
         Map m_map;
     };
 
-    class ManualOwnershipPolicy
-    {
-
-    };
-
-    template<template<class> class StoragePolicy, class HandleOwnershipPolicy>
+    template<template<class, class> class StoragePolicy, class HandleOwnershipPolicy>
     class STICK_API ResourceManagerT : public ResourceManagerBase
     {
+        // template<class T>
+        // friend StoragePolicy;
+
     public:
 
         template<class T>
@@ -350,7 +382,7 @@ namespace stick
         {
         public:
 
-            using StorageHandleType = typename StoragePolicy<T>::HandleType;
+            using StorageHandleType = typename StoragePolicy<T, HandleOwnershipPolicy>::HandleType;
             using ResourceType = T;
 
             Handle() :
@@ -361,7 +393,7 @@ namespace stick
             Handle(T * _resource) :
                 m_obj(_resource)
             {
-                m_ownerShip.createdHandle(this);
+                m_ownerShip.creatingHandle(this);
             }
 
             ~Handle()
@@ -374,17 +406,11 @@ namespace stick
             HandleOwnershipPolicy m_ownerShip;
         };
 
-
         template<class T>
         inline Result<Handle<T>> load(const String & _uri)
         {
             StoragePolicy<T> * s = storage<T>();
-            T * resource = s->find(_uri);
-            if(resource) return Handle<T>(resource);
-
-            // auto result = loadBinaryFile(_uri, )
-            // resource = s->allocateResource(_uri);
-            // Error err = resource->parse()
+            return s->template load(_uri, this);
         }
 
     private:
@@ -392,6 +418,15 @@ namespace stick
         // using StorageType = StoragePolicy;
         using StorageUniquePtr = UniquePtr<StoragePolicyBase>;
         using StorageMap = HashMap<TypeID, StorageUniquePtr>;
+
+        template<class T>
+        inline Error loadResource(T * _resource, const String & _uri)
+        {
+            auto result = loadBinaryFile(_uri);
+            if (!result)
+                return result.error();
+            return _resource->parse(&result.get()[0], result.get().count());
+        }
 
         template<class T>
         inline StoragePolicy<T> * storage()

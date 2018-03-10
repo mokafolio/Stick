@@ -21,7 +21,7 @@
 #include <Stick/Maybe.hpp>
 #include <Stick/FileSystem.hpp>
 #include <Stick/Variant.hpp>
-#include <Stick/Resource.hpp>
+// #include <Stick/Resource.hpp>
 
 #include <Stick/Allocators/LinearAllocator.hpp>
 #include <Stick/Allocators/GlobalAllocator.hpp>
@@ -1183,6 +1183,36 @@ const Suite spec[] =
         handledMap.remove("test");
         EXPECT(handledMap.find(handle) == handledMap.end());
         EXPECT(handledMap.count() == 4);
+
+        //check if destructors are called as expected
+        {
+            DestructorTester::reset();
+            HashMap<Int32, UniquePtr<DestructorTester>> map;
+            // printf("DES COUNT0 %i\n", DestructorTester::destructionCount);
+            map.insert(1, makeUnique<DestructorTester>());
+            map.insert(99, makeUnique<DestructorTester>());
+            map.insert(123, makeUnique<DestructorTester>());
+            // printf("DES COUNT1 %i\n", DestructorTester::destructionCount);
+            map.clear();
+            EXPECT(DestructorTester::destructionCount == 3);
+
+            DestructorTester::reset();
+            {
+                HashMap<Int32, UniquePtr<DestructorTester>> map2;
+                map2.insert(1, makeUnique<DestructorTester>());
+                map2.insert(99, makeUnique<DestructorTester>());
+                map2.insert(123, makeUnique<DestructorTester>());
+            }
+            EXPECT(DestructorTester::destructionCount == 3);
+
+            DestructorTester::reset();
+            HashMap<Int32, UniquePtr<DestructorTester>> map3;
+            map3.insert(1, makeUnique<DestructorTester>());
+            map3.insert(99, makeUnique<DestructorTester>());
+            map3.insert(123, makeUnique<DestructorTester>());
+            map3.remove(99);
+            EXPECT(DestructorTester::destructionCount == 1);
+        }
     },
     SUITE("Thread Tests")
     {
@@ -2029,7 +2059,7 @@ const Suite spec[] =
         EXPECT((std::is_same<typename TypeAt<Merged, 1>::Type, String>::value));
         EXPECT((std::is_same<typename TypeAt<Merged, 2>::Type, Int32>::value));
         EXPECT((std::is_same<typename TypeAt<Merged, 3>::Type, Size>::value));
-    },
+    }/*,
     SUITE("Resource Tests")
     {
         // ResourceManager manager;
@@ -2042,7 +2072,7 @@ const Suite spec[] =
         ResourceManager manager;
 
         using TestResourceHandle = ResourceManager::Handle<TestResource>;
-    }
+    }*/
 };
 
 int main(int _argc, const char * _args[])
