@@ -454,13 +454,20 @@ namespace stick
 
             Bucket & b = m_buckets[_it.bucketIndex];
 
-            Iter ret;
-            if (_it.node->next)
-            {
-                ret = Iter(*this, _it.node->next->bucketIndex, _it.node->next);
-            }
-            else
-                ret = end();
+            //@TODO: Still not 100% positive that this is correct
+            //and its also kind of ugly.
+            Iter ret(*this, _it.bucketIndex, _it.node);
+            ++ret;
+            // if (_it.node->next)
+            // {
+            //     ret = Iter(*this, _it.node->next->bucketIndex, _it.node->next);
+            // }
+            // else if(_it.bucketIndex < m_bucketCount - 1)
+            // {
+            //     ret = Iter(*this, _it.)
+            // }
+            // else
+            //     ret = end();
 
             if (!_it.node->prev)
                 b.first = _it.node->next;

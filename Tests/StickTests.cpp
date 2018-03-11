@@ -1184,6 +1184,22 @@ const Suite spec[] =
         EXPECT(handledMap.find(handle) == handledMap.end());
         EXPECT(handledMap.count() == 4);
 
+        //testing if remove returns the expected iterator to the next item
+        {
+            HashMap<String, Int32> map;
+            map.insert("test", 1);
+            map.insert("test2", 2);
+            map.insert("test3", 3);
+
+            for(auto & kv : map)
+            {
+                printf("MAP VAL: %s %i\n", kv.key.cString(), kv.value);
+
+            }
+            auto it = map.remove("test3");
+            EXPECT(it != map.end());
+        }
+
         //check if destructors are called as expected
         {
             DestructorTester::reset();
