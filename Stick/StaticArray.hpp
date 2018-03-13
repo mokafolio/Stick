@@ -27,17 +27,12 @@ namespace stick
 
         }
 
-        /*template <typename...Args>
-        inline StaticArray(Args..._args) :
-            m_array{_args...},
-            m_count(sizeof...(_args))
-        {
-
-        }*/
-
         inline StaticArray(std::initializer_list<T> _items) :
         m_count(_items.size())
         {
+            //@TODO: Static Assert on c++14+ where std::initializer_list<T>::size() is constexpr.
+            // static_assert(_items.size() <= C, "Too many items for the capacity of this StaticArray");
+            STICK_ASSERT(_items.size() <= C);
             std::copy(_items.begin(), _items.end(), &m_array[0]);
         }
 
