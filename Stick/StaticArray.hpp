@@ -1,12 +1,12 @@
-#ifndef STICK_ARRAY_HPP
-#define STICK_ARRAY_HPP
+#ifndef STICK_STATIC_ARRAY_HPP
+#define STICK_STATIC_ARRAY_HPP
 
 #include <Stick/Iterator.hpp>
 
 namespace stick
 {
     template<class T, Size C>
-    class Array
+    class StaticArray
     {
     public:
 
@@ -43,12 +43,12 @@ namespace stick
 
         inline Iter end()
         {
-            return (Iter)m_array + C;
+            return (Iter)m_array + m_count;
         }
 
         inline ConstIter end() const
         {
-            return (ConstIter)m_array + C;
+            return (ConstIter)m_array + m_count;
         }
 
         inline ReverseIter rbegin()
@@ -71,14 +71,28 @@ namespace stick
             return ReverseConstIter(begin());
         }
 
-        inline constexpr Size count() const
+        inline Size count() const
+        {
+            return m_count;
+        }
+
+        inline constexpr Size capacity() const
         {
             return C;
         }
 
+        template<class D>
+        inline bool append(D && _item)
+        {
+            if(m_count == C)
+                return false;
+            m_array[m_count++] = std::forward<D>(_item);
+            return true;
+        }
 
         T m_array[C ? C : 1];
+        Size m_count;
     };
 };
 
-#endif //STICK_ARRAY_HPP
+#endif //STICK_STATIC_ARRAY_HPP

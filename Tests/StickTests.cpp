@@ -1,9 +1,9 @@
 #include <Stick/ArgumentParser.hpp>
-#include <Stick/Array.hpp>
 #include <Stick/String.hpp>
 #include <Stick/DynamicArray.hpp>
 #include <Stick/RBTree.hpp>
 #include <Stick/Map.hpp>
+#include <Stick/FixedArray.hpp>
 #include <Stick/HashMap.hpp>
 #include <Stick/Error.hpp>
 #include <Stick/EventForwarder.hpp>
@@ -21,7 +21,7 @@
 #include <Stick/Maybe.hpp>
 #include <Stick/FileSystem.hpp>
 #include <Stick/Variant.hpp>
-// #include <Stick/Resource.hpp>
+#include <Stick/StaticArray.hpp>
 
 #include <Stick/Allocators/LinearAllocator.hpp>
 #include <Stick/Allocators/GlobalAllocator.hpp>
@@ -474,9 +474,9 @@ const Suite spec[] =
         Result<String &> e(str);
         EXPECT(e.ensure() == "test");
     },
-    SUITE("Array Tests")
+    SUITE("Fixed Array Tests")
     {
-        Array<Int32, 4> array = {4, 2, 3, 1};
+        FixedArray<Int32, 4> array = {4, 2, 3, 1};
         EXPECT(array[0] == 4);
         EXPECT(array[1] == 2);
         EXPECT(array[2] == 3);
