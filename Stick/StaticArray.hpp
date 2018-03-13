@@ -20,14 +20,32 @@ namespace stick
 
         typedef ReverseIterator<ConstIter> ReverseConstIter;
 
+        inline StaticArray() :
+            m_count(0)
+        {
+
+        }
+
+        template <typename...Args>
+        inline StaticArray(Args..._args) :
+            m_array{_args...},
+            m_count(sizeof...(_args))
+        {
+
+        }
+
+        inline StaticArray(const StaticArray &) = default;
+        inline StaticArray(StaticArray &&) = default;
 
         inline const T & operator [](Size _index) const
         {
+            STICK_ASSERT(_index < m_count);
             return m_array[_index];
         }
 
         inline T & operator [](Size _index)
         {
+            STICK_ASSERT(_index < m_count);
             return m_array[_index];
         }
 
@@ -84,11 +102,13 @@ namespace stick
         template<class D>
         inline bool append(D && _item)
         {
-            if(m_count == C)
+            if (m_count == C)
                 return false;
             m_array[m_count++] = std::forward<D>(_item);
             return true;
         }
+
+    private:
 
         T m_array[C ? C : 1];
         Size m_count;

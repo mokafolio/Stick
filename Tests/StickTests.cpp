@@ -498,6 +498,34 @@ const Suite spec[] =
             --i;
         }
     },
+    SUITE("StaticArray Array Tests")
+    {
+        StaticArray<Int32, 4> array = {4, 2};
+        EXPECT(array[0] == 4);
+        EXPECT(array[1] == 2);
+        EXPECT(array.count() == 2);
+        EXPECT(array.append(3));
+        EXPECT(array.append(1));
+        EXPECT(!array.append(99));
+        EXPECT(array[2] == 3);
+        EXPECT(array[3] == 1);
+        EXPECT(array.count() == 4);
+
+        Int32 expected[] = {4, 2, 3, 1};
+        Int32 i = 0;
+        for (Int32 el : array)
+        {
+            EXPECT(expected[i] == array[i]);
+            ++i;
+        }
+
+        i = 3;
+        for (auto it = array.rbegin(); it != array.rend(); ++it)
+        {
+            EXPECT(expected[i] == *it);
+            --i;
+        }
+    },
     SUITE("DynamicArray Tests")
     {
         DynamicArray<Int32> a;
@@ -1191,7 +1219,7 @@ const Suite spec[] =
             map.insert("test2", 2);
             map.insert("test3", 3);
 
-            for(auto & kv : map)
+            for (auto & kv : map)
             {
                 printf("MAP VAL: %s %i\n", kv.key.cString(), kv.value);
 
