@@ -33,6 +33,7 @@ Stick/EventForwarder.hpp
 Stick/EventPublisher.hpp
 Stick/FileSystem.hpp
 Stick/FileUtilities.hpp
+Stick/FixedArray.hpp
 Stick/Hash.hpp
 Stick/HashMap.hpp
 Stick/HighResolutionClock.hpp
@@ -44,9 +45,9 @@ Stick/Path.hpp
 Stick/Platform.hpp
 Stick/Print.hpp
 Stick/RBTree.hpp
-Stick/Resource.hpp
 Stick/Result.hpp
 Stick/ScopedLock.hpp
+Stick/StaticArray.hpp
 Stick/String.hpp
 Stick/StringConversion.hpp
 Stick/SystemClock.hpp
