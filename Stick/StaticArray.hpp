@@ -28,7 +28,7 @@ namespace stick
         }
 
         inline StaticArray(std::initializer_list<T> _items) :
-        m_count(_items.size())
+            m_count(_items.size())
         {
             //@TODO: Static Assert on c++14+ where std::initializer_list<T>::size() is constexpr.
             // static_assert(_items.size() <= C, "Too many items for the capacity of this StaticArray");
@@ -89,6 +89,30 @@ namespace stick
         inline ReverseConstIter rend() const
         {
             return ReverseConstIter(begin());
+        }
+
+        inline T & last()
+        {
+            STICK_ASSERT(m_count);
+            return m_array[m_count - 1];
+        }
+
+        inline const T & last() const
+        {
+            STICK_ASSERT(m_count);
+            return m_array[m_count - 1];
+        }
+
+        inline T & first()
+        {
+            STICK_ASSERT(m_count);
+            return m_array[0];
+        }
+
+        inline const T & first() const
+        {
+            STICK_ASSERT(m_count);
+            return m_array[0];
         }
 
         inline Size count() const
