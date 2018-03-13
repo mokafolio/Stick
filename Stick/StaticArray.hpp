@@ -2,6 +2,7 @@
 #define STICK_STATIC_ARRAY_HPP
 
 #include <Stick/Iterator.hpp>
+#include <initializer_list>
 
 namespace stick
 {
@@ -26,12 +27,18 @@ namespace stick
 
         }
 
-        template <typename...Args>
+        /*template <typename...Args>
         inline StaticArray(Args..._args) :
             m_array{_args...},
             m_count(sizeof...(_args))
         {
 
+        }*/
+
+        inline StaticArray(std::initializer_list<T> _items) :
+        m_count(_items.size())
+        {
+            std::copy(_items.begin(), _items.end(), &m_array[0]);
         }
 
         inline StaticArray(const StaticArray &) = default;
