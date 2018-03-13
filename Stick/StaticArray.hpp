@@ -110,6 +110,14 @@ namespace stick
             return true;
         }
 
+        inline void removeLast()
+        {
+            //@TODO: Do we need to call the destructor here?
+            //or do we just let it get called once the array entry
+            //might get overwritten?
+            --m_count;
+        }
+
     private:
 
         T m_array[C ? C : 1];

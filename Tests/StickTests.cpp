@@ -498,7 +498,7 @@ const Suite spec[] =
             --i;
         }
     },
-    SUITE("StaticArray Array Tests")
+    SUITE("StaticArray Tests")
     {
         StaticArray<Int32, 4> array = {4, 2};
         EXPECT(array[0] == 4);
