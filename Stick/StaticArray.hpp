@@ -22,7 +22,6 @@ namespace stick
         typedef ReverseIterator<ConstIter> ReverseConstIter;
 
         inline StaticArray() :
-            m_array{0},
             m_count(0)
         {
 
@@ -128,13 +127,14 @@ namespace stick
             return C;
         }
 
-        template<class D>
-        inline bool append(D && _item)
+        inline bool append(const T & _item)
         {
-            if (m_count == C)
-                return false;
-            m_array[m_count++] = std::forward<D>(_item);
-            return true;
+            return appendImpl(_item);
+        }
+
+        inline bool append(T && _item)
+        {
+            return appendImpl(std::move(_item));
         }
 
         inline void removeLast()
@@ -146,6 +146,15 @@ namespace stick
         }
 
     private:
+
+        template<class D>
+        inline bool appendImpl(D && _item)
+        {
+            if (m_count == C)
+                return false;
+            m_array[m_count++] = std::forward<D>(_item);
+            return true;
+        }
 
         T m_array[C ? C : 1];
         Size m_count;
