@@ -22,6 +22,7 @@ namespace stick
         typedef ReverseIterator<ConstIter> ReverseConstIter;
 
         inline StaticArray() :
+            m_array{0},
             m_count(0)
         {
 
@@ -38,6 +39,8 @@ namespace stick
 
         inline StaticArray(const StaticArray &) = default;
         inline StaticArray(StaticArray &&) = default;
+        StaticArray & operator = (const StaticArray &) = default;
+        StaticArray & operator = (StaticArray &&) = default;
 
         inline const T & operator [](Size _index) const
         {
