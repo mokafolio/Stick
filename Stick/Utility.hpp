@@ -28,6 +28,25 @@ typename std::enable_if<enableBitmaskOperators(T()), T>::type operator & (T _a, 
 
 namespace stick
 {
+    inline uintptr_t alignOffset(const void * _ptr, int _alignment)
+    {
+        return ((~reinterpret_cast<uintptr_t> (_ptr)) + 1) & (_alignment - 1);
+    }
+
+    template<typename T>
+    inline uintptr_t memoryAlignOffset (const void * _ptr)
+    {
+        return alignOffset(_ptr, sizeof(T));
+    }
+
+    template<typename T>
+    inline T * memoryAlign (T * ptr)
+    {
+        uintptr_t offset = memoryAlignOffset<uintptr_t> (ptr);
+        char * aligned_ptr = reinterpret_cast<char *> (ptr) + offset;
+        return reinterpret_cast<T *> (aligned_ptr);
+    }
+
     template<class T>
     bool hasFields(T _mask, T _fields)
     {

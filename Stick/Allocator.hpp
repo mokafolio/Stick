@@ -16,6 +16,8 @@ namespace stick
 
         virtual void deallocate(const mem::Block & _block) = 0;
 
+        //@TODO: replace modulo with faster ways to align
+        //on the other hand its static so maybe not worth it :)
         template<class T, class...Args>
         inline T * create(Args && ..._args)
         {

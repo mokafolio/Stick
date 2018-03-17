@@ -76,6 +76,16 @@ namespace stick
             return C;
         }
 
+        inline const T * ptr() const
+        {
+            return &m_array[0];
+        }
+
+        inline T * ptr()
+        {
+            return &m_array[0];
+        }
+
         T m_array[C ? C : 1];
     };
 };
