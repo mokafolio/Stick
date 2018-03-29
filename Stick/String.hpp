@@ -39,6 +39,7 @@ namespace stick
         typedef const char * ConstIter;
         typedef ReverseIterator<Iter> ReverseIter;
         typedef ReverseIterator<ConstIter> ReverseConstIter;
+        typedef char ValueType;
         static constexpr Size InvalidIndex = -1;
 
 
