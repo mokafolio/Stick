@@ -130,6 +130,41 @@ struct DestructorTester
 int DestructorTester::destructionCount = 0;
 
 
+struct ResultTestClass
+{
+    ResultTestClass()
+    {
+    }
+
+    ResultTestClass(const ResultTestClass & _c)
+    {
+        printf("COPY ResultTestClass\n");
+    }
+
+    ResultTestClass(ResultTestClass && _c)
+    {
+        printf("MOVE ResultTestClass\n");
+    }
+
+    ResultTestClass & operator = (const ResultTestClass & _o)
+    {
+        printf("COP ASSIGN ResultTestClass\n");
+        return *this;
+    }
+
+    ResultTestClass & operator = (ResultTestClass && _o)
+    {
+        printf("MOVE ASSIGN ResultTestClass\n");
+        return *this;
+    }
+};
+
+Result<ResultTestClass> makeResult()
+{
+    return ResultTestClass();
+}
+
+
 struct CustomAllocator : public Allocator
 {
     using BucketizerPoolType = mem::PoolAllocator<mem::Mallocator,  mem::DynamicSizeFlag,  mem::DynamicSizeFlag, 256>;
@@ -473,6 +508,9 @@ const Suite spec[] =
         String str("test");
         Result<String &> e(str);
         EXPECT(e.ensure() == "test");
+
+        //not a test, just to print out behavior
+        ResultTestClass tc = std::move(makeResult().ensure());
     },
     SUITE("Fixed Array Tests")
     {

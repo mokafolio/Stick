@@ -221,9 +221,9 @@ namespace stick
 
     public:
 
-        static constexpr size_t storageSize = detail::StaticMax<sizeof(Ts)...>::value;
-        static constexpr size_t storageAlignment = detail::StaticMax<alignof(Ts)...>::value;
-        using StorageType = typename std::aligned_storage<storageSize, storageAlignment>::type;
+        static constexpr size_t StorageSize = detail::StaticMax<sizeof(Ts)...>::value;
+        static constexpr size_t StorageAlignment = detail::StaticMax<alignof(Ts)...>::value;
+        using StorageType = typename std::aligned_storage<StorageSize, StorageAlignment>::type;
 
         inline Variant() :
             m_typeID(0)
@@ -323,6 +323,16 @@ namespace stick
         inline typename detail::ReturnTypeTraits<T>::ReferenceType get()
         {
             return const_cast<typename detail::ReturnTypeTraits<T>::ReferenceType>(const_cast<const Variant *>(this)->get<T>());
+        }
+
+        inline void * ptr() const
+        {
+            return isValid() ? &m_storage : nullptr;
+        }
+
+        inline Size storageSize() const
+        {
+            return StorageSize;
         }
 
     private:
