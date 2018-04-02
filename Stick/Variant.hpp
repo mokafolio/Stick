@@ -325,7 +325,7 @@ namespace stick
             return const_cast<typename detail::ReturnTypeTraits<T>::ReferenceType>(const_cast<const Variant *>(this)->get<T>());
         }
 
-        inline void * ptr() const
+        inline const void * ptr() const
         {
             return isValid() ? &m_storage : nullptr;
         }
