@@ -36,10 +36,10 @@ namespace stick
             std::copy(_items.begin(), _items.end(), &m_array[0]);
         }
 
-        inline StaticArray(const StaticArray &) = default;
-        inline StaticArray(StaticArray &&) = default;
-        StaticArray & operator = (const StaticArray &) = default;
-        StaticArray & operator = (StaticArray &&) = default;
+        inline StaticArray(const StaticArray & _other) = default;
+        inline StaticArray(StaticArray && _other) = default;
+        inline StaticArray & operator = (const StaticArray & _other) = default;
+        inline StaticArray & operator = (StaticArray && _other) = default;
 
         inline const T & operator [](Size _index) const
         {

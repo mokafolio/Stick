@@ -535,6 +535,13 @@ const Suite spec[] =
             EXPECT(expected[i] == *it);
             --i;
         }
+
+        FixedArray<Int32, 4> array2 = array;
+        EXPECT(array2[0] == 4);
+        EXPECT(array2[1] == 2);
+        EXPECT(array2[2] == 3);
+        EXPECT(array2[3] == 1);
+        EXPECT(array2.count() == 4);
     },
     SUITE("StaticArray Tests")
     {
@@ -563,6 +570,13 @@ const Suite spec[] =
             EXPECT(expected[i] == *it);
             --i;
         }
+
+        StaticArray<Int32, 4> array2 = array;
+        EXPECT(array2[0] == 4);
+        EXPECT(array2[1] == 2);
+        EXPECT(array2[2] == 3);
+        EXPECT(array2[3] == 1);
+        EXPECT(array2.count() == 4);
     },
     SUITE("DynamicArray Tests")
     {
