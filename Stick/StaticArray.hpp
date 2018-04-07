@@ -40,6 +40,34 @@ namespace stick
         inline StaticArray(StaticArray && _other) = default;
         inline StaticArray & operator = (const StaticArray & _other) = default;
         inline StaticArray & operator = (StaticArray && _other) = default;
+        
+        /*inline StaticArray(const StaticArray & _other) :
+        m_count(_other.m_count)
+        {
+            printf("COPY CONST\n");
+            std::copy(_other.m_array, _other.m_array + _other.m_count, &m_array[0]);
+        }
+
+        inline StaticArray(StaticArray && _other) :
+        m_array(std::move(_other.m_array)),
+        m_count(std::move(_other.m_count))
+        {
+
+        }
+
+        inline StaticArray & operator = (const StaticArray & _other)
+        {
+            std::copy(_other.m_array, _other.m_array + _other.m_count, &m_array[0]);
+            m_count = _other.m_count; 
+            return *this;
+        }
+
+        inline StaticArray & operator = (StaticArray && _other)
+        {
+            m_array = std::move(_other.m_array);
+            m_count = std::move(_other.m_count);
+            return *this;
+        }*/
 
         inline const T & operator [](Size _index) const
         {

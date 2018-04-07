@@ -577,6 +577,18 @@ const Suite spec[] =
         EXPECT(array2[2] == 3);
         EXPECT(array2[3] == 1);
         EXPECT(array2.count() == 4);
+
+        StaticArray<Variant<String, Int32, Float64>, 16> varr = {"test", 1, 2.0};
+        EXPECT(varr[0].get<String>() == "test");
+        EXPECT(varr[1].get<Int32>() == 1);
+        EXPECT(varr[2].get<Float64>() == 2.0);
+        EXPECT(varr.count() == 3);
+
+        auto varr2 = varr;
+        EXPECT(varr2[0].get<String>() == "test");
+        EXPECT(varr2[1].get<Int32>() == 1);
+        EXPECT(varr2[2].get<Float64>() == 2.0);
+        EXPECT(varr2.count() == 3);
     },
     SUITE("DynamicArray Tests")
     {
@@ -662,6 +674,12 @@ const Suite spec[] =
             EXPECT(expectedArr2[i] == v);
             i++;
         }
+
+        DynamicArray<Float32> b2 = {0.5f, 0.3f, 0.1f, 0.2f};
+        b2.remove(b2.begin(), b2.begin() + 2);
+        EXPECT(b2.count() == 2);
+        EXPECT(b2[0] == 0.1f);
+        EXPECT(b2[1] == 0.2f);
 
         //destructor tests
         DynamicArray<DestructorTester> tt;

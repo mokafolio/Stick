@@ -43,7 +43,11 @@ namespace stick
         typedef typename IterTraits::PointerType PointerType;
 
 
-        explicit ReverseIterator(const Iter & _it) :
+        inline ReverseIterator()
+        {
+        }
+
+        inline explicit ReverseIterator(const Iter & _it) :
             m_it(_it)
         {
 

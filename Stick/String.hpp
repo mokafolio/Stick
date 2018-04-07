@@ -208,6 +208,12 @@ namespace stick
             (*this)[off] = _c;
         }
 
+        inline void removeLast()
+        {
+            if(m_length)
+                m_cStr[--m_length] = '\0';
+        }
+
         inline char operator [](Size _index) const
         {
             return *(begin() + _index);
