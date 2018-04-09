@@ -173,6 +173,11 @@ namespace stick
             --m_count;
         }
 
+        inline void clear()
+        {
+            m_count = 0;
+        }
+
     private:
 
         template<class D>
