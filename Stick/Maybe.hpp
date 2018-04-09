@@ -262,6 +262,20 @@ namespace stick
 
         T * m_ptr;
     };
+
+    template< class T, class U >
+    inline bool operator == (const Maybe<T> & _a, const Maybe<U> & _b)
+    {
+        if(!_a && !_b) return true;
+        if(_a && _b) return *_a == *_b;
+        return false; 
+    }
+
+    template< class T, class U >
+    inline bool operator != (const Maybe<T> & _a, const Maybe<U> & _b)
+    {
+        return !(_a == _b);
+    }
 }
 
 #endif //STICK_MAYBE_HPP

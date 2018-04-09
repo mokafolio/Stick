@@ -1267,20 +1267,20 @@ const Suite spec[] =
         EXPECT(blaMap[0] == "test");
         EXPECT(blaMap[(const void *)1] == "test2");
 
-        //check if the handle stuff works
-        HashMap<String, Int32> handledMap;
-        handledMap.insert("a", 2);
-        handledMap.insert("b", 3);
-        auto ires = handledMap.insert("test", 1);
-        handledMap.insert("c", 99);
-        handledMap.insert("d", 1234);
+        // //check if the handle stuff works
+        // HashMap<String, Int32> handledMap;
+        // handledMap.insert("a", 2);
+        // handledMap.insert("b", 3);
+        // auto ires = handledMap.insert("test", 1);
+        // handledMap.insert("c", 99);
+        // handledMap.insert("d", 1234);
 
-        const HashMap<String, Int32> & cHandledMap = handledMap;
-        auto handle = ires.iterator.handle();
-        EXPECT(cHandledMap.find(handle) == ires.iterator);
-        handledMap.remove("test");
-        EXPECT(handledMap.find(handle) == handledMap.end());
-        EXPECT(handledMap.count() == 4);
+        // const HashMap<String, Int32> & cHandledMap = handledMap;
+        // auto handle = ires.iterator.handle();
+        // EXPECT(cHandledMap.find(handle) == ires.iterator);
+        // handledMap.remove("test");
+        // EXPECT(handledMap.find(handle) == handledMap.end());
+        // EXPECT(handledMap.count() == 4);
 
         //testing if remove returns the expected iterator to the next item
         {

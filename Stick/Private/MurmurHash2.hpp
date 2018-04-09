@@ -21,6 +21,8 @@ namespace stick
 {
     namespace detail
     {
+        static_assert(sizeof(int) == 4, "Wrong size int");
+        
         inline unsigned int murmur2 (const void * key, int len, unsigned int seed)
         {
             // 'm' and 'r' are mixing constants generated offline.
