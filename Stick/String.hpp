@@ -489,7 +489,7 @@ namespace stick
         {
             Size diff = m_length - _idx;
             resize(m_length + _count);
-            std::strncpy(m_cStr + _idx + _count, m_cStr + _idx, diff);
+            std::memmove(m_cStr + _idx + _count, m_cStr + _idx, diff);
             for (Size i = _idx; i < _idx + _count; ++i)
                 m_cStr[i] = _c;
             return *this;
@@ -497,7 +497,28 @@ namespace stick
 
         inline String & insert(Size _idx, const char * _cStr)
         {
+            return insert(_idx, _cStr, std::strlen(_cStr));
+        }
 
+        inline String & insert(Size _idx, const char * _cStr, Size _count)
+        {
+            Size diff = m_length - _idx;
+            resize(m_length + _count);
+            std::memmove(m_cStr + _idx + _count, m_cStr + _idx, diff);
+            std::memcpy(m_cStr + _idx, _cStr, _count);
+            return *this;
+        }
+
+        inline String & insert(Size _idx, const String & _other)
+        {
+            return insert(_idx, _other.cString());
+        }
+
+        inline String & insert(Size _idx, const String & _other, Size _otherIndex, Size _otherLen = InvalidIndex)
+        {
+            Size len = _otherLen == InvalidIndex ? _other.length() - _otherIndex : _otherLen;
+            STICK_ASSERT(len <= _other.length() - _otherIndex);
+            return insert(_idx, _other.cString() + _otherIndex, len);
         }
 
         inline const char * cString() const

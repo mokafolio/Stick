@@ -433,6 +433,30 @@ const Suite spec[] =
             s.insert(2, 2, 'c');
             EXPECT(s == "bbccaaaa");
             EXPECT(s.length() == 8);
+
+            s.insert(8, 2, 'd');
+            EXPECT(s == "bbccaaaadd");
+            EXPECT(s.length() == 10);
+
+            s.insert(0, "dd");
+            printf("%s\n", s.cString());
+            EXPECT(s == "ddbbccaaaadd");
+            EXPECT(s.length() == 12);
+
+            String str("ee");
+            s.insert(3, str);
+            EXPECT(s == "ddbeebccaaaadd");
+            EXPECT(s.length() == 14);
+
+            String str2("Hello");
+            s.insert(3, str2, 3);
+            EXPECT(s == "ddbloeebccaaaadd");
+            EXPECT(s.length() == 16);
+
+            String str3("Hello");
+            s.insert(1, str2, 1, 3);
+            EXPECT(s == "delldbloeebccaaaadd");
+            EXPECT(s.length() == 19);
         }
     },
     SUITE("String Conversion Tests")
