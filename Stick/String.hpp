@@ -216,7 +216,7 @@ namespace stick
 
         inline String & remove(Size _index, Size _count = InvalidIndex)
         {
-            Size c = _count == InvalidIndex ? m_length - _index : _count;
+            Size c = std::min(_count, m_length - _index);
             Size e = _index + c;
             Size delta = m_length - e;
             std::memmove(m_cStr + _index, m_cStr + e, delta);
@@ -230,6 +230,14 @@ namespace stick
         {
             Size idx = _it - m_cStr;
             remove(idx, 1);
+            return idx < m_length ? begin() + idx : end();
+        }
+
+        inline Iter remove(ConstIter _first, ConstIter _last)
+        {
+            Size idx = _first - m_cStr;
+            Size c = (_last - _first);
+            remove(idx, c);
             return idx < m_length ? begin() + idx : end();
         }
 
@@ -559,8 +567,7 @@ namespace stick
 
         inline String & insert(Size _idx, const String & _other, Size _otherIndex, Size _otherLen = InvalidIndex)
         {
-            Size len = _otherLen == InvalidIndex ? _other.length() - _otherIndex : _otherLen;
-            STICK_ASSERT(len <= _other.length() - _otherIndex);
+            Size len = std::min(_otherLen, _other.length() - _otherIndex);
             return insert(_idx, _other.cString() + _otherIndex, len);
         }
 

@@ -493,6 +493,18 @@ const Suite spec[] =
             it = s2.remove(s2.begin() + 2);
             EXPECT(s2 == "ar");
             EXPECT(it == s2.end());
+
+            String s3("Hello World");
+            it = s3.remove(s3.begin(), s3.begin() + 3);
+            EXPECT(s3 == "lo World");
+            EXPECT(*it == 'l');
+            EXPECT(it == s3.begin());
+            it = s3.remove(s3.begin() + 2, s3.begin() + 3);
+            EXPECT(s3 == "loWorld");
+            EXPECT(*it == 'W');
+            it = s3.remove(s3.begin() + 4, s3.end());
+            EXPECT(s3 == "loWo");
+            EXPECT(it == s3.end());
         }
     },
     SUITE("String Conversion Tests")
