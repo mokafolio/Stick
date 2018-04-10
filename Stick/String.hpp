@@ -507,8 +507,8 @@ namespace stick
 
         inline String & insert(Size _idx, Size _count, char _c)
         {
-            Size diff = m_length - _idx;
             resize(m_length + _count);
+            Size diff = m_length - _idx;
             std::memmove(m_cStr + _idx + _count, m_cStr + _idx, diff);
             for (Size i = _idx; i < _idx + _count; ++i)
                 m_cStr[i] = _c;
@@ -543,7 +543,37 @@ namespace stick
 
         inline Iter insert(ConstIter _it, char _c)
         {
-            insert(std::distance(cbegin(), _it), 1, _c);
+            auto d = std::distance(cbegin(), _it);
+            insert(d, 1, _c);
+            return begin() + d;
+        }
+
+        //NOTE: _c and _count flipped to avoid ambiguity with the Size based counterpart
+        inline Iter insert(ConstIter _it, char _c, Size _count)
+        {
+            auto d = std::distance(cbegin(), _it);
+            insert(d, _count, _c);
+            return begin() + d;
+        }
+
+        template<class InputIter>
+        inline Iter insert(ConstIter _it, InputIter _first, InputIter _last)
+        {
+            Size count = std::distance(_first, _last);
+            Size off = (_it - m_cStr);
+            Size diff = m_length - off;
+
+            resize(m_length + count);
+
+            Iter it = begin() + off;
+            std::memmove(it + count, it, diff);
+            while (_first != _last)
+            {
+                *it = *_first;
+                ++it;
+                ++_first;
+            }
+            return begin() + off;
         }
 
         inline const char * cString() const

@@ -439,7 +439,6 @@ const Suite spec[] =
             EXPECT(s.length() == 10);
 
             s.insert(0, "dd");
-            printf("%s\n", s.cString());
             EXPECT(s == "ddbbccaaaadd");
             EXPECT(s.length() == 12);
 
@@ -457,6 +456,24 @@ const Suite spec[] =
             s.insert(1, str2, 1, 3);
             EXPECT(s == "delldbloeebccaaaadd");
             EXPECT(s.length() == 19);
+
+            auto it = s.begin() + 2;
+            it = s.insert(it, 'O');
+            EXPECT(s == "deOlldbloeebccaaaadd");
+            EXPECT(*it == 'O');
+            EXPECT(s.length() == 20);
+
+            auto it2 = s.cbegin() + 4;
+            auto it3 = s.insert(it2, 'A', 4);
+            EXPECT(s == "deOlAAAAldbloeebccaaaadd");
+            EXPECT(*it3 == 'A');
+            EXPECT(s.length() == 24);
+
+            stick::FixedArray<char, 2> fa = {'1', '2'};
+            auto it4 = s.insert(s.begin(), fa.begin(), fa.end());
+            printf("%s\n", s.cString());
+            EXPECT(s == "12deOlAAAAldbloeebccaaaadd");
+            EXPECT(*it4 == '1');
         }
     },
     SUITE("String Conversion Tests")
