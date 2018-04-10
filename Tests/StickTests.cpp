@@ -471,9 +471,17 @@ const Suite spec[] =
 
             stick::FixedArray<char, 2> fa = {'1', '2'};
             auto it4 = s.insert(s.begin(), fa.begin(), fa.end());
-            printf("%s\n", s.cString());
             EXPECT(s == "12deOlAAAAldbloeebccaaaadd");
             EXPECT(*it4 == '1');
+        }
+
+        //remove tests
+        {
+            String s("blubber");
+            s.remove(0, 2);
+            printf("%s\n", s.cString());
+            EXPECT(s == "ubber");
+            EXPECT(s.length() == 5);
         }
     },
     SUITE("String Conversion Tests")

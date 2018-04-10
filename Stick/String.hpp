@@ -214,6 +214,18 @@ namespace stick
                 m_cStr[--m_length] = '\0';
         }
 
+        inline String & remove(Size _index, Size _count = InvalidIndex)
+        {
+            Size c = _count == InvalidIndex ? m_length - _index : _count;
+            Size e = _index + c;
+            Size delta = m_length - e;
+            std::memmove(m_cStr + _index, m_cStr + e, delta);
+
+            resize(m_length - c);
+
+            return *this;
+        }
+
         inline char operator [](Size _index) const
         {
             return *(begin() + _index);
@@ -307,12 +319,16 @@ namespace stick
 
         inline void resize(Size _count)
         {
+            if (_count < m_length)
+                m_cStr[_count] = '\0';
             reserve(_count);
             m_length = _count;
         }
 
         inline void resize(Size _count, char _c)
         {
+            if (_count < m_length)
+                m_cStr[_count] = '\0';
             reserve(_count);
             for (Size i = m_length; i < _count; ++i)
             {
