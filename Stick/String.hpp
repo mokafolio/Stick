@@ -450,12 +450,22 @@ namespace stick
             return m_cStr;
         }
 
+        inline ConstIter cbegin() const
+        {
+            return m_cStr;
+        }
+
         inline ConstIter begin() const
         {
             return m_cStr;
         }
 
         inline Iter end()
+        {
+            return m_cStr + m_length;
+        }
+
+        inline ConstIter cend() const
         {
             return m_cStr + m_length;
         }
@@ -470,6 +480,11 @@ namespace stick
             return ReverseIter(end() - 1);
         }
 
+        inline ReverseConstIter crbegin()
+        {
+            return ReverseConstIter(end() - 1);
+        }
+
         inline ReverseConstIter rbegin() const
         {
             return ReverseConstIter(end() - 1);
@@ -478,6 +493,11 @@ namespace stick
         inline ReverseIter rend()
         {
             return ReverseIter(begin());
+        }
+
+        inline ReverseConstIter crend()
+        {
+            return ReverseConstIter(begin());
         }
 
         inline ReverseConstIter rend() const
@@ -519,6 +539,11 @@ namespace stick
             Size len = _otherLen == InvalidIndex ? _other.length() - _otherIndex : _otherLen;
             STICK_ASSERT(len <= _other.length() - _otherIndex);
             return insert(_idx, _other.cString() + _otherIndex, len);
+        }
+
+        inline Iter insert(ConstIter _it, char _c)
+        {
+            insert(std::distance(cbegin(), _it), 1, _c);
         }
 
         inline const char * cString() const
