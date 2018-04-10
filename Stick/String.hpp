@@ -210,7 +210,7 @@ namespace stick
 
         inline void removeLast()
         {
-            if(m_length)
+            if (m_length)
                 m_cStr[--m_length] = '\0';
         }
 
@@ -483,6 +483,21 @@ namespace stick
         inline ReverseConstIter rend() const
         {
             return ReverseConstIter(begin());
+        }
+
+        inline String & insert(Size _idx, Size _count, char _c)
+        {
+            Size diff = m_length - _idx;
+            resize(m_length + _count);
+            std::strncpy(m_cStr + _idx + _count, m_cStr + _idx, diff);
+            for (Size i = _idx; i < _idx + _count; ++i)
+                m_cStr[i] = _c;
+            return *this;
+        }
+
+        inline String & insert(Size _idx, const char * _cStr)
+        {
+
         }
 
         inline const char * cString() const

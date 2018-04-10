@@ -422,6 +422,18 @@ const Suite spec[] =
             EXPECT(w.length() == 45);
             EXPECT(w == "Hello World!! Wow, does this work? 2567 3.564");
         }
+
+        //insertion tests
+        {
+            String s("aaaa");
+            s.insert(0, 2, 'b');
+            EXPECT(s == "bbaaaa");
+            EXPECT(s.length() == 6);
+
+            s.insert(2, 2, 'c');
+            EXPECT(s == "bbccaaaa");
+            EXPECT(s.length() == 8);
+        }
     },
     SUITE("String Conversion Tests")
     {
