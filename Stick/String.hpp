@@ -226,6 +226,13 @@ namespace stick
             return *this;
         }
 
+        inline Iter remove(ConstIter _it)
+        {
+            Size idx = _it - m_cStr;
+            remove(idx, 1);
+            return idx < m_length ? begin() + idx : end();
+        }
+
         inline char operator [](Size _index) const
         {
             return *(begin() + _index);

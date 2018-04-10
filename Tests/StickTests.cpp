@@ -482,6 +482,17 @@ const Suite spec[] =
             printf("%s\n", s.cString());
             EXPECT(s == "ubber");
             EXPECT(s.length() == 5);
+            s.remove(2);
+            EXPECT(s == "ub");
+            EXPECT(s.length() == 2);
+
+            String s2("argh");
+            auto it = s2.remove(s2.begin() + 2);
+            EXPECT(s2 == "arh");
+            EXPECT(*it == 'h');
+            it = s2.remove(s2.begin() + 2);
+            EXPECT(s2 == "ar");
+            EXPECT(it == s2.end());
         }
     },
     SUITE("String Conversion Tests")
