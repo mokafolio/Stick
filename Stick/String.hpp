@@ -58,6 +58,22 @@ namespace stick
         template<class ... Strings>
         inline static String concat(Strings ..._args);
 
+        template<class...Args>
+        inline static String formatted(const char * _fmt, Args..._args)
+        {
+            String ret;
+            ret.appendFormatted(_fmt, _args...);
+            return ret;
+        }
+
+        template<class...Args>
+        inline static String formatted(Allocator & _alloc, const char * _fmt, Args..._args)
+        {
+            String ret(_alloc);
+            ret.appendFormatted(_fmt, _args...);
+            return ret;
+        }
+
         inline String(Size _size, Allocator & _alloc = defaultAllocator()) :
             m_cStr(nullptr),
             m_length(0),
@@ -126,6 +142,7 @@ namespace stick
         inline String & operator = (const String & _other)
         {
             deallocate();
+            //@TODO: By default we should keep the allocator we were using maybe?
             m_allocator = _other.m_allocator;
             if (_other.m_cStr)
             {
