@@ -34,6 +34,22 @@ namespace stick
             }
 
             template<class...PassAlongArgs>
+            inline bool filterCategory(const MappedFilterStorage & _filters, const EventType & _evt, PassAlongArgs..._args)
+            {
+                auto it = _filters.callbackMap.find(_evt.categoryID());
+                if (it != _filters.callbackMap.end())
+                {
+                    for (auto * cb : it->value)
+                    {
+                        if (cb->call(_evt, std::forward<PassAlongArgs>(_args)...))
+                            return true;
+                    }
+                }
+
+                return false;
+            }
+
+            template<class...PassAlongArgs>
             inline const EventType & modify(const MappedModifierStorage & _modifiers, EventPtr & _tmpStorage, const EventType & _evt, PassAlongArgs..._args)
             {
                 const EventType * ret = &_evt;
@@ -81,6 +97,7 @@ namespace stick
 
         EventForwarderT() :
             m_filterStorage(defaultAllocator()),
+            m_categoryFilterStorage(defaultAllocator()),
             m_modifierStorage(defaultAllocator()),
             m_children(defaultAllocator())
         {
@@ -90,6 +107,7 @@ namespace stick
         EventForwarderT(Allocator & _alloc, PassAlongArgs..._args) :
             EventPublisherType(_alloc, std::forward<PassAlongArgs>(_args)...),
             m_filterStorage(_alloc),
+            m_categoryFilterStorage(_alloc),
             m_modifierStorage(_alloc),
             m_children(_alloc)
         {
@@ -105,7 +123,16 @@ namespace stick
         {
             ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
             CallbackID id = {this->nextID(), _filter.eventTypeID};
-            m_filterStorage.addCallback({this->nextID(), _filter.eventTypeID}, _filter.holder);
+            m_filterStorage.addCallback(id, _filter.holder);
+            return id;
+        }
+
+        template<class Category>
+        CallbackID addEventCategoryFilter(const Filter & _filter)
+        {
+            ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
+            CallbackID id = {this->nextID(), TypeInfoT<Category>::typeID()};
+            m_categoryFilterStorage.addCallback(id, _filter.holder);
             return id;
         }
 
@@ -143,7 +170,7 @@ namespace stick
 
             EventPublisherType::publish(evt);
 
-            if(_bPropagate && !_evt.propagationStopped())
+            if (_bPropagate && !_evt.propagationStopped())
                 m_forwardingPolicy.forward(evt, m_children);
 
             return true;
@@ -182,6 +209,7 @@ namespace stick
     private:
 
         MappedFilterStorage m_filterStorage;
+        MappedFilterStorage m_categoryFilterStorage;
         MappedModifierStorage m_modifierStorage;
         ForwarderArray m_children;
         ForwardingPolicy m_forwardingPolicy;
