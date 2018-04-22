@@ -7,6 +7,8 @@
 
 namespace stick
 {
+    struct STICK_API DefaultEventCategory {};
+
     /**
      * @brief Base class for all events dispatched and received by EventPublisher and EventSubscriber.
      * @see EventT
@@ -58,15 +60,23 @@ namespace stick
      *
      * Usually you derive from this class, rather than from Event directly.
      */
-    template<class T>
+    template<class T, class Cat = DefaultEventCategory>
     class STICK_API EventT : public Event
     {
     public:
+
+        using Category = Cat;
 
         /**
          * @brief The TypeInfo of T.
          */
         using TypeInfo = TypeInfoT<T>;
+
+
+        /**
+         * @brief The TypeInfo of the category flag.
+         */
+        using CategoryInfo = TypeInfoT<Category>;
 
         /**
          * @brief The std::shared_ptr of T.
@@ -79,6 +89,11 @@ namespace stick
         TypeID eventTypeID() const
         {
             return TypeInfo::typeID();
+        }
+
+        TypeID categoryID() const
+        {
+            return CategoryInfo::typeID();
         }
     };
 }
