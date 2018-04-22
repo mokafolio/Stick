@@ -76,6 +76,7 @@ namespace stick
 
             mutable MutexType modifierMutex;
             mutable MutexType filterMutex;
+            mutable MutexType categoryFilterMutex;
             mutable MutexType forwarderMutex;
         };
     }
@@ -130,7 +131,7 @@ namespace stick
         template<class Category>
         CallbackID addEventCategoryFilter(const Filter & _filter)
         {
-            ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
+            ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
             CallbackID id = {this->nextID(), TypeInfoT<Category>::typeID()};
             m_categoryFilterStorage.addCallback(id, _filter.holder);
             return id;
@@ -150,6 +151,12 @@ namespace stick
             m_filterStorage.removeCallback(_id);
         }
 
+        void removeEventCategoryFilter(const CallbackID & _id)
+        {
+            ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
+            m_categoryFilterStorage.removeCallback(_id);
+        }
+
         void removeEventModifier(const CallbackID & _id)
         {
             ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.modifierMutex);
@@ -159,11 +166,10 @@ namespace stick
         bool publish(const EventType & _evt, bool _bPropagate)
         {
             //apply filters
-            if (filterAny(_evt))
+            if (filterAny(_evt) ||
+                    filterCategoryImpl(_evt, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()) ||
+                    filterImpl(_evt, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()))
                 return false;
-
-            bool bFilter = filterImpl(_evt, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>());
-            if (bFilter) return false;
 
             EventUniquePtr tempStorage;
             const EventType & evt = modifyImpl(tempStorage, _evt, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>());
@@ -198,6 +204,12 @@ namespace stick
         inline bool filterImpl(const EventType & _evt, detail::IndexSequence<S...>)
         {
             return m_forwardingPolicy.filter(m_filterStorage, _evt, std::get<S>(this->m_passedArgsStorage)...);
+        }
+
+        template<Size...S>
+        inline bool filterCategoryImpl(const EventType & _evt, detail::IndexSequence<S...>)
+        {
+            return m_forwardingPolicy.filterCategory(m_categoryFilterStorage, _evt, std::get<S>(this->m_passedArgsStorage)...);
         }
 
         template<Size...S>

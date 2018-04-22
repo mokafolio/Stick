@@ -40,6 +40,11 @@ namespace stick
          */
         virtual TypeID eventTypeID() const = 0;
 
+        /**
+        * @brief Returns a run time identifier that uniquely identifies the type of the event.
+        */
+        virtual TypeID categoryID() const = 0;
+
         // @TODO: This is kinda weird in terms of const correctness
         // as we pass events by const reference. At the same time its fine hehehehehehehehe
         void stopPropagation() const;
@@ -86,12 +91,12 @@ namespace stick
         /**
          * @brief Returns the unique identifier of T.
          */
-        TypeID eventTypeID() const
+        TypeID eventTypeID() const override
         {
             return TypeInfo::typeID();
         }
 
-        TypeID categoryID() const
+        TypeID categoryID() const override
         {
             return CategoryInfo::typeID();
         }

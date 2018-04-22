@@ -52,7 +52,9 @@ struct TestEvent : public EventT<TestEvent>
     Int32 someMember = 128;
 };
 
-struct TestEvent2 : public EventT<TestEvent2>
+struct TestEventCat {};
+
+struct TestEvent2 : public EventT<TestEvent2, TestEventCat>
 {
     TestEvent2(Int32 _num = 64) :
         someMember(_num)
@@ -62,6 +64,18 @@ struct TestEvent2 : public EventT<TestEvent2>
 
     Int32 someMember = 64;
 };
+
+struct TestEvent3 : public EventT<TestEvent2, TestEventCat>
+{
+    TestEvent3(const String & _str) :
+        str(_str)
+    {
+
+    }
+
+    String str;
+};
+
 
 static TestEvent lastTestEvent;
 static bool bWasCalled = false;
@@ -2185,6 +2199,26 @@ const Suite spec[] =
         EXPECT(bLamdaCalled);
         EXPECT(childCalledCount == 1);
         EXPECT(testEvent2Called == 1);
+
+
+        publisher.addEventCategoryFilter<TestEventCat>([&](const Event & _e)
+        {
+            return true;
+        });
+        bLamdaCalled = false;
+        int te2c = 0;
+        int testEvent3Called = 0;
+
+        publisher.addEventCallback([&](const TestEvent2 & _evt) { te2c++; });
+        publisher.addEventCallback([&](const TestEvent3 & _evt) { testEvent3Called++; });
+
+        publisher.publish(TestEvent(), true);
+        publisher.publish(TestEvent2(), true);
+        publisher.publish(TestEvent3("hello"), true);
+
+        EXPECT(bLamdaCalled == true);
+        EXPECT(te2c == 0);
+        EXPECT(testEvent3Called == 0);
     },
     SUITE("Advanced EventForwarder Tests")
     {
