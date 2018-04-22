@@ -76,6 +76,11 @@ namespace stick
             return C;
         }
 
+        inline static constexpr Size capacity()
+        {
+            return C;
+        }
+
         inline const T * ptr() const
         {
             return &m_array[0];

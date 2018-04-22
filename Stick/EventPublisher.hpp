@@ -177,6 +177,8 @@ namespace stick
         PassAlongArgsStorage m_passedArgsStorage;
         PublishingPolicy m_policy;
     };
+
+    using EventPublisher = EventPublisherT<stick::Event, stick::detail::PublishingPolicyBasic>;
 }
 
 #endif //STICK_EVENTPUBLISHER_HPP

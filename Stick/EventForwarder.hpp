@@ -186,6 +186,8 @@ namespace stick
         ForwarderArray m_children;
         ForwardingPolicy m_forwardingPolicy;
     };
+
+    using EventForwarder = EventForwarderT<stick::Event, stick::detail::ForwardingPolicyBasic, stick::detail::PublishingPolicyBasic>;
 }
 
 #endif //STICK_EVENTFORWARDER_HPP
