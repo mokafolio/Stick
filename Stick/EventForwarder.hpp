@@ -112,6 +112,8 @@ namespace stick
         EventForwarderT() :
             m_filterStorage(defaultAllocator()),
             m_categoryFilterStorage(defaultAllocator()),
+            m_postFilterStorage(defaultAllocator()),
+            m_postCategoryFilterStorage(defaultAllocator()),
             m_modifierStorage(defaultAllocator()),
             m_children(defaultAllocator())
         {
@@ -122,6 +124,8 @@ namespace stick
             EventPublisherType(_alloc, std::forward<PassAlongArgs>(_args)...),
             m_filterStorage(_alloc),
             m_categoryFilterStorage(_alloc),
+            m_postFilterStorage(_alloc),
+            m_postCategoryFilterStorage(_alloc),
             m_modifierStorage(_alloc),
             m_children(_alloc)
         {
@@ -133,20 +137,36 @@ namespace stick
 
         }
 
-        CallbackID addEventFilter(const Filter & _filter)
+        CallbackID addEventFilter(const Filter & _filter, bool _bPostPublish = false)
         {
-            ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
             CallbackID id = {this->nextID(), _filter.eventTypeID};
-            m_filterStorage.addCallback(id, _filter.holder);
+            if (!_bPostPublish)
+            {
+                ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
+                m_filterStorage.addCallback(id, _filter.holder);
+            }
+            else
+            {
+                ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
+                m_postFilterStorage.addCallback(id, _filter.holder);
+            }
             return id;
         }
 
         template<class Category>
-        CallbackID addEventCategoryFilter(const Filter & _filter)
+        CallbackID addEventCategoryFilter(const Filter & _filter, bool _bPostPublish = false)
         {
-            ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
             CallbackID id = {this->nextID(), TypeInfoT<Category>::typeID()};
-            m_categoryFilterStorage.addCallback(id, _filter.holder);
+            if (!_bPostPublish)
+            {
+                ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
+                m_categoryFilterStorage.addCallback(id, _filter.holder);
+            }
+            else
+            {
+                ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
+                m_postCategoryFilterStorage.addCallback(id, _filter.holder);
+            }
             return id;
         }
 
@@ -178,10 +198,10 @@ namespace stick
 
         bool publish(const EventType & _evt, bool _bPropagate)
         {
-            //apply filters
+            //apply pre publish filters
             if (filterAny(_evt) ||
-                    filterCategoryImpl(_evt, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()) ||
-                    filterImpl(_evt, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()))
+                    filterCategoryImpl(_evt, m_categoryFilterStorage, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()) ||
+                    filterImpl(_evt, m_filterStorage, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()))
                 return false;
 
             EventUniquePtr tempStorage;
@@ -190,7 +210,14 @@ namespace stick
             EventPublisherType::publish(evt);
 
             if (_bPropagate && !_evt.propagationStopped())
+            {
+                //apply post publishing filters
+                if (filterCategoryImpl(_evt, m_postCategoryFilterStorage, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()) ||
+                        filterImpl(_evt, m_postFilterStorage, detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()))
+                    return false;
+
                 m_forwardingPolicy.forward(evt, m_children);
+            }
 
             return true;
         }
@@ -214,15 +241,15 @@ namespace stick
         virtual bool filterAny(const EventType & _any) { return false; };
 
         template<Size...S>
-        inline bool filterImpl(const EventType & _evt, detail::IndexSequence<S...>)
+        inline bool filterImpl(const EventType & _evt, MappedFilterStorage & _filters, detail::IndexSequence<S...>)
         {
-            return m_forwardingPolicy.filter(m_filterStorage, _evt, std::get<S>(this->m_passedArgsStorage)...);
+            return m_forwardingPolicy.filter(_filters, _evt, std::get<S>(this->m_passedArgsStorage)...);
         }
 
         template<Size...S>
-        inline bool filterCategoryImpl(const EventType & _evt, detail::IndexSequence<S...>)
+        inline bool filterCategoryImpl(const EventType & _evt, MappedFilterStorage & _filters, detail::IndexSequence<S...>)
         {
-            return m_forwardingPolicy.filterCategory(m_categoryFilterStorage, _evt, std::get<S>(this->m_passedArgsStorage)...);
+            return m_forwardingPolicy.filterCategory(_filters, _evt, std::get<S>(this->m_passedArgsStorage)...);
         }
 
         template<Size...S>
@@ -235,6 +262,8 @@ namespace stick
 
         MappedFilterStorage m_filterStorage;
         MappedFilterStorage m_categoryFilterStorage;
+        MappedFilterStorage m_postFilterStorage;
+        MappedFilterStorage m_postCategoryFilterStorage;
         MappedModifierStorage m_modifierStorage;
         ForwarderArray m_children;
         ForwardingPolicy m_forwardingPolicy;
