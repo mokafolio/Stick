@@ -36,13 +36,26 @@ namespace stick
             template<class...PassAlongArgs>
             inline bool filterCategory(const MappedFilterStorage & _filters, const EventType & _evt, PassAlongArgs..._args)
             {
-                auto it = _filters.callbackMap.find(_evt.categoryID());
-                if (it != _filters.callbackMap.end())
+                // auto it = _filters.callbackMap.find(_evt.categoryID());
+                // if (it != _filters.callbackMap.end())
+                // {
+                //     for (auto * cb : it->value)
+                //     {
+                //         if (cb->call(_evt, std::forward<PassAlongArgs>(_args)...))
+                //             return true;
+                //     }
+                // }
+
+                for (TypeID cat : _evt.categories())
                 {
-                    for (auto * cb : it->value)
+                    auto it = _filters.callbackMap.find(cat);
+                    if (it != _filters.callbackMap.end())
                     {
-                        if (cb->call(_evt, std::forward<PassAlongArgs>(_args)...))
-                            return true;
+                        for (auto * cb : it->value)
+                        {
+                            if (cb->call(_evt, std::forward<PassAlongArgs>(_args)...))
+                                return true;
+                        }
                     }
                 }
 

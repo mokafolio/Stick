@@ -2,12 +2,18 @@
 #define STICK_EVENT_HPP
 
 #include <Stick/TypeInfo.hpp>
+#include <Stick/TypeList.hpp>
 #include <Stick/UniquePtr.hpp>
 #include <Stick/String.hpp>
+#include <Stick/StaticArray.hpp>
+
+#define STICK_MAX_EVENT_CATEGORIES 8
 
 namespace stick
 {
     struct STICK_API DefaultEventCategory {};
+
+    using CategoryIDArray = StaticArray<TypeID, STICK_MAX_EVENT_CATEGORIES>;
 
     /**
      * @brief Base class for all events dispatched and received by EventPublisher and EventSubscriber.
@@ -41,9 +47,14 @@ namespace stick
         virtual TypeID eventTypeID() const = 0;
 
         /**
-        * @brief Returns a run time identifier that uniquely identifies the type of the event.
-        */
-        virtual TypeID categoryID() const = 0;
+         * @brief Returns if the Event is in the provided category
+         */
+        virtual bool hasCategory(TypeID _id) const = 0;
+
+        /**
+         * @brief Returns an array of category ids that the event type is part of
+         */
+        virtual CategoryIDArray categories() const = 0;
 
         // @TODO: This is kinda weird in terms of const correctness
         // as we pass events by const reference. At the same time its fine hehehehehehehehe
@@ -58,6 +69,38 @@ namespace stick
 
     typedef UniquePtr<Event> EventPtr;
 
+    namespace detail
+    {
+        template<class L>
+        struct CategoryCompHelper
+        {
+            static bool isCategory(TypeID _cat)
+            {
+                if (TypeInfoT<typename L::Head>::typeID() == _cat)
+                    return true;
+                else
+                    return CategoryCompHelper<typename L::Tail>::isCategory(_cat);
+            }
+        };
+
+        template<>
+        struct CategoryCompHelper<stick::TypeListNil>
+        {
+            static bool isCategory(TypeID _cat)
+            {
+                return false;
+            }
+        };
+
+        template<class TL>
+        struct CategoryComp
+        {
+            static bool isCategory(TypeID _cat)
+            {
+                return CategoryCompHelper<TL>::isCategory(_cat);
+            }
+        };
+    }
 
     /**
      * @brief Templated helper class that implements the eventTypeID function and adds some typedefs for the Event of
@@ -65,23 +108,20 @@ namespace stick
      *
      * Usually you derive from this class, rather than from Event directly.
      */
-    template<class T, class Cat = DefaultEventCategory>
+    template<class T, class Cat = DefaultEventCategory, class...Cats>
     class STICK_API EventT : public Event
     {
     public:
 
-        using Category = Cat;
+        /**
+         * @brief The categories that this event type is part of.
+         */
+        using Categories = typename MakeTypeList<Cat, Cats...>::List;
 
         /**
          * @brief The TypeInfo of T.
          */
         using TypeInfo = TypeInfoT<T>;
-
-
-        /**
-         * @brief The TypeInfo of the category flag.
-         */
-        using CategoryInfo = TypeInfoT<Category>;
 
         /**
          * @brief The std::shared_ptr of T.
@@ -96,9 +136,14 @@ namespace stick
             return TypeInfo::typeID();
         }
 
-        TypeID categoryID() const override
+        bool hasCategory(TypeID _id) const override
         {
-            return CategoryInfo::typeID();
+            return detail::CategoryComp<Categories>::isCategory(_id);
+        }
+
+        CategoryIDArray categories() const override
+        {
+            return {TypeInfoT<Cat>::typeID(), TypeInfoT<Cats>::typeID()...};
         }
     };
 }
