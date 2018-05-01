@@ -204,7 +204,7 @@ namespace stick
                 //check if there is enough args left to parse
                 auto left = _argc - i - 1;
                 auto tc = activeArgTargetCount == '+' ? 1 : activeArgTargetCount;
-                if ((left < activeArgTargetCount && activeArgTargetCount != '*') || (activeArgTargetCount == '+' && left < 1))
+                if ((activeArgTargetCount != '*' && activeArgTargetCount != '+' && left < activeArgTargetCount) || (activeArgTargetCount == '+' && left < 1))
                 {
                     String err;
                     err.appendFormatted("Expected %i arguments for %s, there is only %i left to parse.", tc, activeName, left);
