@@ -143,7 +143,7 @@ namespace stick
     inline Maybe<T> ArgumentParser::maybe(const String & _name) const
     {
         const Argument * arg = argument(_name);
-        if (arg) return detail::ConversionHelper<T>::convert(*arg);
+        if (arg && arg->values.count()) return detail::ConversionHelper<T>::convert(*arg);
         return Maybe<T>();
     }
 
