@@ -161,12 +161,12 @@ namespace stick
         m_applicationPath = _args[0];
         m_applicationName = path::fileName(m_applicationPath);
 
-        if (_argc < m_requiredCount + 1)
-        {
-            String errStr;
-            errStr.appendFormatted("Expected at least %i required arguments, got %i.", m_requiredCount, _argc - 1);
-            return Error(ec::InvalidArgument, errStr, STICK_FILE, STICK_LINE);
-        }
+        // if (_argc < m_requiredCount + 1)
+        // {
+        //     String errStr;
+        //     errStr.appendFormatted("Expected at least %i required arguments, got %i.", m_requiredCount, _argc - 1);
+        //     return Error(ec::InvalidArgument, errStr, STICK_FILE, STICK_LINE);
+        // }
 
         Argument * active = nullptr;
         const char * activeName = nullptr;
