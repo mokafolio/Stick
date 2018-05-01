@@ -69,9 +69,9 @@ namespace stick
     }
 
     ArgumentParser::Argument::Argument() :
-    bOptional(true),
-    argCount(0),
-    bArgumentWasProvided(false)
+        bOptional(true),
+        argCount(0),
+        bArgumentWasProvided(false)
     {
 
     }
@@ -188,7 +188,8 @@ namespace stick
                         err.appendFormatted("Expected at least 1 argument for %s, got %i.", activeName, currentCount);
                         return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
                     }
-                    else if (activeArgTargetCount != '*' && currentCount < activeArgTargetCount)
+                    else if ((activeArgTargetCount != '*' && activeArgTargetCount != '+' && currentCount < activeArgTargetCount) ||
+                             (activeArgTargetCount == '+' && currentCount < 1))
                     {
                         String err;
                         err.appendFormatted("Expected %i arguments for %s, got %i.", activeArgTargetCount, activeName, currentCount);
@@ -204,10 +205,10 @@ namespace stick
                 //check if there is enough args left to parse
                 auto left = _argc - i - 1;
                 auto tc = activeArgTargetCount == '+' ? 1 : activeArgTargetCount;
-                if ((activeArgTargetCount != '*' && activeArgTargetCount != '+' && left < activeArgTargetCount) || (activeArgTargetCount == '+' && left < 1))
+                if ((activeArgTargetCount == '+' && left < 1) || (activeArgTargetCount != '*' && activeArgTargetCount != '+' && left < activeArgTargetCount))
                 {
                     String err;
-                    err.appendFormatted("Expected %i arguments for %s, there is only %i left to parse.", tc, activeName, left);
+                    err.appendFormatted("Expected %i arguments for %s, there are only %i left to parse.", tc, activeName, left);
                     return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
                 }
             }
@@ -239,7 +240,7 @@ namespace stick
 
     bool ArgumentParser::argumentWasProvided(const String & _name) const
     {
-        if(auto arg = argument(_name))
+        if (auto arg = argument(_name))
         {
             return arg->bArgumentWasProvided;
         }
