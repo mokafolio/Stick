@@ -12,6 +12,7 @@ namespace stick
     struct STICK_API OneOrMoreFlag {};
     struct STICK_API ZeroOrMoreFlag {};
 
+    //@TODO: change most of the String arguments to const char * ?
     class STICK_API ArgumentParser
     {
     public:
@@ -43,6 +44,7 @@ namespace stick
             UInt8 argCount; //* = zero or more, + = one or more
             String info;
             StringArray values;
+            bool bArgumentWasProvided;
         };
 
         using IndexMap = HashMap<String, Size>;
@@ -71,6 +73,8 @@ namespace stick
         String help() const;
 
         const Argument * argument(const String & _name) const;
+
+        bool argumentWasProvided(const String & _name) const;
 
         template<class T>
         inline Maybe<T> maybe(const String & _name) const;

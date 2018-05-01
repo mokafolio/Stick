@@ -70,7 +70,8 @@ namespace stick
 
     ArgumentParser::Argument::Argument() :
     bOptional(true),
-    argCount(0)
+    argCount(0),
+    bArgumentWasProvided(false)
     {
 
     }
@@ -81,7 +82,8 @@ namespace stick
         name(_name),
         argCount(_count),
         bOptional(_bOptional),
-        info(_info)
+        info(_info),
+        bArgumentWasProvided(false)
     {
 
     }
@@ -101,6 +103,7 @@ namespace stick
         m_requiredCount(0),
         m_info(_info)
     {
+
     }
 
     Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional)
@@ -172,6 +175,7 @@ namespace stick
         for (Size i = 1; i < _argc; ++i)
         {
             auto it = m_indices.find(_args[i]);
+
             //check if this a key
             if (it != m_indices.end())
             {
@@ -192,6 +196,7 @@ namespace stick
                     }
                 }
                 active = &m_args[it->value];
+                active->bArgumentWasProvided = true;
                 activeName = _args[i];
                 activeArgTargetCount = active->argCount;
                 currentCount = 0;
@@ -230,6 +235,15 @@ namespace stick
         }
 
         return Error();
+    }
+
+    bool ArgumentParser::argumentWasProvided(const String & _name) const
+    {
+        if(auto arg = argument(_name))
+        {
+            return arg->bArgumentWasProvided;
+        }
+        return false;
     }
 
     String ArgumentParser::usage() const
