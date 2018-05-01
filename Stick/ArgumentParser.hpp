@@ -32,7 +32,7 @@ namespace stick
             Argument & operator = (Argument &&) = default;
 
             template<class T>
-            inline T get(Size _index);
+            inline T get(Size _index) const;
 
             const String & identifier() const;
 
@@ -133,7 +133,7 @@ namespace stick
     }
 
     template<class T>
-    inline T ArgumentParser::Argument::get(Size _index)
+    inline T ArgumentParser::Argument::get(Size _index) const
     {
         STICK_ASSERT(_index < values.count());
         return convertString<T>(values[_index]);

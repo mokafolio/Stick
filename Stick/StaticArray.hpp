@@ -150,7 +150,7 @@ namespace stick
             return m_count;
         }
 
-        inline constexpr Size capacity() const
+        inline static constexpr Size capacity()
         {
             return C;
         }
