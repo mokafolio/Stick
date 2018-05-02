@@ -403,6 +403,13 @@ namespace stick
             return (*this)[m_count - 1];
         }
 
+        inline void swap(DynamicArray & _other)
+        {
+            std::swap(_other.m_allocator, m_allocator);
+            std::swap(_other.m_count, m_count);
+            std::swap(_other.m_data, m_data);
+        }
+
 
     private:
 

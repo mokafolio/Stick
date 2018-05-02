@@ -882,6 +882,18 @@ const Suite spec[] =
         EXPECT(ic[5] == 8);
         EXPECT(ic[6] == 9);
         EXPECT(ic.count() == 7);
+
+
+        DynamicArray<Int32> sa = {1, 2, 3};
+        DynamicArray<Int32> sb = {4, 5};
+        sa.swap(sb);
+        EXPECT(sa.count() == 2);
+        EXPECT(sb.count() == 3);
+        EXPECT(sa[0] == 4);
+        EXPECT(sa[1] == 5);
+        EXPECT(sb[0] == 1);
+        EXPECT(sb[1] == 2);
+        EXPECT(sb[2] == 3);
     },
     SUITE("Path tests")
     {
