@@ -92,7 +92,7 @@ namespace stick
         {
             fclose(fp);
             return Error(ec::SystemErrorCode(errno), "fwrite failed", STICK_FILE, STICK_LINE);
-        };
+        }
 
         fclose(fp);
         return Error();
@@ -111,7 +111,7 @@ namespace stick
         {
             fclose(fp);
             return Error(ec::SystemErrorCode(errno), "fwrite failed", STICK_FILE, STICK_LINE);
-        };
+        }
 
         fclose(fp);
         return Error();
