@@ -114,6 +114,12 @@ namespace stick
             return *this;
         }
 
+        inline Maybe & operator = (Maybe & _other)
+        {
+            *this = const_cast<const Maybe& >(_other);
+            return *this;
+        }
+
         inline Maybe & operator = (Maybe && _other)
         {
             if (_other.m_bHasValue)
@@ -266,9 +272,9 @@ namespace stick
     template< class T, class U >
     inline bool operator == (const Maybe<T> & _a, const Maybe<U> & _b)
     {
-        if(!_a && !_b) return true;
-        if(_a && _b) return *_a == *_b;
-        return false; 
+        if (!_a && !_b) return true;
+        if (_a && _b) return *_a == *_b;
+        return false;
     }
 
     template< class T, class U >
