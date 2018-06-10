@@ -22,6 +22,7 @@
 #include <Stick/FileSystem.hpp>
 #include <Stick/Variant.hpp>
 #include <Stick/StaticArray.hpp>
+#include <Stick/SharedPtr.hpp>
 
 #include <Stick/Allocators/LinearAllocator.hpp>
 #include <Stick/Allocators/GlobalAllocator.hpp>
@@ -1536,6 +1537,10 @@ const Suite spec[] =
     },
     SUITE("UniquePtr Tests")
     {
+        // using No = UniquePtr<Float32[]>;
+        // No no;
+        // static_assert(std::is_array<Float32>::value, "THIS IS AN ARRAY");
+
         DestructorTester::reset();
         UniquePtr<DestructorTester> a = makeUnique<DestructorTester>(defaultAllocator());
         a.reset();
@@ -2303,20 +2308,34 @@ const Suite spec[] =
         EXPECT((std::is_same<typename TypeAt<Merged, 1>::Type, String>::value));
         EXPECT((std::is_same<typename TypeAt<Merged, 2>::Type, Int32>::value));
         EXPECT((std::is_same<typename TypeAt<Merged, 3>::Type, Size>::value));
-    }/*,
-    SUITE("Resource Tests")
+    },
+    SUITE("SharedPtr Tests")
     {
-        // ResourceManager manager;
-        // auto result = manager.load<TestResource>("../../Tests/TestFiles/ResourceTest.txt");
-        // EXPECT(result);
-        // ResourceHandleT<TestResource> handle = result.get();
-        // EXPECT(handle->text == "Hello World!");
+        SharedPtr<Int32> b;
+        EXPECT(b.useCount() == 0);
+        {
+            SharedPtr<Int32> a(defaultAllocator().create<Int32>(-934));
+            EXPECT(*a == -934);
+            EXPECT(a.useCount() == 1);
+            SharedPtr<Int32> c;
+            c = a;
+            EXPECT(c.useCount() == 2);
+            EXPECT(*c == -934);
+            b = std::move(c);
+            EXPECT(b);
+            EXPECT(!c);
+            EXPECT(b.useCount() == 2);
+            EXPECT(*b == -934);
 
-        using ResourceManager = ResourceManagerT<DefaultStoragePolicy, ManualOwnershipPolicy>;
-        ResourceManager manager;
-
-        using TestResourceHandle = ResourceManager::Handle<TestResource>;
-    }*/
+            SharedPtr<Int32> d(std::move(a));
+            EXPECT(d.useCount() == 2);
+            EXPECT(*d == -934);
+        }
+        EXPECT(b.useCount() == 1);
+        b.reset();
+        EXPECT(b.useCount() == 0);
+        EXPECT(!b);
+    }
 };
 
 int main(int _argc, const char * _args[])

@@ -47,6 +47,7 @@ Stick/Print.hpp
 Stick/RBTree.hpp
 Stick/Result.hpp
 Stick/ScopedLock.hpp
+Stick/SharedPtr.hpp
 Stick/StaticArray.hpp
 Stick/String.hpp
 Stick/StringConversion.hpp

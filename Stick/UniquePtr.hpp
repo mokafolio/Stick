@@ -1,53 +1,16 @@
 #ifndef STICK_UNIQUEPTR_HPP
 #define STICK_UNIQUEPTR_HPP
 
-#include <Stick/Allocator.hpp>
+#include <Stick/DefaultCleanup.hpp>
 #include <cstddef> //for std::nullptr_t
+#include <type_traits>
 
 namespace stick
 {
-    template<class T>
-    class DefaultCleanup
-    {
-    public:
-
-        inline DefaultCleanup() :
-            allocator(nullptr)
-        {
-
-        }
-
-        inline DefaultCleanup(Allocator & _alloc) :
-            allocator(&_alloc)
-        {
-
-        }
-
-        template<class U>
-        DefaultCleanup(const DefaultCleanup<U> & _other) :
-            allocator(_other.allocator)
-        {
-
-        }
-
-        template<class U>
-        DefaultCleanup(DefaultCleanup<U> && _other) :
-            allocator(std::move(_other.allocator))
-        {
-
-        }
-
-        inline void operator() (T * _obj) const
-        {
-            allocator->destroy(_obj);
-        }
-
-        Allocator * allocator;
-    };
-
     template<class T, class C = DefaultCleanup<T>>
     class UniquePtr
     {
+        static_assert(!std::is_array<T>::value, "Array Types are not supported.");
 
         template<class T2, class C2>
         friend class UniquePtr;
@@ -65,16 +28,16 @@ namespace stick
 
         }
 
-        template<class O>
-        inline UniquePtr(O * _ptr, Allocator & _alloc) :
-            m_obj(_ptr),
-            m_cleanup(_alloc)
-        {
+        // template<class O>
+        // inline UniquePtr(O * _ptr, Allocator & _alloc = defaultAllocator()) :
+        //     m_obj(_ptr),
+        //     m_cleanup(_alloc)
+        // {
 
-        }
+        // }
 
         template<class O>
-        inline UniquePtr(O * _ptr, const Cleanup & _c) :
+        inline UniquePtr(O * _ptr, Cleanup _c = Cleanup(defaultAllocator())) :
             m_obj(_ptr),
             m_cleanup(_c)
         {
@@ -92,9 +55,7 @@ namespace stick
         inline ~UniquePtr()
         {
             if (m_obj)
-            {
                 m_cleanup(m_obj);
-            }
         }
 
         UniquePtr(const UniquePtr & _other) = delete;
@@ -151,11 +112,6 @@ namespace stick
             return m_obj;
         }
 
-        inline Allocator * allocator() const
-        {
-            return m_cleanup->allocator;
-        }
-
     private:
 
         PointerType m_obj;
@@ -163,15 +119,17 @@ namespace stick
     };
 
     template<class T, class...Args>
-    inline UniquePtr<T> makeUnique(Allocator & _alloc, Args && ... _args)
+    inline UniquePtr<T, DefaultCleanup<T>> makeUnique(Allocator & _alloc, Args && ... _args)
     {
-        return UniquePtr<T>(_alloc.create<T>(std::forward<Args>(_args)...), _alloc);
+        using C = DefaultCleanup<T>;
+        return UniquePtr<T, C>(_alloc.create<T>(std::forward<Args>(_args)...), C(_alloc));
     }
 
     template<class T, class...Args>
-    inline UniquePtr<T> makeUnique(Args && ... _args)
+    inline UniquePtr<T, DefaultCleanup<T>> makeUnique(Args && ... _args)
     {
-        return UniquePtr<T>(defaultAllocator().create<T>(std::forward<Args>(_args)...), defaultAllocator());
+        using C = DefaultCleanup<T>;
+        return UniquePtr<T, C>(defaultAllocator().create<T>(std::forward<Args>(_args)...), C(defaultAllocator()));
     }
 }
 
