@@ -8,38 +8,65 @@ namespace stick
 {
     namespace detail
     {
-        template<class C>
         struct STICK_API ControlBlock
         {
-            inline ControlBlock(Allocator & _alloc, C _cleanup) :
+            ControlBlock(Allocator & _alloc) :
                 count(1),
-                cleanup(_alloc),
                 allocator(&_alloc)
             {
 
             }
 
-            inline void increment()
+            virtual ~ControlBlock()
+            {
+                STICK_ASSERT(count == 0);
+            }
+
+            virtual void destroyObj() = 0;
+
+            void increment()
             {
                 ++count;
             }
 
-            inline void decrement()
+            void decrement()
             {
                 --count;
             }
 
             Size count;
-            C cleanup;
             Allocator * allocator; //allocator that allocated the control block
+        };
+
+        template<class T, class C>
+        struct STICK_API ControlBlockT : public ControlBlock
+        {
+            ControlBlockT(Allocator & _alloc, T * _ptr, C _cleanup) :
+                ControlBlock(_alloc),
+                cleanup(_alloc),
+                ptr(_ptr)
+            {
+
+            }
+
+            void destroyObj() final
+            {
+                cleanup(ptr);
+            }
+
+            C cleanup;
+            T * ptr;
         };
     }
 
     template<class T, class C = DefaultCleanup<T>>
     class STICK_API SharedPtr
     {
+        template<class T2, class C2>
+        friend class SharedPtr;
+
         using Cleanup = C;
-        using ControlBlock = detail::ControlBlock<C>;
+        using ControlBlockType = detail::ControlBlockT<T, C>;
 
     public:
 
@@ -56,15 +83,23 @@ namespace stick
 
         template<class U>
         explicit SharedPtr(U * _ptr, Cleanup _cleanup = Cleanup(defaultAllocator())) :
-            m_controlBlock(defaultAllocator().create<ControlBlock>(defaultAllocator(), _cleanup)),
-            m_ptr(_ptr)
+            m_controlBlock(defaultAllocator().create<ControlBlockType>(defaultAllocator(), _ptr, _cleanup)),
+            m_ptr(static_cast<T*>(_ptr))
         {
+        }
+
+        SharedPtr(const SharedPtr & _other) :
+            m_controlBlock(_other.m_controlBlock),
+            m_ptr(_other.m_ptr)
+        {
+            if (m_controlBlock)
+                m_controlBlock->increment();
         }
 
         template<class U>
         SharedPtr(const SharedPtr<U> & _other) :
             m_controlBlock(_other.m_controlBlock),
-            m_ptr(_other.m_ptr)
+            m_ptr(static_cast<T*>(_other.m_ptr))
         {
             if (m_controlBlock)
                 m_controlBlock->increment();
@@ -91,7 +126,7 @@ namespace stick
                 m_controlBlock->decrement();
                 if (m_controlBlock->count == 0)
                 {
-                    m_controlBlock->cleanup(m_ptr);
+                    m_controlBlock->destroyObj();
                     m_controlBlock->allocator->destroy(m_controlBlock);
                     m_controlBlock = nullptr;
                     m_ptr = nullptr;
@@ -159,9 +194,22 @@ namespace stick
 
     private:
 
-        ControlBlock * m_controlBlock;
+        detail::ControlBlock * m_controlBlock;
         T * m_ptr;
     };
+
+    //@TODO make extra hidden constructor for SharedPtr that only performs one allocation
+    template<class T, class...Args>
+    SharedPtr<T> makeShared(Args && ... _args)
+    {
+        return SharedPtr<T>(defaultAllocator().create<T>(std::forward<Args>(_args)...));
+    }
+
+    template<class T, class...Args>
+    SharedPtr<T> makeShared(Allocator & _alloc, Args && ... _args)
+    {
+        return SharedPtr<T>(_alloc.create<T>(std::forward<Args>(_args)...), DefaultCleanup<T>(_alloc));
+    }
 }
 
 #endif //STICK_SHAREDPTR_HPP

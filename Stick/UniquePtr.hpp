@@ -28,14 +28,6 @@ namespace stick
 
         }
 
-        // template<class O>
-        // inline UniquePtr(O * _ptr, Allocator & _alloc = defaultAllocator()) :
-        //     m_obj(_ptr),
-        //     m_cleanup(_alloc)
-        // {
-
-        // }
-
         template<class O>
         inline UniquePtr(O * _ptr, Cleanup _c = Cleanup(defaultAllocator())) :
             m_obj(_ptr),

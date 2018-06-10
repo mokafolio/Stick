@@ -23,6 +23,7 @@ Stick/Allocator.hpp
 Stick/ArgumentParser.hpp
 Stick/CallbackID.hpp
 Stick/ConditionVariable.hpp
+Stick/DefaultCleanup.hpp
 Stick/Duration.hpp
 Stick/DynamicArray.hpp
 Stick/Error.hpp

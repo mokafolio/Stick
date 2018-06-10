@@ -225,17 +225,35 @@ struct NoMove
     NoMove & operator = (NoMove && _other) = delete;
 };
 
-//test classes for Resource tests
-struct TestResource
+class A
 {
-    inline Error parse(const char * _data, Size _byteCount)
-    {
-        text = String(_data, _data + _byteCount);
-        return Error();
-    }
+public:
 
-    String text;
+    static int a_destructionCount;
+
+    ~A()
+    {
+        printf("DESTRUC A\n");
+        a_destructionCount++;
+    }
 };
+
+int A::a_destructionCount = 0;
+
+class B : public A
+{
+public:
+
+    static int b_destructionCount;
+
+    ~B()
+    {
+        printf("DESTRUC B\n");
+        b_destructionCount++;
+    }
+};
+
+int B::b_destructionCount = 0;
 
 const Suite spec[] =
 {
@@ -2311,30 +2329,45 @@ const Suite spec[] =
     },
     SUITE("SharedPtr Tests")
     {
-        SharedPtr<Int32> b;
-        EXPECT(b.useCount() == 0);
         {
-            SharedPtr<Int32> a(defaultAllocator().create<Int32>(-934));
-            EXPECT(*a == -934);
-            EXPECT(a.useCount() == 1);
-            SharedPtr<Int32> c;
-            c = a;
-            EXPECT(c.useCount() == 2);
-            EXPECT(*c == -934);
-            b = std::move(c);
-            EXPECT(b);
-            EXPECT(!c);
-            EXPECT(b.useCount() == 2);
-            EXPECT(*b == -934);
+            SharedPtr<Int32> b;
+            EXPECT(b.useCount() == 0);
+            {
+                SharedPtr<Int32> a(defaultAllocator().create<Int32>(-934));
+                EXPECT(*a == -934);
+                EXPECT(a.useCount() == 1);
+                SharedPtr<Int32> c;
+                c = a;
+                EXPECT(c.useCount() == 2);
+                EXPECT(*c == -934);
+                b = std::move(c);
+                EXPECT(b);
+                EXPECT(!c);
+                EXPECT(b.useCount() == 2);
+                EXPECT(*b == -934);
 
-            SharedPtr<Int32> d(std::move(a));
-            EXPECT(d.useCount() == 2);
-            EXPECT(*d == -934);
+                SharedPtr<Int32> d(std::move(a));
+                EXPECT(d.useCount() == 2);
+                EXPECT(*d == -934);
+            }
+            EXPECT(b.useCount() == 1);
+
+            b.reset();
+            EXPECT(b.useCount() == 0);
+            EXPECT(!b);
         }
-        EXPECT(b.useCount() == 1);
-        b.reset();
-        EXPECT(b.useCount() == 0);
-        EXPECT(!b);
+        {
+            //Test if the original type of the object is preserved during destruction
+            //even if the last remaining shared pointer is a different type with no virtual destructor.
+            SharedPtr<B> b = makeShared<B>();
+            SharedPtr<A> a = b;
+            EXPECT(a.useCount() == 2);
+            b.reset();
+            EXPECT(a.useCount() == 1);
+            a.reset();
+            EXPECT(B::b_destructionCount == 1);
+            EXPECT(A::a_destructionCount == 1);
+        }
     }
 };
 
