@@ -208,7 +208,7 @@ namespace stick
         }
 
         inline Result(T & _result) :
-            m_variant(_result)
+            m_variant(&_result)
         {
 
         }
@@ -251,7 +251,7 @@ namespace stick
                 }
                 exit(EXIT_FAILURE);
             }
-            return m_variant.template get<T &>();
+            return *m_variant.template get<T *>();
         }
 
         inline T & ensure()
@@ -261,17 +261,17 @@ namespace stick
 
         T & get()
         {
-            return m_variant.template get<T &>();
+            return *m_variant.template get<T *>();
         }
 
         const T & get() const
         {
-            return m_variant.template get<T &>();
+            return *m_variant.template get<T *>();
         }
 
     private:
 
-        Variant<Error, T &> m_variant;
+        Variant<Error, T *> m_variant;
     };
 
     template<class T>

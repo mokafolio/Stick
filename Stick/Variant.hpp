@@ -174,31 +174,30 @@ namespace stick
             static constexpr TypeID typeID = 0;
         };
 
-
         //@TODO: Do we actually need a special traits impl for references?
         template<class T, class...Ts>
         struct Traits
         {
             //@TODO: remove volatile, too?
-            using ValueType = typename std::remove_reference<typename std::remove_const<T>::type>::type;
-            static constexpr bool bIsDirect = DirectType<T, Ts...>::typeID != 0;
+            using ValueType = typename std::remove_reference<typename std::remove_cv<T>::type>::type;
+            static constexpr bool bIsDirect = DirectType<ValueType, Ts...>::typeID != 0;
             static constexpr TypeID typeID = bIsDirect ? DirectType<ValueType, Ts...>::typeID : ConvertibleType<ValueType, Ts...>::typeID;
             static constexpr bool bIsValid = typeID != 0;
             using TargetType = typename std::conditional<bIsDirect, ValueType, typename ConvertibleType<ValueType, Ts...>::type>::type;
         };
 
-        template<class T, class...Ts>
-        struct Traits<T &, Ts...>
-        {
-            //@TODO: remove volatile, too?
-            using ValueType = typename std::remove_reference<typename std::remove_const<T &>::type>::type;
-            static constexpr bool bIsDirect = DirectType<T &, Ts...>::typeID != 0;
-            static constexpr TypeID typeID = bIsDirect ? DirectType<T &, Ts...>::typeID : ConvertibleType<T &, Ts...>::typeID;
-            static constexpr bool bIsValid = typeID != 0;
-            //@TODO: ConvertibleType should most likely differ between ref/no ref aswell, so that implicit conversions
-            //between references can become possible with the correct storage.
-            using TargetType = typename std::conditional<bIsDirect, std::reference_wrapper<ValueType>, typename ConvertibleType<T &, Ts...>::type>::type;
-        };
+        // template<class T, class...Ts>
+        // struct Traits<T &, Ts...>
+        // {
+        //     //@TODO: remove volatile, too?
+        //     using ValueType = typename std::remove_reference<typename std::remove_const<T &>::type>::type;
+        //     static constexpr bool bIsDirect = DirectType<T &, Ts...>::typeID != 0;
+        //     static constexpr TypeID typeID = bIsDirect ? DirectType<T &, Ts...>::typeID : ConvertibleType<T &, Ts...>::typeID;
+        //     static constexpr bool bIsValid = typeID != 0;
+        //     //@TODO: ConvertibleType should most likely differ between ref/no ref aswell, so that implicit conversions
+        //     //between references can become possible with the correct storage.
+        //     using TargetType = typename std::conditional<bIsDirect, std::reference_wrapper<ValueType>, typename ConvertibleType<T &, Ts...>::type>::type;
+        // };
 
         template<class T>
         struct ReturnTypeTraits
@@ -214,8 +213,6 @@ namespace stick
     class Variant
     {
         //@TODO: Add static_asserts to make sure the template argument list is not empty etc.
-
-    private:
 
         using Helper = detail::VariantHelper<Ts...>;
 
@@ -243,11 +240,14 @@ namespace stick
             _other.m_typeID = 0;
         }
 
-        template<class T, class Enable = typename std::enable_if<detail::Traits<T, Ts...>::bIsValid>::type>
+        template < class T,
+                   class Traits = detail::Traits<T, Ts...>,
+                   class Enable = typename std::enable_if < Traits::bIsValid &&
+                           !std::is_same<Variant<Ts...>, typename Traits::ValueType>::value >::type >
         inline Variant(T && _value)
         {
-            using Traits = detail::Traits<T, Ts...>;
-            using TT = typename detail::Traits<T, Ts...>::TargetType;
+            using TT = typename Traits::TargetType;
+
             m_typeID = Traits::typeID;
             new (&m_storage) TT(std::forward<T>(_value));
         }

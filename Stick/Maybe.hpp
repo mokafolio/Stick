@@ -32,6 +32,13 @@ namespace stick
             new(m_data) T(std::move(_value));
         }
 
+        template<class U, class Enable = typename std::enable_if<std::is_convertible<U, T>::value>::type>
+        inline Maybe(U && _value) :
+            m_bHasValue(true)
+        {
+            new(m_data) T(std::move(_value));
+        }
+
         inline Maybe(const Maybe & _other) :
             m_bHasValue(_other.m_bHasValue)
         {
@@ -45,6 +52,7 @@ namespace stick
             if (m_bHasValue)
                 new(m_data) T(std::move(_other.value()));
             //TODO: I think we need to set _other.m_bHasValue to false here?
+            _other.m_bHasValue = false;
         }
 
         inline ~Maybe()
@@ -80,7 +88,7 @@ namespace stick
             return m_bHasValue;
         }
 
-        template<class U>
+        template<class U, class Enable = typename std::enable_if<std::is_convertible<U, T>::value>::type>
         inline Maybe & operator = (U && _value)
         {
             if (m_bHasValue)
@@ -116,7 +124,7 @@ namespace stick
 
         inline Maybe & operator = (Maybe & _other)
         {
-            *this = const_cast<const Maybe& >(_other);
+            *this = const_cast<const Maybe & >(_other);
             return *this;
         }
 

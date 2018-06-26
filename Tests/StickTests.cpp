@@ -1717,20 +1717,20 @@ const Suite spec[] =
         EXPECT(*f.get<const String *>() == "blubber");
 
         //reference tests
-        String testStr("BLUUUUB");
-        Variant<bool, String &> g(testStr);
-        EXPECT(g.isValid());
-        EXPECT(g.is<String &>());
-        EXPECT(g.get<String &>() == "BLUUUUB");
-        g.get<String &>() = "changed";
-        EXPECT(g.get<String &>() == "changed");
+        // String testStr("BLUUUUB");
+        // Variant<bool, String &> g(testStr);
+        // EXPECT(g.isValid());
+        // EXPECT(g.is<String &>());
+        // EXPECT(g.get<String &>() == "BLUUUUB");
+        // g.get<String &>() = "changed";
+        // EXPECT(g.get<String &>() == "changed");
 
-        //const ref tests
-        const String testStr2("wooop");
-        Variant<const String &, Float32> h(testStr2);
-        EXPECT(h.isValid());
-        EXPECT(h.is<const String &>());
-        EXPECT(h.get<const String &>() == "wooop");
+        // //const ref tests
+        // const String testStr2("wooop");
+        // Variant<const String &, Float32> h(testStr2);
+        // EXPECT(h.isValid());
+        // EXPECT(h.is<const String &>());
+        // EXPECT(h.get<const String &>() == "wooop");
     },
     SUITE("ArgumentParser Tests")
     {
@@ -2367,6 +2367,10 @@ const Suite spec[] =
             a.reset();
             EXPECT(B::b_destructionCount == 1);
             EXPECT(A::a_destructionCount == 1);
+
+            static_assert(detail::Traits<SharedPtr<A>, SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int>::bIsDirect, "DAFUQ");
+
+            Variant<SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int> bla = makeShared<A>();
         }
     }
 };

@@ -218,6 +218,14 @@ namespace stick
             memcpy(m_cStr + off, _cStr, _count);
         }
 
+        inline void append(ConstIter _begin, ConstIter _end)
+        {
+            Size off = m_length;
+            Size dist = std::distance(_begin, _end);
+            preAppend(m_length + dist);
+            memcpy(m_cStr + off, _begin, dist);
+        }
+
         inline void append(char _c)
         {
             Size off = m_length;

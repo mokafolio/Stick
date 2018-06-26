@@ -81,7 +81,7 @@ namespace stick
 
         }
 
-        template<class U>
+        template<class U, class Enable = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
         explicit SharedPtr(U * _ptr, Cleanup _cleanup = Cleanup(defaultAllocator())) :
             m_controlBlock(defaultAllocator().create<ControlBlockType>(defaultAllocator(), _ptr, _cleanup)),
             m_ptr(static_cast<T*>(_ptr))
@@ -96,7 +96,7 @@ namespace stick
                 m_controlBlock->increment();
         }
 
-        template<class U>
+        template<class U, class Enable = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
         SharedPtr(const SharedPtr<U> & _other) :
             m_controlBlock(_other.m_controlBlock),
             m_ptr(static_cast<T*>(_other.m_ptr))
