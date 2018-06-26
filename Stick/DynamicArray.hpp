@@ -182,6 +182,12 @@ namespace stick
         }
 
         template<class InputIter>
+        inline void append(InputIter _first, InputIter _last)
+        {
+            insert(end(), _first, _last);
+        }
+
+        template<class InputIter>
         inline Iter insert(ConstIter _it, InputIter _first, InputIter _last)
         {
             Size idiff = _last - _first;
