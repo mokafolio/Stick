@@ -81,10 +81,10 @@ namespace stick
 
         }
 
-        template<class U, class Enable = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+        template<class U, class Enable = typename std::enable_if<std::is_convertible<U *, T *>::value>::type>
         explicit SharedPtr(U * _ptr, Cleanup _cleanup = Cleanup(defaultAllocator())) :
             m_controlBlock(defaultAllocator().create<ControlBlockType>(defaultAllocator(), _ptr, _cleanup)),
-            m_ptr(static_cast<T*>(_ptr))
+            m_ptr(static_cast<T *>(_ptr))
         {
         }
 
@@ -96,10 +96,10 @@ namespace stick
                 m_controlBlock->increment();
         }
 
-        template<class U, class Enable = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+        template<class U, class Enable = typename std::enable_if<std::is_convertible<U *, T *>::value>::type>
         SharedPtr(const SharedPtr<U> & _other) :
             m_controlBlock(_other.m_controlBlock),
-            m_ptr(static_cast<T*>(_other.m_ptr))
+            m_ptr(static_cast<T *>(_other.m_ptr))
         {
             if (m_controlBlock)
                 m_controlBlock->increment();
@@ -161,6 +161,18 @@ namespace stick
         {
             std::swap(m_controlBlock, _other.m_controlBlock);
             std::swap(m_ptr, _other.m_ptr);
+        }
+
+        T * get()
+        {
+            STICK_ASSERT(m_controlBlock && m_ptr);
+            return m_ptr;
+        }
+
+        const T * get() const
+        {
+            STICK_ASSERT(m_controlBlock && m_ptr);
+            return m_ptr;
         }
 
         T * operator->()
