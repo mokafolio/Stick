@@ -190,6 +190,7 @@ namespace stick
         inline void appendFormatted(const char * _fmt, Args..._args)
         {
             int len = detail::variadicStringLength(_fmt, _args...);
+            if(!len) return;
             Size off = m_length;
             preAppend(m_length + len);
             int result = snprintf(m_cStr + off, len + 1, _fmt, _args...);
@@ -205,14 +206,17 @@ namespace stick
         }
 
         inline void append(const char * _cStr)
-        {
+        {   
+            Size len = strlen(_cStr);
+            if(!len) return;
             Size off = m_length;
-            preAppend(m_length + strlen(_cStr));
+            preAppend(m_length + len);
             strcpy(m_cStr + off, _cStr);
         }
 
         inline void append(const char * _cStr, Size _count)
         {
+            if(!_count) return;
             Size off = m_length;
             preAppend(m_length + _count);
             memcpy(m_cStr + off, _cStr, _count);
@@ -220,8 +224,9 @@ namespace stick
 
         inline void append(ConstIter _begin, ConstIter _end)
         {
-            Size off = m_length;
             Size dist = std::distance(_begin, _end);
+            if(!dist) return;
+            Size off = m_length;
             preAppend(m_length + dist);
             memcpy(m_cStr + off, _begin, dist);
         }
@@ -829,6 +834,7 @@ namespace stick
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        if(!len) return;
         Size off = m_length;
         preAppend(m_length + len);
         int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
