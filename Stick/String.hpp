@@ -384,26 +384,21 @@ namespace stick
 
         inline void reserve(Size _count)
         {
-            printf("A\n");
             if (_count <= m_capacity)
                 return;
 
-            printf("B\n");
             char * old = m_cStr;
             Size s = _count + 1;
             m_cStr = static_cast<char *>(m_allocator->allocate(s, alignof(char)).ptr);
-            printf("C\n");
             //needed as allocator cannot guarantee that the memory is zeroed out
             //TODO: Add a allocateZeroed function to allocator? Would allow us to use calloc
             memset(m_cStr, 0, s);
             STICK_ASSERT(m_cStr != nullptr);
-            printf("D\n");
             if (old)
             {
                 strcpy(m_cStr, old);
                 m_allocator->deallocate({old, m_capacity + 1});
             }
-            printf("E\n");
             m_capacity = _count;
         }
 
@@ -575,7 +570,6 @@ namespace stick
         {
             resize(m_length + _count);
             Size diff = m_length - _idx - _count;
-            printf("DIFF %lu % lu\n", diff, m_length);
             std::memmove(m_cStr + _idx + _count, m_cStr + _idx, diff);
             for (Size i = _idx; i < _idx + _count; ++i)
                 m_cStr[i] = _c;
