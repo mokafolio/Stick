@@ -98,3 +98,5 @@ foreach ( file ${STICKINC} )
     get_filename_component( dir ${file} DIRECTORY )
     install( FILES ${file} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${dir} )
 endforeach()
+
+message(STATUS "MOOODE" ${CMAKE_BUILD_TYPE})

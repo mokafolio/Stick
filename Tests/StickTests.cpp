@@ -458,10 +458,14 @@ const Suite spec[] =
 
         //insertion tests
         {
+            printf("uno");
             String s("aaaa");
+            printf("dos");
             s.insert(0, 2, 'b');
+            printf("tres");
             EXPECT(s == "bbaaaa");
             EXPECT(s.length() == 6);
+
 
             s.insert(2, 2, 'c');
             EXPECT(s == "bbccaaaa");
@@ -539,7 +543,8 @@ const Suite spec[] =
             EXPECT(s3 == "loWo");
             EXPECT(it == s3.end());
         }
-    },
+    }
+    ,
     SUITE("String Conversion Tests")
     {
         String s = toString(Int32(99));
@@ -1252,7 +1257,9 @@ const Suite spec[] =
 
         it = map.find("c");
         it++;
+        printf("UNO\n");
         it2 = map.remove("c");
+        printf("DPS\n");
         EXPECT(it == it2);
         EXPECT(map.count() == 4);
 
@@ -2363,17 +2370,25 @@ const Suite spec[] =
             SharedPtr<A> a = b;
             EXPECT(a.useCount() == 2);
             b.reset();
-            EXPECT(a.useCount() == 1);
-            a.reset();
-            EXPECT(B::b_destructionCount == 1);
-            EXPECT(A::a_destructionCount == 1);
+            // EXPECT(a.useCount() == 1);
+            // a.reset();
+            // EXPECT(B::b_destructionCount == 1);
+            // EXPECT(A::a_destructionCount == 1);
 
-            static_assert(detail::Traits<SharedPtr<A>, SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int>::bIsDirect, "DAFUQ");
+            // static_assert(detail::Traits<SharedPtr<A>, SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int>::bIsDirect, "DAFUQ");
 
-            Variant<SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int> bla = makeShared<A>();
+            // Variant<SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int> bla = makeShared<A>();
         }
     }
 };
+
+// const Suite spec[] =
+// {
+//     SUITE("String Tests")
+//     {
+
+//     }
+// };
 
 int main(int _argc, const char * _args[])
 {

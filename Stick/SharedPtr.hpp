@@ -127,10 +127,12 @@ namespace stick
                 if (m_controlBlock->count == 0)
                 {
                     m_controlBlock->destroyObj();
-                    m_controlBlock->allocator->destroy(m_controlBlock);
-                    m_controlBlock = nullptr;
-                    m_ptr = nullptr;
+                    Allocator * alloc = m_controlBlock->allocator;
+                    alloc->destroy(m_controlBlock);
                 }
+
+                m_controlBlock = nullptr;
+                m_ptr = nullptr;
             }
         }
 

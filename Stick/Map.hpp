@@ -221,7 +221,7 @@ namespace stick
 
             inline IterT & operator+=(Size _i)
             {
-                for (Size i = 0; i <= _i; ++i)
+                for (Size i = 0; i < _i; ++i)
                     increment();
                 return *this;
             }
@@ -229,7 +229,7 @@ namespace stick
             inline IterT operator+(Size _i) const
             {
                 Iter ret = *this;
-                for (Size i = 0; i <= _i; ++i)
+                for (Size i = 0; i < _i; ++i)
                     ret.increment();
                 return ret;
             }
@@ -349,8 +349,9 @@ namespace stick
             Iter it = find(_key);
             if (it != end())
             {
+                Iter ret = it + 1;
                 m_tree.removeNode(it.current);
-                return ++it;
+                return ret;
             }
             return Iter();
         }
