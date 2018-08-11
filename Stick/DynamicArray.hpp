@@ -9,22 +9,31 @@
 
 namespace stick
 {
-    //TODO: Make this append etc. work for types that are not default constructible/copy constructible
+    //@TODO: Make this append etc. work for types that are not default constructible/copy constructible
     //i.e. with the appropriate move versions.
     template<class T>
     class DynamicArray
     {
     public:
 
-        typedef T ValueType;
+        using ValueType = T;
+        using Iter = T *;
+        using ConstIter = const Iter;
+        using ReverseIter = ReverseIterator<Iter>;
+        using ReverseConstIter = ReverseIterator<ConstIter>;
 
-        typedef T * Iter;
-
-        typedef const T * ConstIter;
-
-        typedef ReverseIterator<Iter> ReverseIter;
-
-        typedef ReverseIterator<ConstIter> ReverseConstIter;
+        //@NOTE: We only put this here temporarily to easily allow DynamicArray to work with sol2 for lua bindings
+        //In a future version of sol this will most likely not be needed anymore.
+        //That said, maybe we should put all the standard container typedefs in here to maximize the Stick containers
+        //compatibility with standard algorithms that rely on them?
+        using iterator = Iter;
+        using const_iterator = ConstIter;
+        using value_type = ValueType;
+        using difference_type = std::ptrdiff_t;
+        using reference = value_type&;
+        using const_reference = const value_type &;
+        using pointer = value_type*;
+        using const_pointer = const value_type *;
 
 
         DynamicArray(Allocator & _alloc = defaultAllocator()) :
