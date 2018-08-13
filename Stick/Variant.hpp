@@ -213,6 +213,7 @@ namespace stick
     class Variant
     {
         //@TODO: Add static_asserts to make sure the template argument list is not empty etc.
+        // possibly forbid arrays, references and duplicate types?
 
         using Helper = detail::VariantHelper<Ts...>;
 

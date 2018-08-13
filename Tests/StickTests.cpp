@@ -797,6 +797,10 @@ const Suite spec[] =
             i++;
         }
 
+        const DynamicArray<Int32> cv = {1, 2, 3};
+        for(Int32 val : cv)
+            printf("VAL %i\n", val);
+
         DynamicArray<Float32> b2 = {0.5f, 0.3f, 0.1f, 0.2f};
         b2.remove(b2.begin(), b2.begin() + 2);
         EXPECT(b2.count() == 2);

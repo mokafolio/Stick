@@ -165,13 +165,7 @@ namespace stick
             std::swap(m_ptr, _other.m_ptr);
         }
 
-        T * get()
-        {
-            STICK_ASSERT(m_controlBlock && m_ptr);
-            return m_ptr;
-        }
-
-        const T * get() const
+        T * get() const
         {
             STICK_ASSERT(m_controlBlock && m_ptr);
             return m_ptr;

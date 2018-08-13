@@ -18,7 +18,7 @@ namespace stick
 
         using ValueType = T;
         using Iter = T *;
-        using ConstIter = const Iter;
+        using ConstIter = const T *;
         using ReverseIter = ReverseIterator<Iter>;
         using ReverseConstIter = ReverseIterator<ConstIter>;
 
