@@ -1746,9 +1746,7 @@ const Suite spec[] =
     SUITE("ArgumentParser Tests")
     {
         ArgumentParser parser("Please give us all your info.");
-        auto err = parser.addArgument("-h", "--help", 0, true);
-        EXPECT(!err);
-        err = parser.addArgument("-t", "--test", 3, false);
+        auto err = parser.addArgument("-t", "--test", 3, false);
         EXPECT(!err);
         err = parser.addArgument("-f", "--feast", 1, false);
         EXPECT(!err);

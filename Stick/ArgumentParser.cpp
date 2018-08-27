@@ -103,7 +103,7 @@ namespace stick
         m_requiredCount(0),
         m_info(_info)
     {
-
+        addArgument("-h", "--help", 0, true);
     }
 
     Error ArgumentParser::addArgument(const String & _name, UInt8 _argCount, bool _bOptional)
@@ -161,19 +161,18 @@ namespace stick
         m_applicationPath = _args[0];
         m_applicationName = path::fileName(m_applicationPath);
 
-        // if (_argc < m_requiredCount + 1)
-        // {
-        //     String errStr;
-        //     errStr.appendFormatted("Expected at least %i required arguments, got %i.", m_requiredCount, _argc - 1);
-        //     return Error(ec::InvalidArgument, errStr, STICK_FILE, STICK_LINE);
-        // }
-
         Argument * active = nullptr;
         const char * activeName = nullptr;
         UInt8 activeArgTargetCount = 0;
         UInt8 currentCount = 0;
         for (Size i = 1; i < _argc; ++i)
         {
+            if (std::strcmp(_args[i], "--help") == 0)
+            {
+                printf("%s\n", help().cString());
+                std::exit(EXIT_SUCCESS);
+            }
+
             auto it = m_indices.find(_args[i]);
 
             //check if this a key
@@ -212,7 +211,7 @@ namespace stick
                     return Error(ec::InvalidArgument, err, STICK_FILE, STICK_LINE);
                 }
             }
-            else
+            else if (active)
             {
                 if (activeArgTargetCount != '*' && activeArgTargetCount != '+' && currentCount > activeArgTargetCount)
                 {
