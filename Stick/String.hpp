@@ -9,7 +9,7 @@
 #include <Stick/Hash.hpp>
 #include <Stick/Private/MurmurHash2.hpp>
 
-#include <string.h>
+#include <cstring>
 #include <cctype> //for toupper
 #include <algorithm> //for transform
 
