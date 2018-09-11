@@ -2172,23 +2172,23 @@ const Suite spec[] =
         //things compile as expected :)
         using Callback = stick::detail::CallbackT<void, stick::Event>;
 
-        Callback cb(&freeFunctionCallback);
+        // Callback cb(&freeFunctionCallback);
 
-        TestClass tc;
-        Callback cb2(&tc, &TestClass::memberCallback);
+        // TestClass tc;
+        // Callback cb2(&tc, &TestClass::memberCallback);
 
 
-        bool bLamdaCalled = false;
-        Callback cb3([&](const TestEvent & _evt) { bLamdaCalled = true; });
+        // bool bLamdaCalled = false;
+        // Callback cb3([&](const TestEvent & _evt) { bLamdaCalled = true; });
 
-        cb.call(TestEvent());
-        EXPECT(bWasCalled);
+        // cb.call(TestEvent());
+        // EXPECT(bWasCalled);
 
-        cb2.call(TestEvent());
-        EXPECT(tc.counter == 1);
+        // cb2.call(TestEvent());
+        // EXPECT(tc.counter == 1);
 
-        cb3.call(TestEvent());
-        EXPECT(bLamdaCalled);
+        // cb3.call(TestEvent());
+        // EXPECT(bLamdaCalled);
     },
     SUITE("EventPublisher Tests")
     {
