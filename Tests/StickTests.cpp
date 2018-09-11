@@ -2172,7 +2172,7 @@ const Suite spec[] =
         //things compile as expected :)
         using Callback = stick::detail::CallbackT<void, stick::Event>;
 
-        Callback cb(&freeFunctionCallback);
+        Callback cb(freeFunctionCallback);
 
         // TestClass tc;
         // Callback cb2(&tc, &TestClass::memberCallback);
