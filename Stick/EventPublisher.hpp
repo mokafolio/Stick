@@ -123,11 +123,11 @@ namespace stick
         //     publish(makeUnique<T>(*m_alloc, _args...));
         // }
 
-        CallbackID addEventCallback(const Callback & _cb)
+        CallbackID addEventCallback(Callback _cb)
         {
             ScopedLock<typename PublishingPolicy::MutexType> lock(m_policy.mutex);
             CallbackID id = {nextID(), _cb.eventTypeID};
-            m_storage.addCallback(id, _cb.holder);
+            m_storage.addCallback(id, std::move(_cb.holder));
             return id;
         }
 

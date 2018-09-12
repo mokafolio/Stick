@@ -19,21 +19,22 @@ namespace stick
                 UniquePtr<const CallbackBaseType> callback;
             };
 
+            using CallbackUniquePtr = UniquePtr<CallbackBaseType>;
             using StorageArray = DynamicArray<Storage>;
             using RawPtrArray = DynamicArray<const CallbackBaseType *>;
             using CallbackMap = HashMap<TypeID, RawPtrArray>;
 
             MappedCallbackStorageT(Allocator & _alloc) :
-            callbackMap(16, _alloc),
-            storage(_alloc)
+                callbackMap(16, _alloc),
+                storage(_alloc)
             {
 
             }
 
-            void addCallback(const CallbackID & _cbID, const CallbackBaseType * _cb)
+            void addCallback(const CallbackID & _cbID, CallbackUniquePtr && _cb)
             {
-                storage.append({_cbID.id, UniquePtr<const CallbackBaseType>(_cb, callbackMap.allocator())});
-                callbackMap[_cbID.typeID].append(_cb);
+                callbackMap[_cbID.typeID].append(_cb.get());
+                storage.append({_cbID.id, std::move(_cb)});
             }
 
             void removeCallback(const CallbackID & _id)
@@ -55,16 +56,16 @@ namespace stick
                 //@TODO: this is kinds slow since we really just linearly search...
                 //is callback removal time important, though? :)
 
-                for(auto it = storage.begin(); it != storage.end(); ++it)
+                for (auto it = storage.begin(); it != storage.end(); ++it)
                 {
-                    if((*it).id == _id.id)
+                    if ((*it).id == _id.id)
                     {
                         auto sit = callbackMap.find(_id.typeID);
                         STICK_ASSERT(sit != callbackMap.end());
                         auto tit = find(sit->value.begin(), sit->value.end(), (*it).callback.get());
                         STICK_ASSERT(tit != sit->value.end());
                         sit->value.remove(tit);
-                        if(sit->value.isEmpty())
+                        if (sit->value.isEmpty())
                             callbackMap.remove(sit);
                         storage.remove(it);
                         break;

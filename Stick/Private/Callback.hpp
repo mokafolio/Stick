@@ -2,7 +2,7 @@
 #define STICK_PRIVATE_CALLBACK_HPP
 
 #include <Stick/TypeInfo.hpp>
-#include <Stick/Allocator.hpp>
+#include <Stick/UniquePtr.hpp>
 #include <Stick/Private/FunctionTraits.hpp>
 
 namespace stick
@@ -100,7 +100,7 @@ namespace stick
             {
                 using FT = FunctionCallbackT<Ret, EventBase, EventT, PassAlongArgs...>;
                 //@TODO: Allow custom allocator
-                holder = defaultAllocator().create<FT>(_function);
+                holder = makeUnique<FT>(_function);
             }
 
             //construct from member function
@@ -110,7 +110,7 @@ namespace stick
             {
                 using FT = MemberFunctionCallbackT<Ret, EventBase, T, EventT, PassAlongArgs...>;
                 //@TODO: Allow custom allocator
-                holder = defaultAllocator().create<FT>(_obj, _memFunction);
+                holder = makeUnique<FT>(_obj, _memFunction);
             }
 
             //construct from functor
@@ -120,7 +120,7 @@ namespace stick
                 using FT = FunctorEventCallbackT<Ret, EventBase, F, PassAlongArgs...>;
                 eventTypeID = TypeInfoT<typename FT::EventType>::typeID();
                 //@TODO: Allow custom allocator
-                holder = defaultAllocator().create<FT>(_functor);
+                holder = makeUnique<FT>(_functor);
             }
 
             Ret call(const EventBase & _evt, PassAlongArgs..._args) const
@@ -128,7 +128,7 @@ namespace stick
                 return holder->call(_evt, std::forward<PassAlongArgs>(_args)...);
             }
 
-            CallbackBaseType * holder;
+            UniquePtr<CallbackBaseType> holder;
             TypeID eventTypeID;
         };
     }

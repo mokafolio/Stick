@@ -137,44 +137,44 @@ namespace stick
 
         }
 
-        CallbackID addEventFilter(const Filter & _filter, bool _bPostPublish = false)
+        CallbackID addEventFilter(Filter _filter, bool _bPostPublish = false)
         {
             CallbackID id = {this->nextID(), _filter.eventTypeID};
             if (!_bPostPublish)
             {
                 ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
-                m_filterStorage.addCallback(id, _filter.holder);
+                m_filterStorage.addCallback(id, std::move(_filter.holder));
             }
             else
             {
                 ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.filterMutex);
-                m_postFilterStorage.addCallback(id, _filter.holder);
+                m_postFilterStorage.addCallback(id, std::move(_filter.holder));
             }
             return id;
         }
 
         template<class Category>
-        CallbackID addEventCategoryFilter(const Filter & _filter, bool _bPostPublish = false)
+        CallbackID addEventCategoryFilter(Filter _filter, bool _bPostPublish = false)
         {
             CallbackID id = {this->nextID(), TypeInfoT<Category>::typeID()};
             if (!_bPostPublish)
             {
                 ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
-                m_categoryFilterStorage.addCallback(id, _filter.holder);
+                m_categoryFilterStorage.addCallback(id, std::move(_filter.holder));
             }
             else
             {
                 ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.categoryFilterMutex);
-                m_postCategoryFilterStorage.addCallback(id, _filter.holder);
+                m_postCategoryFilterStorage.addCallback(id, std::move(_filter.holder));
             }
             return id;
         }
 
-        CallbackID addEventModifier(const Modifier & _modifier)
+        CallbackID addEventModifier(Modifier _modifier)
         {
             ScopedLock<typename ForwardingPolicy::MutexType> lock(m_forwardingPolicy.modifierMutex);
             CallbackID id = {this->nextID(), _modifier.eventTypeID};
-            m_modifierStorage.addCallback(id, _modifier.holder);
+            m_modifierStorage.addCallback(id, std::move(_modifier.holder));
             return id;
         }
 
