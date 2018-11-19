@@ -7,50 +7,46 @@
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
-#endif //STICK_PLATFORM_UNIX
+#endif // STICK_PLATFORM_UNIX
 
 namespace stick
 {
-    class Mutex;
+class Mutex;
 
-    class STICK_API ConditionVariable
-    {
-    public:
-
+class STICK_API ConditionVariable
+{
+  public:
 #ifdef STICK_PLATFORM_UNIX
-        typedef pthread_cond_t Native;
-        typedef Native * NativeHandle;
-#endif //STICK_PLATFORM_UNIX
+    typedef pthread_cond_t Native;
+    typedef Native * NativeHandle;
+#endif // STICK_PLATFORM_UNIX
 
-        typedef ScopedLock<Mutex> LockType;
+    typedef ScopedLock<Mutex> LockType;
 
+    ConditionVariable();
 
-        ConditionVariable();
-        
-        ConditionVariable(const ConditionVariable & _other) = delete;
-        ConditionVariable(ConditionVariable && _other) = delete;
-        ConditionVariable & operator = (const ConditionVariable & _other) = delete;
-        ConditionVariable & operator = (ConditionVariable && _other) = delete;
+    ConditionVariable(const ConditionVariable & _other) = delete;
+    ConditionVariable(ConditionVariable && _other) = delete;
+    ConditionVariable & operator=(const ConditionVariable & _other) = delete;
+    ConditionVariable & operator=(ConditionVariable && _other) = delete;
 
-        ~ConditionVariable();
+    ~ConditionVariable();
 
-        Error notifyOne();
+    Error notifyOne();
 
-        Error notifyAll();
+    Error notifyAll();
 
-        Error wait(LockType & _lock);
+    Error wait(LockType & _lock);
 
-        template<class F>
-        Error wait(LockType & _lock, F && _predicate);
+    template <class F>
+    Error wait(LockType & _lock, F && _predicate);
 
-        NativeHandle nativeHandle();
+    NativeHandle nativeHandle();
 
-    private:
+  private:
+    Native m_handle;
+    bool m_bIsInitialized;
+};
+} // namespace stick
 
-        Native m_handle;
-        bool m_bIsInitialized;
-    };
-}
-
-#endif //STICK_CONDITIONVARIABLE_HPP
-
+#endif // STICK_CONDITIONVARIABLE_HPP

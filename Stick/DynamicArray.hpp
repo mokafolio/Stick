@@ -9,429 +9,418 @@
 
 namespace stick
 {
-    //@TODO: Make this append etc. work for types that are not default constructible/copy constructible
-    //i.e. with the appropriate move versions.
-    template<class T>
-    class DynamicArray
+//@TODO: Make this append etc. work for types that are not default constructible/copy constructible
+// i.e. with the appropriate move versions.
+template <class T>
+class DynamicArray
+{
+  public:
+    using ValueType = T;
+    using Iter = T *;
+    using ConstIter = const T *;
+    using ReverseIter = ReverseIterator<Iter>;
+    using ReverseConstIter = ReverseIterator<ConstIter>;
+
+    //@NOTE: We only put this here temporarily to easily allow DynamicArray to work with sol2 for
+    //lua bindings In a future version of sol this will most likely not be needed anymore. That
+    // said, maybe we should put all the standard container typedefs in here to maximize the Stick
+    // containers compatibility with standard algorithms that rely on them?
+    using iterator = Iter;
+    using const_iterator = ConstIter;
+    using value_type = ValueType;
+    using difference_type = std::ptrdiff_t;
+    using reference = value_type &;
+    using const_reference = const value_type &;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+
+    DynamicArray(Allocator & _alloc = defaultAllocator()) : m_count(0), m_allocator(&_alloc)
     {
-    public:
+    }
 
-        using ValueType = T;
-        using Iter = T *;
-        using ConstIter = const T *;
-        using ReverseIter = ReverseIterator<Iter>;
-        using ReverseConstIter = ReverseIterator<ConstIter>;
+    DynamicArray(std::initializer_list<T> _il) : m_count(0), m_allocator(&defaultAllocator())
+    {
+        insert(end(), _il.begin(), _il.end());
+    }
 
-        //@NOTE: We only put this here temporarily to easily allow DynamicArray to work with sol2 for lua bindings
-        //In a future version of sol this will most likely not be needed anymore.
-        //That said, maybe we should put all the standard container typedefs in here to maximize the Stick containers
-        //compatibility with standard algorithms that rely on them?
-        using iterator = Iter;
-        using const_iterator = ConstIter;
-        using value_type = ValueType;
-        using difference_type = std::ptrdiff_t;
-        using reference = value_type&;
-        using const_reference = const value_type &;
-        using pointer = value_type*;
-        using const_pointer = const value_type *;
+    DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
+        m_count(0),
+        m_allocator(&_alloc)
+    {
+        resize(_size);
+    }
 
-
-        DynamicArray(Allocator & _alloc = defaultAllocator()) :
-            m_count(0),
-            m_allocator(&_alloc)
+    DynamicArray(const DynamicArray & _other) : m_count(0), m_allocator(_other.m_allocator)
+    {
+        if (_other.m_count)
         {
-
-        }
-
-        DynamicArray(std::initializer_list<T> _il) :
-            m_count(0),
-            m_allocator(&defaultAllocator())
-        {
-            insert(end(), _il.begin(), _il.end());
-        }
-
-        DynamicArray(Size _size, Allocator & _alloc = defaultAllocator()) :
-            m_count(0),
-            m_allocator(&_alloc)
-        {
-            resize(_size);
-        }
-
-        DynamicArray(const DynamicArray & _other) :
-            m_count(0),
-            m_allocator(_other.m_allocator)
-        {
-            if (_other.m_count)
-            {
-                insert(end(), _other.begin(), _other.end());
-            }
-        }
-
-        DynamicArray(DynamicArray && _other) :
-            m_data(std::move(_other.m_data)),
-            m_count(std::move(_other.m_count)),
-            m_allocator(std::move(_other.m_allocator))
-        {
-            //we don't want other to deallocate anything
-            _other.m_data.ptr = nullptr;
-        }
-
-        ~DynamicArray()
-        {
-            deallocate();
-        }
-
-        inline DynamicArray & operator = (const DynamicArray & _other)
-        {
-            deallocate();
-            m_count = 0;
-            m_allocator = _other.m_allocator;
             insert(end(), _other.begin(), _other.end());
-
-            return *this;
         }
+    }
 
-        inline DynamicArray & operator = (std::initializer_list<T> _il)
+    DynamicArray(DynamicArray && _other) :
+        m_data(std::move(_other.m_data)),
+        m_count(std::move(_other.m_count)),
+        m_allocator(std::move(_other.m_allocator))
+    {
+        // we don't want other to deallocate anything
+        _other.m_data.ptr = nullptr;
+    }
+
+    ~DynamicArray()
+    {
+        deallocate();
+    }
+
+    inline DynamicArray & operator=(const DynamicArray & _other)
+    {
+        deallocate();
+        m_count = 0;
+        m_allocator = _other.m_allocator;
+        insert(end(), _other.begin(), _other.end());
+
+        return *this;
+    }
+
+    inline DynamicArray & operator=(std::initializer_list<T> _il)
+    {
+        clear();
+        insert(end(), _il.begin(), _il.end());
+        return *this;
+    }
+
+    inline DynamicArray & operator=(DynamicArray && _other)
+    {
+        deallocate();
+        m_data = std::move(_other.m_data);
+        m_allocator = std::move(_other.m_allocator);
+        m_count = std::move(_other.m_count);
+        _other.m_data.ptr = nullptr;
+
+        return *this;
+    }
+
+    inline void resize(Size _s)
+    {
+        Size oldSize = m_count;
+        reserve(_s);
+        m_count = _s;
+        if (oldSize < m_count)
         {
-            clear();
-            insert(end(), _il.begin(), _il.end());
-            return *this;
-        }
-
-        inline DynamicArray & operator = (DynamicArray && _other)
-        {
-            deallocate();
-            m_data = std::move(_other.m_data);
-            m_allocator = std::move(_other.m_allocator);
-            m_count = std::move(_other.m_count);
-            _other.m_data.ptr = nullptr;
-
-            return *this;
-        }
-
-        inline void resize(Size _s)
-        {
-            Size oldSize = m_count;
-            reserve(_s);
-            m_count = _s;
-            if (oldSize < m_count)
+            for (Size i = oldSize; i < m_count; ++i)
             {
-                for (Size i = oldSize; i < m_count; ++i)
-                {
-                    new (reinterpret_cast<T *>(m_data.ptr) + i) T();
-                }
+                new (reinterpret_cast<T *>(m_data.ptr) + i) T();
             }
         }
+    }
 
-        inline void resize(Size _s, const T & _initial)
+    inline void resize(Size _s, const T & _initial)
+    {
+        Size oldSize = m_count;
+        reserve(_s);
+        m_count = _s;
+        if (oldSize < m_count)
         {
-            Size oldSize = m_count;
-            reserve(_s);
-            m_count = _s;
-            if (oldSize < m_count)
+            for (Size i = oldSize; i < m_count; ++i)
             {
-                for (Size i = oldSize; i < m_count; ++i)
-                {
-                    new (reinterpret_cast<T *>(m_data.ptr) + i) T(_initial);
-                }
+                new (reinterpret_cast<T *>(m_data.ptr) + i) T(_initial);
             }
         }
+    }
 
-        inline void reserve(Size _s)
-        {
-            auto c = capacity();
-            if (_s > c)
-            {
-                STICK_ASSERT(m_allocator);
-                auto blk = m_allocator->allocate(_s * sizeof(T), alignof(T));
-                STICK_ASSERT(blk);
-                T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
-                T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
-
-                //move the existing elements over
-                for (Size i = 0; i < m_count; ++i)
-                {
-                    new (arrayPtr + i) T(std::move(sourcePtr[i]));
-                }
-
-                //call the destructors on the old elements
-                for (Size i = 0; i < m_count; ++i)
-                {
-                    sourcePtr[i].~T();
-                }
-
-                if (m_data)
-                    m_allocator->deallocate(m_data);
-
-                m_data = blk;
-            }
-        }
-
-        inline void append(std::initializer_list<T> _l)
-        {
-            insert(end(), _l.begin(), _l.end());
-        }
-
-        inline void append(const T & _element)
-        {
-            if (capacity() <= m_count)
-            {
-                reserve(max((Size)1, m_count * 2));
-            }
-            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(_element);
-        }
-
-        inline void append(T && _element)
-        {
-            if (capacity() <= m_count)
-            {
-                reserve(max((Size)1, m_count * 2));
-            }
-            new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(std::move(_element));
-        }
-
-        template<class InputIter>
-        inline void append(InputIter _first, InputIter _last)
-        {
-            insert(end(), _first, _last);
-        }
-
-        template<class InputIter>
-        inline Iter insert(ConstIter _it, InputIter _first, InputIter _last)
-        {
-            Size idiff = _last - _first;
-            Size index = (_it - begin());
-            Size diff = m_count - index;
-            Size mc = m_count + idiff;
-
-            if (capacity() < mc)
-            {
-                reserve(max(mc, m_count * 2));
-            }
-
-            Size fidx = index + diff - 1;
-            Size iidx = fidx + idiff;
-            for (Size i = 0; i < diff; ++i)
-            {
-                new (reinterpret_cast<T *>(m_data.ptr) + iidx - i) T(std::move((*this)[fidx - i]));
-            }
-
-            for (Size i = 0; _first != _last; ++_first, ++i)
-            {
-                new (reinterpret_cast<T *>(m_data.ptr) + index + i) T(*_first);
-            }
-
-            m_count += idiff;
-            return begin() + index;
-        }
-
-        inline Iter insert(ConstIter _it, const T & _val)
-        {
-            return insert(_it, &_val, &_val + 1);
-        }
-
-        inline Iter insert(ConstIter _it, T && _val)
-        {
-            Size index = (_it - begin());
-            Size diff = m_count - index;
-            Size mc = m_count + 1;
-
-            if (capacity() < mc)
-            {
-                reserve(max(mc, m_count * 2));
-            }
-
-            Size fidx = index + diff - 1;
-            Size iidx = fidx + 1;
-            for (Size i = 0; i < diff; ++i)
-            {
-                new (reinterpret_cast<T *>(m_data.ptr) + iidx - i) T(std::move((*this)[fidx - i]));
-            }
-
-            new (reinterpret_cast<T *>(m_data.ptr) + index) T(std::forward<T>(_val));
-
-            m_count++;
-            return begin() + index;
-        }
-
-        inline Iter remove(ConstIter _first, ConstIter _last)
-        {
-            Size diff = end() - _last;
-            Size idiff = _last - _first;
-            Size index = (_first - begin());
-            Size endIndex = m_count - diff;
-
-            //fill the resulting gap if needed by shifting the remaining elements down
-            if (diff)
-            {
-                for (Size i = 0; i < diff; ++i)
-                {
-                    (*this)[index + i] = std::move((*this)[endIndex + i]);
-                }
-            }
-
-            //call the destructors of the removed elements that were not overwritten
-            for (Size i = 0; i < idiff; ++i)
-            {
-                (*this)[index + diff + i].~T();
-            }
-
-            m_count -= idiff;
-            return begin() + index;
-        }
-
-        inline void removeLast()
-        {
-            (reinterpret_cast<T *>(m_data.ptr)[m_count - 1]).~T();
-            m_count--;
-        }
-
-        inline Iter remove(Iter _it)
-        {
-            return remove(_it, _it + 1);
-        }
-
-        inline void clear()
-        {
-            for (auto & el : *this)
-            {
-                el.~T();
-            }
-            m_count = 0;
-        }
-
-        inline void deallocate()
-        {
-            if (m_data)
-            {
-                //call the destructors
-                clear();
-                //and release the memory
-                m_allocator->deallocate(m_data);
-                m_data = {nullptr, 0};
-            }
-        }
-
-        inline Allocator & allocator() const
+    inline void reserve(Size _s)
+    {
+        auto c = capacity();
+        if (_s > c)
         {
             STICK_ASSERT(m_allocator);
-            return *m_allocator;
-        }
+            auto blk = m_allocator->allocate(_s * sizeof(T), alignof(T));
+            STICK_ASSERT(blk);
+            T * arrayPtr = reinterpret_cast<T *>(blk.ptr);
+            T * sourcePtr = reinterpret_cast<T *>(m_data.ptr);
 
-        inline bool isEmpty() const
+            // move the existing elements over
+            for (Size i = 0; i < m_count; ++i)
+            {
+                new (arrayPtr + i) T(std::move(sourcePtr[i]));
+            }
+
+            // call the destructors on the old elements
+            for (Size i = 0; i < m_count; ++i)
+            {
+                sourcePtr[i].~T();
+            }
+
+            if (m_data)
+                m_allocator->deallocate(m_data);
+
+            m_data = blk;
+        }
+    }
+
+    inline void append(std::initializer_list<T> _l)
+    {
+        insert(end(), _l.begin(), _l.end());
+    }
+
+    inline void append(const T & _element)
+    {
+        if (capacity() <= m_count)
         {
-            return m_count == 0;
+            reserve(max((Size)1, m_count * 2));
         }
+        new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(_element);
+    }
 
-        inline const T & operator [](Size _index) const
+    inline void append(T && _element)
+    {
+        if (capacity() <= m_count)
         {
-            return reinterpret_cast<T *>(m_data.ptr)[_index];
+            reserve(max((Size)1, m_count * 2));
         }
+        new (reinterpret_cast<T *>(m_data.ptr) + m_count++) T(std::move(_element));
+    }
 
-        inline T & operator [](Size _index)
+    template <class InputIter>
+    inline void append(InputIter _first, InputIter _last)
+    {
+        insert(end(), _first, _last);
+    }
+
+    template <class InputIter>
+    inline Iter insert(ConstIter _it, InputIter _first, InputIter _last)
+    {
+        Size idiff = _last - _first;
+        Size index = (_it - begin());
+        Size diff = m_count - index;
+        Size mc = m_count + idiff;
+
+        if (capacity() < mc)
         {
-            return reinterpret_cast<T *>(m_data.ptr)[_index];
+            reserve(max(mc, m_count * 2));
         }
 
-        inline Iter begin()
+        Size fidx = index + diff - 1;
+        Size iidx = fidx + idiff;
+        for (Size i = 0; i < diff; ++i)
         {
-            return (Iter)m_data.ptr;
+            new (reinterpret_cast<T *>(m_data.ptr) + iidx - i) T(std::move((*this)[fidx - i]));
         }
 
-        inline ConstIter begin() const
+        for (Size i = 0; _first != _last; ++_first, ++i)
         {
-            return (ConstIter)m_data.ptr;
+            new (reinterpret_cast<T *>(m_data.ptr) + index + i) T(*_first);
         }
 
-        inline Iter end()
+        m_count += idiff;
+        return begin() + index;
+    }
+
+    inline Iter insert(ConstIter _it, const T & _val)
+    {
+        return insert(_it, &_val, &_val + 1);
+    }
+
+    inline Iter insert(ConstIter _it, T && _val)
+    {
+        Size index = (_it - begin());
+        Size diff = m_count - index;
+        Size mc = m_count + 1;
+
+        if (capacity() < mc)
         {
-            return (Iter)m_data.ptr + m_count;
+            reserve(max(mc, m_count * 2));
         }
 
-        inline ConstIter end() const
+        Size fidx = index + diff - 1;
+        Size iidx = fidx + 1;
+        for (Size i = 0; i < diff; ++i)
         {
-            return (ConstIter)m_data.ptr + m_count;
+            new (reinterpret_cast<T *>(m_data.ptr) + iidx - i) T(std::move((*this)[fidx - i]));
         }
 
-        inline ReverseIter rbegin()
+        new (reinterpret_cast<T *>(m_data.ptr) + index) T(std::forward<T>(_val));
+
+        m_count++;
+        return begin() + index;
+    }
+
+    inline Iter remove(ConstIter _first, ConstIter _last)
+    {
+        Size diff = end() - _last;
+        Size idiff = _last - _first;
+        Size index = (_first - begin());
+        Size endIndex = m_count - diff;
+
+        // fill the resulting gap if needed by shifting the remaining elements down
+        if (diff)
         {
-            return ReverseIter(end() - 1);
+            for (Size i = 0; i < diff; ++i)
+            {
+                (*this)[index + i] = std::move((*this)[endIndex + i]);
+            }
         }
 
-        inline ReverseConstIter rbegin() const
+        // call the destructors of the removed elements that were not overwritten
+        for (Size i = 0; i < idiff; ++i)
         {
-            return ReverseConstIter(end() - 1);
+            (*this)[index + diff + i].~T();
         }
 
-        inline ReverseIter rend()
+        m_count -= idiff;
+        return begin() + index;
+    }
+
+    inline void removeLast()
+    {
+        (reinterpret_cast<T *>(m_data.ptr)[m_count - 1]).~T();
+        m_count--;
+    }
+
+    inline Iter remove(Iter _it)
+    {
+        return remove(_it, _it + 1);
+    }
+
+    inline void clear()
+    {
+        for (auto & el : *this)
         {
-            return ReverseIter(begin());
+            el.~T();
         }
+        m_count = 0;
+    }
 
-        inline ReverseConstIter rend() const
+    inline void deallocate()
+    {
+        if (m_data)
         {
-            return ReverseConstIter(begin());
+            // call the destructors
+            clear();
+            // and release the memory
+            m_allocator->deallocate(m_data);
+            m_data = { nullptr, 0 };
         }
+    }
 
-        inline Size count() const
-        {
-            return m_count;
-        }
+    inline Allocator & allocator() const
+    {
+        STICK_ASSERT(m_allocator);
+        return *m_allocator;
+    }
 
-        inline Size byteCount() const
-        {
-            return m_count * sizeof(T);
-        }
+    inline bool isEmpty() const
+    {
+        return m_count == 0;
+    }
 
-        inline const T * ptr() const
-        {
-            return (const T *)m_data.ptr;
-        }
+    inline const T & operator[](Size _index) const
+    {
+        return reinterpret_cast<T *>(m_data.ptr)[_index];
+    }
 
-        inline T * ptr()
-        {
-            return (T *)m_data.ptr;
-        }
+    inline T & operator[](Size _index)
+    {
+        return reinterpret_cast<T *>(m_data.ptr)[_index];
+    }
 
-        inline Size capacity() const
-        {
-            return m_data.size / sizeof(T);
-        }
+    inline Iter begin()
+    {
+        return (Iter)m_data.ptr;
+    }
 
-        inline T & first()
-        {
-            return (*this)[0];
-        }
+    inline ConstIter begin() const
+    {
+        return (ConstIter)m_data.ptr;
+    }
 
-        inline const T & first() const
-        {
-            return (*this)[0];
-        }
+    inline Iter end()
+    {
+        return (Iter)m_data.ptr + m_count;
+    }
 
-        inline T & last()
-        {
-            return (*this)[m_count - 1];
-        }
+    inline ConstIter end() const
+    {
+        return (ConstIter)m_data.ptr + m_count;
+    }
 
-        inline const T & last() const
-        {
-            return (*this)[m_count - 1];
-        }
+    inline ReverseIter rbegin()
+    {
+        return ReverseIter(end() - 1);
+    }
 
-        inline void swap(DynamicArray & _other)
-        {
-            std::swap(_other.m_allocator, m_allocator);
-            std::swap(_other.m_count, m_count);
-            std::swap(_other.m_data, m_data);
-        }
+    inline ReverseConstIter rbegin() const
+    {
+        return ReverseConstIter(end() - 1);
+    }
 
+    inline ReverseIter rend()
+    {
+        return ReverseIter(begin());
+    }
 
-    private:
+    inline ReverseConstIter rend() const
+    {
+        return ReverseConstIter(begin());
+    }
 
-        mem::Block m_data;
-        Size m_count;
-        Allocator * m_allocator;
-    };
-}
+    inline Size count() const
+    {
+        return m_count;
+    }
 
-#endif //STICK_DYNAMICARRAY_HPP
+    inline Size byteCount() const
+    {
+        return m_count * sizeof(T);
+    }
+
+    inline const T * ptr() const
+    {
+        return (const T *)m_data.ptr;
+    }
+
+    inline T * ptr()
+    {
+        return (T *)m_data.ptr;
+    }
+
+    inline Size capacity() const
+    {
+        return m_data.size / sizeof(T);
+    }
+
+    inline T & first()
+    {
+        return (*this)[0];
+    }
+
+    inline const T & first() const
+    {
+        return (*this)[0];
+    }
+
+    inline T & last()
+    {
+        return (*this)[m_count - 1];
+    }
+
+    inline const T & last() const
+    {
+        return (*this)[m_count - 1];
+    }
+
+    inline void swap(DynamicArray & _other)
+    {
+        std::swap(_other.m_allocator, m_allocator);
+        std::swap(_other.m_count, m_count);
+        std::swap(_other.m_data, m_data);
+    }
+
+  private:
+    mem::Block m_data;
+    Size m_count;
+    Allocator * m_allocator;
+};
+} // namespace stick
+
+#endif // STICK_DYNAMICARRAY_HPP

@@ -7,69 +7,65 @@
 
 #ifdef STICK_PLATFORM_UNIX
 #include <pthread.h>
-#endif //STICK_PLATFORM_UNIX
+#endif // STICK_PLATFORM_UNIX
 
 namespace stick
 {
-    class STICK_API NoMutex
+class STICK_API NoMutex
+{
+  public:
+    inline NoMutex()
     {
-    public:
+    }
 
-        inline NoMutex()
-        {
-        }
-
-        inline ~NoMutex()
-        {
-        }
-
-        inline Error lock()
-        {
-            return Error();
-        }
-
-        inline bool tryLock()
-        {
-            return true;
-        }
-
-        inline void unlock()
-        {
-        }
-    };
-
-    class STICK_API Mutex
+    inline ~NoMutex()
     {
-    public:
+    }
 
+    inline Error lock()
+    {
+        return Error();
+    }
+
+    inline bool tryLock()
+    {
+        return true;
+    }
+
+    inline void unlock()
+    {
+    }
+};
+
+class STICK_API Mutex
+{
+  public:
 #ifdef STICK_PLATFORM_UNIX
-        typedef pthread_mutex_t Native;
-        typedef Native * NativeHandle;
-#endif //STICK_PLATFORM_UNIX
+    typedef pthread_mutex_t Native;
+    typedef Native * NativeHandle;
+#endif // STICK_PLATFORM_UNIX
 
-        Mutex();
+    Mutex();
 
-        Mutex(const Mutex & _other) = delete;
-        Mutex(Mutex && _other) = delete;
-        Mutex & operator = (const Mutex & _other) = delete;
-        Mutex & operator = (Mutex && _other) = delete;
+    Mutex(const Mutex & _other) = delete;
+    Mutex(Mutex && _other) = delete;
+    Mutex & operator=(const Mutex & _other) = delete;
+    Mutex & operator=(Mutex && _other) = delete;
 
-        ~Mutex();
+    ~Mutex();
 
-        Error lock();
+    Error lock();
 
-        bool tryLock();
+    bool tryLock();
 
-        void unlock();
+    void unlock();
 
-        NativeHandle nativeHandle();
+    NativeHandle nativeHandle();
 
+  private:
+    Native m_handle;
+    bool m_bIsInitialized;
+};
+} // namespace stick
 
-    private:
-
-        Native m_handle;
-        bool m_bIsInitialized;
-    };
-}
-
-#endif //STICK_MUTEX_HPP
+#endif // STICK_MUTEX_HPP

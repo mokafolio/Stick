@@ -3,65 +3,58 @@
 
 namespace stick
 {
-    template<class M>
-    class ScopedLock
+template <class M>
+class ScopedLock
+{
+  public:
+    typedef M MutexType;
+
+    ScopedLock() : m_bOwnsMutex(false), m_mutex(nullptr)
     {
-    public:
+    }
 
-        typedef M MutexType;
+    ScopedLock(MutexType & _mutex) : m_bOwnsMutex(false), m_mutex(&_mutex)
+    {
+        Error err = m_mutex->lock();
+        STICK_ASSERT(err.code() == 0);
+        if (!err)
+            m_bOwnsMutex = true;
+    }
 
-        ScopedLock() :
-            m_bOwnsMutex(false),
-            m_mutex(nullptr)
-        {
-
-        }
-
-        ScopedLock(MutexType & _mutex) :
-            m_bOwnsMutex(false),
-            m_mutex(&_mutex)
-        {
-            Error err = m_mutex->lock();
-            STICK_ASSERT(err.code() == 0);
-            if (!err)
-                m_bOwnsMutex = true;
-        }
-
-        ~ScopedLock()
-        {
-            if (m_bOwnsMutex)
-                m_mutex->unlock();
-        }
-
-        Error lock()
-        {
-            Error err = m_mutex->lock();
-            if (!err)
-                m_bOwnsMutex = true;
-            return err;
-        }
-
-        void unlock()
-        {
+    ~ScopedLock()
+    {
+        if (m_bOwnsMutex)
             m_mutex->unlock();
-            m_bOwnsMutex = false;
-        }
+    }
 
-        bool isLocked() const
-        {
-            return m_bOwnsMutex;
-        }
+    Error lock()
+    {
+        Error err = m_mutex->lock();
+        if (!err)
+            m_bOwnsMutex = true;
+        return err;
+    }
 
-        MutexType * mutex() const
-        {
-            return m_mutex;
-        }
+    void unlock()
+    {
+        m_mutex->unlock();
+        m_bOwnsMutex = false;
+    }
 
-    private:
+    bool isLocked() const
+    {
+        return m_bOwnsMutex;
+    }
 
-        bool m_bOwnsMutex;
-        MutexType * m_mutex;
-    };
-}
+    MutexType * mutex() const
+    {
+        return m_mutex;
+    }
 
-#endif //STICK_SCOPEDLOCK_HPP
+  private:
+    bool m_bOwnsMutex;
+    MutexType * m_mutex;
+};
+} // namespace stick
+
+#endif // STICK_SCOPEDLOCK_HPP

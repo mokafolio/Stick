@@ -6,25 +6,24 @@
 
 namespace stick
 {
-    namespace mem
+namespace mem
+{
+class STICK_API NoAllocator
+{
+  public:
+    static constexpr Size alignment = 0;
+
+    inline Block allocate(Size _byteCount, Size _alignment)
     {
-        class STICK_API NoAllocator
-        {
-        public:
-
-            static constexpr Size alignment = 0;
-
-            inline Block allocate(Size _byteCount, Size _alignment)
-            {
-                return {nullptr, 0};
-            }
-
-            inline void deallocate(const Block & _blk)
-            {
-                //@TODO: Assert here?
-            }
-        };
+        return { nullptr, 0 };
     }
-}
 
-#endif //STICK_ALLOCATORS_NOALLOCATOR_HPP
+    inline void deallocate(const Block & _blk)
+    {
+        //@TODO: Assert here?
+    }
+};
+} // namespace mem
+} // namespace stick
+
+#endif // STICK_ALLOCATORS_NOALLOCATOR_HPP

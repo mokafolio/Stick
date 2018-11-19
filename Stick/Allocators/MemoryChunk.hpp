@@ -5,48 +5,45 @@
 
 namespace stick
 {
-    namespace mem
+namespace mem
+{
+struct STICK_API MemoryChunk
+{
+    inline MemoryChunk() : next(nullptr)
     {
-        struct STICK_API MemoryChunk
-        {
-            inline MemoryChunk() :
-                next(nullptr)
-            {
-
-            }
-
-            inline MemoryChunk(const Block & _blk) :
-                memory(_blk),
-                next(nullptr)
-            {
-                STICK_ASSERT(memory);
-            }
-
-            MemoryChunk(const MemoryChunk & ) = default;
-            MemoryChunk(MemoryChunk &&) = default;
-            MemoryChunk & operator = (const MemoryChunk &) = default;
-            MemoryChunk & operator = (MemoryChunk &&) = default;
-
-            inline bool owns(const Block & _blk) const
-            {
-                STICK_ASSERT(memory);
-                return _blk.ptr >= memory.ptr && reinterpret_cast<UPtr>(_blk.ptr) <= reinterpret_cast<UPtr>(memory.ptr) + memory.size;
-            }
-
-            inline MemoryChunk * lastChunk()
-            {
-                MemoryChunk * ret = this;
-                while(ret->next)
-                {
-                    ret = ret->next;
-                }
-                return ret;
-            }
-
-            Block memory;
-            MemoryChunk * next;
-        };
     }
-}
 
-#endif //STICK_ALLOCATORS_MEMORYCHUNK_HPP
+    inline MemoryChunk(const Block & _blk) : memory(_blk), next(nullptr)
+    {
+        STICK_ASSERT(memory);
+    }
+
+    MemoryChunk(const MemoryChunk &) = default;
+    MemoryChunk(MemoryChunk &&) = default;
+    MemoryChunk & operator=(const MemoryChunk &) = default;
+    MemoryChunk & operator=(MemoryChunk &&) = default;
+
+    inline bool owns(const Block & _blk) const
+    {
+        STICK_ASSERT(memory);
+        return _blk.ptr >= memory.ptr &&
+               reinterpret_cast<UPtr>(_blk.ptr) <= reinterpret_cast<UPtr>(memory.ptr) + memory.size;
+    }
+
+    inline MemoryChunk * lastChunk()
+    {
+        MemoryChunk * ret = this;
+        while (ret->next)
+        {
+            ret = ret->next;
+        }
+        return ret;
+    }
+
+    Block memory;
+    MemoryChunk * next;
+};
+} // namespace mem
+} // namespace stick
+
+#endif // STICK_ALLOCATORS_MEMORYCHUNK_HPP

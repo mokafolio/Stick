@@ -5,40 +5,34 @@
 
 namespace stick
 {
-    template<class C, class T>
-    class TimePointT
+template <class C, class T>
+class TimePointT
+{
+  public:
+    typedef C Clock;
+    typedef T Rep;
+
+    inline TimePointT() : m_value(0)
     {
-    public:
+    }
 
-        typedef C Clock;
-        typedef T Rep;
+    inline TimePointT(const Rep & _val) : m_value(_val)
+    {
+    }
 
-        inline TimePointT() :
-        m_value(0)
-        {
+    inline Duration operator-(const TimePointT & _b)
+    {
+        return Duration::fromNanoseconds(m_value - _b.m_value);
+    }
 
-        }
+    inline Duration timeSinceEpoch() const
+    {
+        return m_value;
+    }
 
-        inline TimePointT(const Rep & _val) :
-            m_value(_val)
-        {
+  private:
+    Rep m_value;
+};
+} // namespace stick
 
-        }
-
-        inline Duration operator - (const TimePointT & _b)
-        {
-            return Duration::fromNanoseconds(m_value - _b.m_value);
-        }
-
-        inline Duration timeSinceEpoch() const
-        {
-            return m_value;
-        }
-
-    private:
-
-        Rep m_value;
-    };
-}
-
-#endif //STICK_TIMEPOINT_HPP
+#endif // STICK_TIMEPOINT_HPP

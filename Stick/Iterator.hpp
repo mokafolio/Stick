@@ -5,124 +5,121 @@
 
 namespace stick
 {
-    template<class T>
-    struct IteratorTraits
+template <class T>
+struct IteratorTraits
+{
+    typedef typename T::ValueType ValueType;
+    typedef typename T::ReferenceType ReferenceType;
+    typedef typename T::PointerType PointerType;
+};
+
+template <class T>
+struct IteratorTraits<T *>
+{
+    typedef T ValueType;
+    typedef T & ReferenceType;
+    typedef T * PointerType;
+};
+
+template <class T>
+struct IteratorTraits<const T *>
+{
+    typedef const T ValueType;
+    typedef const T & ReferenceType;
+    typedef const T * PointerType;
+};
+
+template <class T>
+struct ReverseIterator
+{
+    typedef IteratorTraits<T> IterTraits;
+
+    typedef T Iter;
+
+    typedef typename IterTraits::ValueType ValueType;
+
+    typedef typename IterTraits::ReferenceType ReferenceType;
+
+    typedef typename IterTraits::PointerType PointerType;
+
+    inline ReverseIterator()
     {
-        typedef typename T::ValueType ValueType;
-        typedef typename T::ReferenceType ReferenceType;
-        typedef typename T::PointerType PointerType;
-    };
+    }
 
-    template<class T>
-    struct IteratorTraits<T *>
+    inline explicit ReverseIterator(const Iter & _it) : m_it(_it)
     {
-        typedef T ValueType;
-        typedef T & ReferenceType;
-        typedef T * PointerType;
-    };
+    }
 
-    template<class T>
-    struct IteratorTraits<const T *>
+    inline ReverseIterator & operator--()
     {
-        typedef const T ValueType;
-        typedef const T & ReferenceType;
-        typedef const T * PointerType;
-    };
+        m_it++;
+        return *this;
+    }
 
-    template<class T>
-    struct ReverseIterator
+    inline ReverseIterator operator--(int)
     {
-        typedef IteratorTraits<T> IterTraits;
+        ReverseIterator ret = *this;
+        m_it++;
+        return ret;
+    }
 
-        typedef T Iter;
+    inline ReverseIterator & operator-=(Size _i)
+    {
+        m_it += _i;
+        return *this;
+    }
 
-        typedef typename IterTraits::ValueType ValueType;
+    inline ReverseIterator operator-(Size _i) const
+    {
+        return m_it + _i;
+    }
 
-        typedef typename IterTraits::ReferenceType ReferenceType;
+    inline ReverseIterator & operator++()
+    {
+        m_it--;
+        return *this;
+    }
 
-        typedef typename IterTraits::PointerType PointerType;
+    inline ReverseIterator operator++(int)
+    {
+        ReverseIterator ret = *this;
+        m_it--;
+        return ret;
+    }
 
+    inline ReverseIterator & operator+=(Size _i)
+    {
+        m_it -= _i;
+        return *this;
+    }
 
-        inline ReverseIterator()
-        {
-        }
+    inline ReverseIterator operator+(Size _i) const
+    {
+        return m_it - _i;
+    }
 
-        inline explicit ReverseIterator(const Iter & _it) :
-            m_it(_it)
-        {
+    inline ReferenceType operator*() const
+    {
+        return *m_it;
+    }
 
-        }
+    inline PointerType operator->() const
+    {
+        return m_it.operator->();
+    }
 
-        inline ReverseIterator & operator--()
-        {
-            m_it++;
-            return *this;
-        }
+    inline bool operator==(const ReverseIterator & _other) const
+    {
+        return m_it == _other.m_it;
+    }
 
-        inline ReverseIterator operator--(int)
-        {
-            ReverseIterator ret = *this;
-            m_it++;
-            return ret;
-        }
+    inline bool operator!=(const ReverseIterator & _other) const
+    {
+        return m_it != _other.m_it;
+    }
 
-        inline ReverseIterator & operator-=(Size _i)
-        {
-            m_it += _i;
-            return *this;
-        }
+    Iter m_it;
+};
+} // namespace stick
 
-        inline ReverseIterator operator-(Size _i) const
-        {
-            return m_it + _i;
-        }
-
-        inline ReverseIterator & operator++()
-        {
-            m_it--;
-            return *this;
-        }
-
-        inline ReverseIterator operator++(int)
-        {
-            ReverseIterator ret = *this;
-            m_it--;
-            return ret;
-        }
-
-        inline ReverseIterator & operator+=(Size _i)
-        {
-            m_it -= _i;
-            return *this;
-        }
-
-        inline ReverseIterator operator+(Size _i) const
-        {
-            return m_it - _i;
-        }
-
-        inline ReferenceType operator * () const
-        {
-            return *m_it;
-        }
-
-        inline PointerType operator -> () const
-        {
-            return m_it.operator->();
-        }
-
-        inline bool operator == (const ReverseIterator & _other) const
-        {
-            return m_it == _other.m_it;
-        }
-
-        inline bool operator != (const ReverseIterator & _other) const
-        {
-            return m_it != _other.m_it;
-        }
-
-        Iter m_it;
-    };
-}
-
-#endif //STICK_ITERATOR_HPP
+#endif // STICK_ITERATOR_HPP

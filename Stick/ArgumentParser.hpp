@@ -2,164 +2,168 @@
 #define STICK_ARGUMENTPARSER_HPP
 
 #include <Stick/DynamicArray.hpp>
-#include <Stick/HashMap.hpp>
 #include <Stick/Error.hpp>
+#include <Stick/HashMap.hpp>
 #include <Stick/Maybe.hpp>
 #include <Stick/StringConversion.hpp>
 
 namespace stick
 {
-    struct STICK_API OneOrMoreFlag {};
-    struct STICK_API ZeroOrMoreFlag {};
+struct STICK_API OneOrMoreFlag
+{
+};
+struct STICK_API ZeroOrMoreFlag
+{
+};
 
-    //@TODO: change most of the String arguments to const char * ?
-    class STICK_API ArgumentParser
+//@TODO: change most of the String arguments to const char * ?
+class STICK_API ArgumentParser
+{
+  public:
+    using StringArray = DynamicArray<String>;
+
+    struct Argument
     {
-    public:
+        Argument(const String & _shortName,
+                 const String & _name,
+                 Int32 _count,
+                 bool _bOptional,
+                 const String & _info);
 
-        using StringArray = DynamicArray<String>;
+        Argument();
 
-        struct Argument
-        {
-            Argument(const String & _shortName, const String & _name,
-                     Int32 _count, bool _bOptional, const String & _info);
+        Argument(const Argument &) = default;
+        Argument(Argument &&) = default;
+        Argument & operator=(const Argument &) = default;
+        Argument & operator=(Argument &&) = default;
 
-            Argument();
+        template <class T>
+        inline T get(Size _index) const;
 
-            Argument(const Argument &) = default;
-            Argument(Argument &&) = default;
-            Argument & operator = (const Argument &) = default;
-            Argument & operator = (Argument &&) = default;
+        const String & identifier() const;
 
-            template<class T>
-            inline T get(Size _index) const;
+        const String & printableIdentifier() const;
 
-            const String & identifier() const;
-
-            const String & printableIdentifier() const;
-
-            String shortName;
-            String name;
-            bool bOptional;
-            UInt8 argCount; //* = zero or more, + = one or more
-            String info;
-            StringArray values;
-            bool bArgumentWasProvided;
-        };
-
-        using IndexMap = HashMap<String, Size>;
-        using ArgumentArray = DynamicArray<Argument>;
-
-        ArgumentParser(const String & _info = "");
-
-        Error addArgument(const String & _name,
-                          UInt8 _argCount = 0,
-                          bool _bOptional = true);
-
-        Error addArgument(const String & _shortName,
-                          const String & _name,
-                          UInt8 _argCount = 0,
-                          bool _bOptional = true);
-
-        template<class F>
-        inline Error addArgument(F _func);
-
-        Error parse(const char ** _args, UInt32 _argc);
-
-        const String & applicationName() const;
-
-        String usage() const;
-
-        String help() const;
-
-        const Argument * argument(const String & _name) const;
-
-        bool argumentWasProvided(const String & _name) const;
-
-        template<class T>
-        inline Maybe<T> maybe(const String & _name) const;
-
-        template<class T>
-        inline T maybe(const String & _name, T _or) const;
-
-        template<class T>
-        inline T get(const String & _name) const;
-
-
-    private:
-
-        Error addArgumentHelper(const Argument & _arg);
-
-        IndexMap m_indices;
-        ArgumentArray m_args;
-        String m_applicationName;
-        String m_applicationPath;
-        String m_info;
-        Size m_requiredCount;
+        String shortName;
+        String name;
+        bool bOptional;
+        UInt8 argCount; //* = zero or more, + = one or more
+        String info;
+        StringArray values;
+        bool bArgumentWasProvided;
     };
 
-    namespace detail
+    using IndexMap = HashMap<String, Size>;
+    using ArgumentArray = DynamicArray<Argument>;
+
+    ArgumentParser(const String & _info = "");
+
+    Error addArgument(const String & _name, UInt8 _argCount = 0, bool _bOptional = true);
+
+    Error addArgument(const String & _shortName,
+                      const String & _name,
+                      UInt8 _argCount = 0,
+                      bool _bOptional = true);
+
+    template <class F>
+    inline Error addArgument(F _func);
+
+    Error parse(const char ** _args, UInt32 _argc);
+
+    const String & applicationName() const;
+
+    String usage() const;
+
+    String help() const;
+
+    const Argument * argument(const String & _name) const;
+
+    bool argumentWasProvided(const String & _name) const;
+
+    template <class T>
+    inline Maybe<T> maybe(const String & _name) const;
+
+    template <class T>
+    inline T maybe(const String & _name, T _or) const;
+
+    template <class T>
+    inline T get(const String & _name) const;
+
+  private:
+    Error addArgumentHelper(const Argument & _arg);
+
+    IndexMap m_indices;
+    ArgumentArray m_args;
+    String m_applicationName;
+    String m_applicationPath;
+    String m_info;
+    Size m_requiredCount;
+};
+
+namespace detail
+{
+template <class T>
+struct ConversionHelper
+{
+    static T convert(const ArgumentParser::Argument & _arg)
     {
-        template<class T>
-        struct ConversionHelper
+        return convertString<T>(_arg.values[0]);
+    }
+};
+
+template <class T>
+struct ConversionHelper<DynamicArray<T>>
+{
+    static DynamicArray<T> convert(const ArgumentParser::Argument & _arg)
+    {
+        DynamicArray<T> ret(_arg.values.count());
+        for (Size i = 0; i < ret.count(); ++i)
         {
-            static T convert(const ArgumentParser::Argument & _arg)
-            {
-                return convertString<T>(_arg.values[0]);
-            }
-        };
-
-        template<class T>
-        struct ConversionHelper<DynamicArray<T>>
-        {
-            static DynamicArray<T> convert(const ArgumentParser::Argument & _arg)
-            {
-                DynamicArray<T> ret(_arg.values.count());
-                for (Size i = 0; i < ret.count(); ++i)
-                {
-                    ret[i] = convertString<T>(_arg.values[i]);
-                }
-                return ret;
-            }
-        };
+            ret[i] = convertString<T>(_arg.values[i]);
+        }
+        return ret;
     }
+};
+} // namespace detail
 
-    template<class F>
-    inline Error ArgumentParser::addArgument(F _func)
-    {
-        Argument arg;
-        _func(arg);
-        return addArgumentHelper(arg);
-    }
-
-    template<class T>
-    inline T ArgumentParser::Argument::get(Size _index) const
-    {
-        STICK_ASSERT(_index < values.count());
-        return convertString<T>(values[_index]);
-    }
-
-    template<class T>
-    inline Maybe<T> ArgumentParser::maybe(const String & _name) const
-    {
-        const Argument * arg = argument(_name);
-        if (arg && arg->values.count()) return detail::ConversionHelper<T>::convert(*arg);
-        return Maybe<T>();
-    }
-
-    template<class T>
-    inline T ArgumentParser::maybe(const String & _name, T _or) const
-    {
-        auto m = maybe<T>(_name);
-        if (m) return *m;
-        return _or;
-    }
-
-    template<class T>
-    inline T ArgumentParser::get(const String & _name) const
-    {
-        return maybe<T>(_name).value();
-    }
+template <class F>
+inline Error ArgumentParser::addArgument(F _func)
+{
+    Argument arg;
+    _func(arg);
+    return addArgumentHelper(arg);
 }
 
-#endif //STICK_ARGUMENTPARSER_HPP
+template <class T>
+inline T ArgumentParser::Argument::get(Size _index) const
+{
+    STICK_ASSERT(_index < values.count());
+    return convertString<T>(values[_index]);
+}
+
+template <class T>
+inline Maybe<T> ArgumentParser::maybe(const String & _name) const
+{
+    const Argument * arg = argument(_name);
+    if (arg && arg->values.count())
+        return detail::ConversionHelper<T>::convert(*arg);
+    return Maybe<T>();
+}
+
+template <class T>
+inline T ArgumentParser::maybe(const String & _name, T _or) const
+{
+    auto m = maybe<T>(_name);
+    if (m)
+        return *m;
+    return _or;
+}
+
+template <class T>
+inline T ArgumentParser::get(const String & _name) const
+{
+    return maybe<T>(_name).value();
+}
+} // namespace stick
+
+#endif // STICK_ARGUMENTPARSER_HPP
