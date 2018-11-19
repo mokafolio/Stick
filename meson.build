@@ -96,5 +96,4 @@ endif
 
 stickDep = declare_dependency(link_with : stick)
 
-tests = executable('StickTests', 'Tests/StickTests.cpp', dependencies: stickDep)
-test('Stick Tests', tests)
+subdir('Tests')

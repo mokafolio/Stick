@@ -3,6 +3,7 @@
 
 #include <Stick/Iterator.hpp>
 #include <initializer_list>
+#include <algorithm>
 
 namespace stick
 {
