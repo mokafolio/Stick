@@ -49,7 +49,7 @@ namespace stick
         {
             return Error(ec::SystemErrorCode(errno), "fopen failed", STICK_FILE, STICK_LINE);
         }
-        Size fsize, read;
+        Size fsize;
         if (fseek(fp, 0, SEEK_END) < 0)
         {
             fclose(fp);

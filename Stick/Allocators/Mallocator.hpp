@@ -22,7 +22,7 @@ namespace stick
                 {
                     //@TODO: check if c11 aligned_alloc is available on non posix platforms?
                     void * ptr = nullptr;
-                    auto res = posix_memalign(&ptr, (Size)sizeof(void *), _byteCount);
+                    posix_memalign(&ptr, (Size)sizeof(void *), _byteCount);
                     return {ptr, _byteCount};
                 }
             }

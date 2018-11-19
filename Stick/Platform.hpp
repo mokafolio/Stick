@@ -17,6 +17,9 @@
 #undef STICK_DEBUG
 #endif
 
+//UNUSED
+#define STICK_UNUSED(x) (void)(x)
+
 //POSSIBLE PLATFORMS
 #define STICK_PLATFORM_OSX 1
 #define STICK_PLATFORM_LINUX 2

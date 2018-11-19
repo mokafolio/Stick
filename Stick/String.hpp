@@ -31,7 +31,7 @@ namespace stick
 
     class String
     {
-        friend class detail::_StringCopier;
+        friend struct detail::_StringCopier;
 
     public:
 
@@ -834,10 +834,12 @@ namespace stick
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        STICK_UNUSED(unpack);
         if(!len) return;
         Size off = m_length;
         preAppend(m_length + len);
         int unpack2[] {0, (detail::_StringCopier::performCopy(*this, off, _args))...};
+        STICK_UNUSED(unpack2);
     }
 
     template<class ... Strings>
@@ -845,10 +847,12 @@ namespace stick
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        STICK_UNUSED(unpack);
         String ret(_alloc);
         ret.resize(len);
         Size off = 0;
         int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
+        STICK_UNUSED(unpack2);
         return ret;
     }
 
@@ -857,10 +861,12 @@ namespace stick
     {
         Size len = 0;
         int unpack[] {0, (len += detail::_StringCopier::strLen(_args), 0)...};
+        STICK_UNUSED(unpack);
         String ret;
         ret.resize(len);
         Size off = 0;
         int unpack2[] {0, (detail::_StringCopier::performCopy(ret, off, _args))...};
+        STICK_UNUSED(unpack2);
         return ret;
     }
 

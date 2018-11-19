@@ -94,8 +94,8 @@ namespace stick
 
         inline RBTree(Allocator & _alloc = defaultAllocator()) :
             m_alloc(&_alloc),
-            m_count(0),
-            m_rootNode(nullptr)
+            m_rootNode(nullptr),
+            m_count(0)
         {
         }
 

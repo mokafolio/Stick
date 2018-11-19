@@ -80,8 +80,8 @@ namespace stick
                                        Int32 _count, bool _bOptional, const String & _info) :
         shortName(_shortName),
         name(_name),
-        argCount(_count),
         bOptional(_bOptional),
+        argCount(_count),
         info(_info),
         bArgumentWasProvided(false)
     {
@@ -100,8 +100,8 @@ namespace stick
 
 
     ArgumentParser::ArgumentParser(const String & _info) :
-        m_requiredCount(0),
-        m_info(_info)
+        m_info(_info),
+        m_requiredCount(0)
     {
         addArgument("-h", "--help", 0, true);
     }

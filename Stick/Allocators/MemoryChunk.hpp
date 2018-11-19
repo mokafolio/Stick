@@ -16,8 +16,8 @@ namespace stick
             }
 
             inline MemoryChunk(const Block & _blk) :
-                next(nullptr),
-                memory(_blk)
+                memory(_blk),
+                next(nullptr)
             {
                 STICK_ASSERT(memory);
             }

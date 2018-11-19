@@ -646,6 +646,7 @@ const Suite spec[] =
         Int32 i = 0;
         for (Int32 el : array)
         {
+            STICK_UNUSED(el);
             EXPECT(expected[i] == array[i]);
             ++i;
         }
@@ -681,6 +682,7 @@ const Suite spec[] =
         Int32 i = 0;
         for (Int32 el : array)
         {
+            STICK_UNUSED(el);
             EXPECT(expected[i] == array[i]);
             ++i;
         }
@@ -1339,7 +1341,7 @@ const Suite spec[] =
         res = hm.insert("blubb", 5);
         EXPECT(res.iterator->value == 5);
         EXPECT(res.inserted == false);
-        auto it = hm.remove("anotherKey");
+        hm.remove("anotherKey");
         EXPECT(hm.count() == 2);
 
         auto it2 = hm.find("blubb");
@@ -1366,6 +1368,7 @@ const Suite spec[] =
         Int32 counter = 0;
         for (auto & pair : cpied)
         {
+            STICK_UNUSED(pair);
             //@TODO: test iter values somehow?
             counter++;
         }

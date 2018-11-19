@@ -19,16 +19,16 @@ namespace stick
     }
 
     Thread::Thread() :
-        m_threadID(0),
-        m_bIsJoinable(false)
+    m_bIsJoinable(false),
+        m_threadID(0)
     {
 
     }
 
     Thread::Thread(Thread && _other) :
         m_handle(std::move(_other.m_handle)),
-        m_threadID(std::move(_other.m_threadID)),
-        m_bIsJoinable(std::move(_other.m_bIsJoinable))
+        m_bIsJoinable(std::move(_other.m_bIsJoinable)),
+        m_threadID(std::move(_other.m_threadID))
     {
         ScopedLock<Mutex> lock(_other.m_mutex);
         _other.m_bIsJoinable = false;

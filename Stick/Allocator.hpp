@@ -12,6 +12,8 @@ namespace stick
     {
     public:
 
+        virtual ~Allocator() = default;
+
         virtual mem::Block allocate(Size _byteCount, Size _alignment) = 0;
 
         virtual void deallocate(const mem::Block & _block) = 0;

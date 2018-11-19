@@ -86,7 +86,6 @@ namespace stick
             }
             ret.reserve(len);
             if (_bAddLeadingSeparator) ret.append('/');
-            Size off = 0;
             for (Size i = 0; i < _segments.count(); ++i)
             {
                 if (i < _segments.count() - 1)

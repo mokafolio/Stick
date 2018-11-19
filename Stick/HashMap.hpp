@@ -564,7 +564,7 @@ namespace stick
 
         inline Iter begin()
         {
-            Bucket * b;
+            Bucket * b = nullptr;
             Size i = 0;
             for (; i < m_bucketCount; ++i)
             {
