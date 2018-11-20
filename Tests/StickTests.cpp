@@ -2374,6 +2374,7 @@ const Suite spec[] =
             SharedPtr<A> a = b;
             EXPECT(a.useCount() == 2);
             b.reset();
+
             // EXPECT(a.useCount() == 1);
             // a.reset();
             // EXPECT(B::b_destructionCount == 1);
