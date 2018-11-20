@@ -632,6 +632,7 @@ const Suite spec[] =
 
         //not a test, just to print out behavior
         ResultTestClass tc = std::move(makeResult().ensure());
+        STICK_UNUSED(tc);
     },
     SUITE("Fixed Array Tests")
     {
