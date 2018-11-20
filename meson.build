@@ -101,6 +101,8 @@ else
     stick = shared_library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
 endif
 
-stickDep = declare_dependency(link_with : stick, dependencies: threadsDep)
+stickDep = declare_dependency(link_with : stick, 
+    dependencies: threadsDep, 
+    include_directories: incDirs)
 
 subdir('Tests')
