@@ -1,5 +1,5 @@
 tests = executable('StickTests', 'StickTests.cpp', 
-    dependencies: [stickDep, threadsDep], 
+    dependencies: stickDep, 
     include_directories : incDirs,
     cpp_args : '-fsanitize=address',
     link_args : '-fsanitize=address')

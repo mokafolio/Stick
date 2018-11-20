@@ -1,7 +1,9 @@
 project('Stick', 'cpp', default_options : ['cpp_std=c++14'])
 
-# disable this bogus warning (should be deprecated in newer clang versions)
-add_global_arguments('-Wno-missing-braces', '-fno-exceptions', language: 'cpp')
+if is_subproject() == false
+    # disable this bogus warning (should be deprecated in newer clang versions)
+    add_global_arguments('-Wno-missing-braces', '-fno-exceptions', language: 'cpp')
+endif
 
 stickInc = [
     'Stick/Allocator.hpp',
@@ -99,6 +101,6 @@ else
     stick = shared_library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
 endif
 
-stickDep = declare_dependency(link_with : stick)
+stickDep = declare_dependency(link_with : stick, dependencies: threadsDep)
 
 subdir('Tests')
