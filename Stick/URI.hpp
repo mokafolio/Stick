@@ -151,13 +151,6 @@ class URI
 
     static UInt16 defaultPortForScheme(const String & _scheme);
 
-    // encoding/decoding helpers
-    static String s_reservedPath;
-
-    static String s_reservedQuery;
-
-    static String s_reservedFragment;
-
     static bool isUnreservedChar(char _c);
 
     String encode(const String & _str, const String & _reserved) const;

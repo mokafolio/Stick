@@ -7,9 +7,6 @@
 
 namespace stick
 {
-String URI::s_reservedPath("?#");
-String URI::s_reservedQuery("#");
-String URI::s_reservedFragment("");
 
 URI::URI() : m_port(0)
 {
@@ -449,17 +446,20 @@ const String & URI::fragment() const
 
 String URI::encodedPath() const
 {
-    return encode(m_path, s_reservedPath);
+    static String reservedPath = "?#";
+    return encode(m_path, reservedPath);
 }
 
 String URI::encodedQuery() const
 {
-    return encode(m_query, s_reservedQuery);
+    static String reservedQuery = "#";
+    return encode(m_query, reservedQuery);
 }
 
 String URI::encodedFragment() const
 {
-    return encode(m_fragment, s_reservedFragment);
+    static String reservedFragment = "";
+    return encode(m_fragment, reservedFragment);
 }
 
 String URI::encodedResource() const
