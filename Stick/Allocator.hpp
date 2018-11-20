@@ -82,13 +82,13 @@ class STICK_API DefaultAllocator : public Allocator
 
 inline STICK_API Allocator & defaultAllocator()
 {
-    // // Note: This is rather ugly. Since we want the default allocator to be guaranteed to outlive
-    // // any other object, we lazily heap allocate it (and never destruct it). Otherwise random
-    // // destruction order across multiple translation units might bite us in the butt.
-    // static DefaultAllocator * m_def = new DefaultAllocator;
-    // return *m_def;
-    static detail::SingletonT<DefaultAllocator> s_singleton;
-    return s_singleton.instance();
+    // Note: This is rather ugly. Since we want the default allocator to be guaranteed to outlive
+    // any other object, we lazily heap allocate it (and never destruct it). Otherwise random
+    // destruction order across multiple translation units might bite us in the butt.
+    static DefaultAllocator * m_def = new DefaultAllocator;
+    return *m_def;
+    // static detail::SingletonT<DefaultAllocator> s_singleton;
+    // return s_singleton.instance();
 }
 
 } // namespace stick

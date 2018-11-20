@@ -4,8 +4,6 @@
 namespace stick
 {
 
-auto & unused = defaultAllocator();
-
 Error::Error() : m_category(&detail::noErrorCategory()), m_code(0)
 {
 }
