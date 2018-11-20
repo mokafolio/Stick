@@ -32,7 +32,6 @@ private:
     {
         if(!s_instance)
         {
-            printf("CREATE SINGLE\n");
             s_instance = new T;
             std::atexit(destroyInstance);
         }
