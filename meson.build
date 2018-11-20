@@ -105,4 +105,8 @@ stickDep = declare_dependency(link_with : stick,
     dependencies: threadsDep, 
     include_directories: incDirs)
 
-subdir('Tests')
+# only build tests if not build as a subproject.
+# Otherwise it seems like the test meson function uses the wrong tests???
+if meson.is_subproject() == false
+    subdir('Tests')
+endif
