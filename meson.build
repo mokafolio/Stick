@@ -1,21 +1,9 @@
-project('tutorial', 'c', 'cpp', default_options : ['c_std=c11', 'cpp_std=c++14'])
+project('Stick', 'cpp', default_options : ['cpp_std=c++14'])
 
 # disable this bogus warning (should be deprecated in newer clang versions)
-add_global_arguments('-Wno-missing-braces', language: 'cpp')
+add_global_arguments('-Wno-missing-braces', '-fno-exceptions', language: 'cpp')
 
 stickInc = [
-    'Stick/Allocators/AllocatorUtilities.hpp',
-    'Stick/Allocators/Block.hpp',
-    'Stick/Allocators/Bucketizer.hpp',
-    'Stick/Allocators/FallbackAllocator.hpp',
-    'Stick/Allocators/FreeListAllocator.hpp',
-    'Stick/Allocators/GlobalAllocator.hpp',
-    'Stick/Allocators/LinearAllocator.hpp',
-    'Stick/Allocators/Mallocator.hpp',
-    'Stick/Allocators/MemoryChunk.hpp',
-    'Stick/Allocators/NoAllocator.hpp',
-    'Stick/Allocators/PoolAllocator.hpp',
-    'Stick/Allocators/Segregator.hpp',
     'Stick/Allocator.hpp',
     'Stick/ArgumentParser.hpp',
     'Stick/CallbackID.hpp',
@@ -68,6 +56,20 @@ privateInc = [
     'Stick/Private/MappedCallbackStorage.hpp',
     'Stick/Private/MurmurHash2.hpp']
 
+allocatorInc = [
+    'Stick/Allocators/AllocatorUtilities.hpp',
+    'Stick/Allocators/Block.hpp',
+    'Stick/Allocators/Bucketizer.hpp',
+    'Stick/Allocators/FallbackAllocator.hpp',
+    'Stick/Allocators/FreeListAllocator.hpp',
+    'Stick/Allocators/GlobalAllocator.hpp',
+    'Stick/Allocators/LinearAllocator.hpp',
+    'Stick/Allocators/Mallocator.hpp',
+    'Stick/Allocators/MemoryChunk.hpp',
+    'Stick/Allocators/NoAllocator.hpp',
+    'Stick/Allocators/PoolAllocator.hpp',
+    'Stick/Allocators/Segregator.hpp']
+
 stickSrc = ['Stick/ArgumentParser.cpp', 
             'Stick/ConditionVariable.cpp',
             'Stick/Error.cpp',
@@ -85,13 +87,16 @@ stickSrc = ['Stick/ArgumentParser.cpp',
 
 threadsDep = dependency('threads')
 
+incDirs = include_directories('.')
+
 install_headers(stickInc, subdir: 'Stick')
+install_headers(allocatorInc, subdir: 'Stick/Allocators')
 install_headers(privateInc, subdir: 'Stick/Private')
 
 if get_option('static')
-    stick = static_library('Stick', stickSrc, dependencies: threadsDep, install: true)
+    stick = static_library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
 else
-    stick = shared_library('Stick', stickSrc, dependencies: threadsDep, install: true)
+    stick = shared_library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
 endif
 
 stickDep = declare_dependency(link_with : stick)
