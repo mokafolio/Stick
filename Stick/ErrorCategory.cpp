@@ -1,7 +1,6 @@
 #include <Stick/Error.hpp>
 #include <Stick/ErrorCategory.hpp>
 #include <Stick/ErrorCodes.hpp>
-#include <Stick/Private/Singleton.hpp>
 #include <string.h> //for strerror
 
 namespace stick
@@ -85,20 +84,20 @@ namespace detail
 {
 const NoErrorCategory & noErrorCategory()
 {
-    static detail::SingletonT<NoErrorCategory> s_cat;
-    return s_cat.instance();
+    static NoErrorCategory s_cat;
+    return s_cat;
 }
 
 const SystemErrorCategory & systemErrorCategory()
 {
-    static detail::SingletonT<SystemErrorCategory> s_cat;
-    return s_cat.instance();
+    static SystemErrorCategory s_cat;
+    return s_cat;
 }
 
 const MiscErrorCategory & miscErrorCategory()
 {
-    static detail::SingletonT<MiscErrorCategory> s_cat;
-    return s_cat.instance();
+    static MiscErrorCategory s_cat;
+    return s_cat;
 }
 } // namespace detail
 } // namespace stick

@@ -32,6 +32,7 @@ private:
     {
         if(!s_instance)
         {
+            printf("CREATE SINGLE\n");
             s_instance = new T;
             std::atexit(destroyInstance);
         }
@@ -41,6 +42,7 @@ private:
     static void destroyInstance()
     {
         delete s_instance;
+        s_instance = nullptr;
     }
 
     static T * s_instance;
