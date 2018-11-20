@@ -2,7 +2,6 @@
 #define STICK_ALLOCATOR_HPP
 
 #include <Stick/Allocators/Mallocator.hpp>
-#include <Stick/Private/Singleton.hpp>
 #include <Stick/Utility.hpp>
 #include <algorithm>
 #include <stdlib.h>
