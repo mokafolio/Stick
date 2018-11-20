@@ -4,63 +4,6 @@
 #include <Stick/Error.hpp>
 #include <Stick/Variant.hpp>
 
-// // TODO: make different specializations of Result and STICK_RESULT_HOLDER
-// // for references so that the default one can implement move semantics, too
-// #define STICK_RESULT_HOLDER(_name, _holderName) \
-// template<class T> \
-// struct _name \
-// { \
-//     _name() \
-//     { \
-//  \
-//     } \
-//  \
-//     _name(const _name & _other) : \
-//     m_value(_other.m_value) \
-//     { \
-//  \
-//     } \
-//  \
-//     _name(_name && _other) : \
-//     m_value(std::move(_other.m_value)) \
-//     { \
-//  \
-//     } \
-//  \
-//     _name(const T & _data) : \
-//         m_value(_data) \
-//     { \
-//  \
-//     } \
-//  \
-//     _name(T && _data) : \
-//         m_value(std::move(_data)) \
-//     { \
-//  \
-//     } \
-//  \
-//     T & _holderName() \
-//     { \
-//         return *m_value; \
-//     } \
-//  \
-//     const T & _holderName() const \
-//     { \
-//         return *m_value; \
-//     } \
-// \
-//     T & get() \
-//     { \
-//         return *m_value; \
-//     } \
-// \
-//     const T & get() const \
-//     { \
-//         return *m_value; \
-//     } \
-//     stick::Maybe<T> m_value; \
-// };
-
 namespace stick
 {
 template <class T>

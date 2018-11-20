@@ -64,7 +64,7 @@ inline String argumentSignature(const ArgumentParser::Argument & _arg)
         {
             for (Size i = 0; i < _arg.argCount; ++i)
             {
-                if (i < _arg.argCount - 1)
+                if (i < (Size)_arg.argCount - 1)
                     ret.append(AppendVariadicFlag(), upper, " ");
                 else
                     ret.append(upper);

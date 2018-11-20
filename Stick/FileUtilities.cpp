@@ -11,7 +11,7 @@ Result<ByteArray> loadBinaryFile(const String & _uri, Allocator & _alloc)
     {
         return Error(ec::SystemErrorCode(errno), "fopen failed.", STICK_FILE, STICK_LINE);
     }
-    Size fsize;
+    Int64 fsize;
     if (fseek(fp, 0, SEEK_END) < 0)
     {
         fclose(fp);
@@ -49,7 +49,7 @@ Result<String> loadTextFile(const String & _uri, Allocator & _alloc)
     {
         return Error(ec::SystemErrorCode(errno), "fopen failed", STICK_FILE, STICK_LINE);
     }
-    Size fsize;
+    Int64 fsize;
     if (fseek(fp, 0, SEEK_END) < 0)
     {
         fclose(fp);

@@ -573,7 +573,7 @@ Result<String> readSymbolicLink(const String & _path)
     // is big enough to hold the path.
     char p[256];
     Size actualLen = readlink(_path.cString(), p, 256);
-    if (actualLen == -1)
+    if (actualLen == (Size)-1)
     {
         return Error(ec::SystemErrorCode(errno), "", STICK_FILE, STICK_LINE);
     }

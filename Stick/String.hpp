@@ -12,6 +12,8 @@
 #include <algorithm> //for transform
 #include <cctype>    //for toupper
 #include <cstring>
+#include <cstdio>
+#include <cinttypes>
 
 namespace stick
 {
@@ -22,7 +24,7 @@ struct _StringCopier;
 template <class... Args>
 inline int variadicStringLength(const char * format, Args... _args)
 {
-    int result = snprintf(NULL, 0, format, _args...);
+    int result = std::snprintf(NULL, 0, format, _args...);
     return result; // ignore extra byte for \0
 }
 } // namespace detail
@@ -193,7 +195,7 @@ class String
             return;
         Size off = m_length;
         preAppend(m_length + len);
-        int result = snprintf(m_cStr + off, len + 1, _fmt, _args...);
+        int result = std::snprintf(m_cStr + off, len + 1, _fmt, _args...);
         STICK_ASSERT(len == result);
     }
 
@@ -704,45 +706,45 @@ class String
     inline static String toString(Int32 _i, Allocator & _alloc = defaultAllocator())
     {
         String ret(_alloc);
-        Size len = snprintf(NULL, 0, "%i", _i);
+        Size len = std::snprintf(NULL, 0, "%i", _i);
         ret.resize(len);
-        snprintf(ret.m_cStr, len + 1, "%i", _i);
+        std::snprintf(ret.m_cStr, len + 1, "%i", _i);
         return ret;
     }
 
     inline static String toString(Int64 _i, Allocator & _alloc = defaultAllocator())
     {
         String ret(_alloc);
-        Size len = snprintf(NULL, 0, "%lli", _i);
+        Size len = std::snprintf(NULL, 0, "%" PRId64, _i);
         ret.resize(len);
-        snprintf(ret.m_cStr, len + 1, "%lli", _i);
+        std::snprintf(ret.m_cStr, len + 1, "%" PRId64, _i);
         return ret;
     }
 
     inline static String toString(UInt32 _i, Allocator & _alloc = defaultAllocator())
     {
         String ret(_alloc);
-        Size len = snprintf(NULL, 0, "%u", _i);
+        Size len = std::snprintf(NULL, 0, "%u", _i);
         ret.resize(len);
-        snprintf(ret.m_cStr, len + 1, "%u", _i);
+        std::snprintf(ret.m_cStr, len + 1, "%u", _i);
         return ret;
     }
 
     inline static String toString(UInt64 _i, Allocator & _alloc = defaultAllocator())
     {
         String ret(_alloc);
-        Size len = snprintf(NULL, 0, "%llu", _i);
+        Size len = std::snprintf(NULL, 0, "%" PRIu64, _i);
         ret.resize(len);
-        snprintf(ret.m_cStr, len + 1, "%llu", _i);
+        std::snprintf(ret.m_cStr, len + 1, "%" PRIu64, _i);
         return ret;
     }
 
     inline static String toString(Float64 _i, Allocator & _alloc = defaultAllocator())
     {
         String ret(_alloc);
-        Size len = snprintf(NULL, 0, "%f", _i);
+        Size len = std::snprintf(NULL, 0, "%f", _i);
         ret.resize(len);
-        snprintf(ret.m_cStr, len + 1, "%f", _i);
+        std::snprintf(ret.m_cStr, len + 1, "%f", _i);
         return ret;
     }
 
@@ -769,9 +771,9 @@ class String
         else
             fmtString.append("x");
 
-        Size len = snprintf(NULL, 0, fmtString.cString(), _i);
+        Size len = std::snprintf(NULL, 0, fmtString.cString(), _i);
         ret.resize(len);
-        snprintf(ret.m_cStr, len + 1, fmtString.cString(), _i);
+        std::snprintf(ret.m_cStr, len + 1, fmtString.cString(), _i);
         return ret;
     }
 

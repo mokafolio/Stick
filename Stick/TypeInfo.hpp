@@ -46,7 +46,7 @@ class STICK_API TypeInfoT
     template <class O>
     bool operator!=(const TypeInfoT<O> _other)
     {
-        return !*this == _other;
+        return !(*this == _other);
     }
 
     /**
