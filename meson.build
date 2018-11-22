@@ -3,6 +3,8 @@ project('Stick', 'cpp', default_options : ['cpp_std=c++14'])
 if meson.is_subproject() == false
     # disable this bogus warning (should be deprecated in newer clang versions)
     add_global_arguments('-Wno-missing-braces', '-fno-exceptions', language: 'cpp')
+else
+    message('Building Stick as subproject.')
 endif
 
 stickInc = [
