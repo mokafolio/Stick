@@ -97,11 +97,7 @@ install_headers(stickInc, subdir: 'Stick')
 install_headers(allocatorInc, subdir: 'Stick/Allocators')
 install_headers(privateInc, subdir: 'Stick/Private')
 
-if get_option('static')
-    stick = static_library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
-else
-    stick = shared_library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
-endif
+stick = library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
 
 stickDep = declare_dependency(link_with : stick, 
     dependencies: threadsDep, 
