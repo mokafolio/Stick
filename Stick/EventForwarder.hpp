@@ -126,7 +126,8 @@ class STICK_API EventForwarderT
         m_postFilterStorage(defaultAllocator()),
         m_postCategoryFilterStorage(defaultAllocator()),
         m_modifierStorage(defaultAllocator()),
-        m_children(defaultAllocator())
+        m_children(defaultAllocator()),
+        m_bIsEnabled(true)
     {
     }
 
@@ -137,12 +138,18 @@ class STICK_API EventForwarderT
         m_postFilterStorage(_alloc),
         m_postCategoryFilterStorage(_alloc),
         m_modifierStorage(_alloc),
-        m_children(_alloc)
+        m_children(_alloc),
+        m_bIsEnabled(true)
     {
     }
 
     virtual ~EventForwarderT()
     {
+    }
+
+    void setEnabled(bool _b)
+    {
+        m_bIsEnabled = _b;
     }
 
     CallbackID addEventFilter(Filter _filter, bool _bPostPublish = false)
@@ -210,7 +217,7 @@ class STICK_API EventForwarderT
     bool publish(const EventType & _evt, bool _bPropagate)
     {
         // apply pre publish filters
-        if (filterAny(_evt) ||
+        if (!m_bIsEnabled || filterAny(_evt) ||
             filterCategoryImpl(_evt,
                                m_categoryFilterStorage,
                                detail::MakeIndexSequence<sizeof...(PassAlongArgs)>()) ||
@@ -255,6 +262,11 @@ class STICK_API EventForwarderT
             m_children.remove(it);
     }
 
+    bool isEnabled() const
+    {
+        return m_bIsEnabled;
+    }
+
   protected:
     virtual bool filterAny(const EventType & _any)
     {
@@ -295,6 +307,7 @@ class STICK_API EventForwarderT
     MappedModifierStorage m_modifierStorage;
     ForwarderArray m_children;
     ForwardingPolicy m_forwardingPolicy;
+    bool m_bIsEnabled;
 };
 
 using EventForwarder = EventForwarderT<stick::Event,
