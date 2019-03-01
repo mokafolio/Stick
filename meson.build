@@ -93,11 +93,13 @@ threadsDep = dependency('threads')
 
 incDirs = include_directories('.')
 
-install_headers(stickInc, subdir: 'Stick')
-install_headers(allocatorInc, subdir: 'Stick/Allocators')
-install_headers(privateInc, subdir: 'Stick/Private')
+if meson.is_subproject() == false
+    install_headers(stickInc, subdir: 'Stick')
+    install_headers(allocatorInc, subdir: 'Stick/Allocators')
+    install_headers(privateInc, subdir: 'Stick/Private')
+endif
 
-stick = library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: true)
+stick = library('Stick', stickSrc, dependencies: threadsDep, include_directories : incDirs, install: meson.is_subproject() == false)
 
 stickDep = declare_dependency(link_with : stick, 
     dependencies: threadsDep, 

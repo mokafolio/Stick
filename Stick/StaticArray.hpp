@@ -2,8 +2,8 @@
 #define STICK_STATIC_ARRAY_HPP
 
 #include <Stick/Iterator.hpp>
-#include <initializer_list>
 #include <algorithm>
+#include <initializer_list>
 
 namespace stick
 {
