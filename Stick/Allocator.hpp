@@ -57,12 +57,10 @@ class STICK_API DefaultAllocator : public Allocator
 
     DefaultAllocator()
     {
-        printf("DefaultAllocator()\n");
     }
 
     ~DefaultAllocator()
     {
-        printf("~DefaultAllocator()\n");
     }
 
     inline mem::Block allocate(Size _byteCount, Size _alignment) override
