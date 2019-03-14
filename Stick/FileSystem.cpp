@@ -640,16 +640,17 @@ Error setWorkingDirectory(const String & _path)
     return Error();
 }
 
-Result<String> workingDirectory()
+Result<String> workingDirectory(Allocator & _alloc)
 {
     // since there is no portable way of knowing the path length needed in advance, we
     // loop and double the array length on each iteration until an error occurs, or the buffer
     // is big enough to hold the path.
 
+    String ret(_alloc);
     for (Size len = 128;; len *= 2)
     {
-        char p[len];
-        char * result = getcwd(p, len);
+        ret.resize(len);
+        char * result = getcwd((char*)ret.ptr(), (len + 1));
         if (!result)
         {
             if (errno == ERANGE)
@@ -662,11 +663,7 @@ Result<String> workingDirectory()
             }
         }
         else
-        {
-            // unfortunatelly we need to copy to the String here since pre C++11 does not
-            // guarantee that it std::string is continous in memory.
-            return String(p);
-        }
+            return ret;
     }
 }
 } // namespace fs

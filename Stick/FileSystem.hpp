@@ -463,7 +463,7 @@ STICK_API Error setWorkingDirectory(const String & _path);
  * @brief Returns the current working directory.
  * @throws SystemErrorException
  */
-STICK_API Result<String> workingDirectory();
+STICK_API Result<String> workingDirectory(Allocator & _alloc = defaultAllocator());
 } // namespace fs
 } // namespace stick
 
