@@ -1213,6 +1213,10 @@ const Suite spec[] =
         EXPECT(map["f"] == 8);
         EXPECT(map.count() == 6);
 
+        auto eit = map.end() - 1;
+        EXPECT(eit->key == "f");
+        EXPECT(eit->value == 8);
+
         it = map.begin();
 
         auto lastKey = it->key;

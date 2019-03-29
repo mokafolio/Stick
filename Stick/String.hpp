@@ -560,17 +560,17 @@ class String
 
     inline ReverseIter rbegin()
     {
-        return ReverseIter(end() - 1);
+        return ReverseIter(end());
     }
 
     inline ReverseConstIter crbegin()
     {
-        return ReverseConstIter(end() - 1);
+        return ReverseConstIter(end());
     }
 
     inline ReverseConstIter rbegin() const
     {
-        return ReverseConstIter(end() - 1);
+        return ReverseConstIter(end());
     }
 
     inline ReverseIter rend()

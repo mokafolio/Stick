@@ -100,12 +100,12 @@ struct ReverseIterator
 
     inline ReferenceType operator*() const
     {
-        return *m_it;
+        return *(m_it - 1);
     }
 
     inline PointerType operator->() const
     {
-        return m_it.operator->();
+        return (m_it - 1).operator->();
     }
 
     inline bool operator==(const ReverseIterator & _other) const

@@ -73,66 +73,121 @@ class Map
     struct IterT
     {
         typedef NT NodeType;
-
         typedef VT ValueType;
-
         typedef ValueType & ReferenceType;
-
         typedef ValueType * PointerType;
 
-        IterT() : current(nullptr), last(nullptr)
+        IterT() : current(nullptr), prev(nullptr)
         {
         }
 
-        IterT(NodeType * _node, NodeType * _last) : current(_node), last(_last)
+        IterT(NodeType * _node, NodeType * _prev) : current(_node), prev(_prev)
         {
         }
 
         inline void increment()
         {
             // TODO: I am pretty sure this function can be more compact and simple
+            // if (!current)
+            //     return;
+
+            // if (current->left)
+            // {
+            //     current = current->left;
+            // }
+            // else if (current->right)
+            // {
+            //     current = current->right;
+            // }
+            // else
+            // {
+            //     if (current == last)
+            //     {
+            //         current = nullptr;
+            //         return;
+            //     }
+
+            //     while (current->parent &&
+            //            (!current->parent->right || current->parent->right == current))
+            //     {
+            //         current = current->parent;
+            //     }
+            //     if (current->parent)
+            //         current = current->parent->right;
+            //     else
+            //         current = last;
+            // }
+
             if (!current)
                 return;
 
+            Node * n = current;
             if (current->left)
-            {
                 current = current->left;
-            }
             else if (current->right)
-            {
                 current = current->right;
-            }
             else
             {
-                if (current == last)
-                {
-                    current = nullptr;
-                    return;
-                }
-
                 while (current->parent &&
                        (!current->parent->right || current->parent->right == current))
-                {
                     current = current->parent;
-                }
+
                 if (current->parent)
                     current = current->parent->right;
                 else
-                    current = last;
+                    current = nullptr;
             }
+            prev = n;
         }
 
         inline void decrement()
         {
-            if (!current)
-                return;
+            // if (!current->parent)
+            // {
+            //     current = nullptr;
+            //     return;
+            // }
 
-            if (!current->parent)
+            // if (current == current->parent->left)
+            //     current = current->parent;
+            // else
+            // {
+            //     if (!current->parent->left)
+            //         current = current->parent;
+            //     else
+            //     {
+            //         current = current->parent->left;
+            //         while (!current->right)
+            //         {
+            //             if (current->left)
+            //                 current = current->left;
+            //             else
+            //                 break;
+            //         }
+            //         if (current->right)
+            //         {
+            //             while (current->right)
+            //                 current = current->right;
+            //         }
+            //     }
+            // }
+
+            if (!current)
             {
-                current = nullptr;
+                STICK_ASSERT(prev);
+                Node * n = current;
+                current = prev;
+                prev = n;
                 return;
             }
 
+            if (!current->parent)
+            {
+                prev = nullptr;
+                return;
+            }
+
+            Node * n = current;
             if (current == current->parent->left)
                 current = current->parent;
             else
@@ -156,6 +211,7 @@ class Map
                     }
                 }
             }
+            prev = n;
         }
 
         inline bool operator==(const IterT & _other) const
@@ -191,7 +247,7 @@ class Map
         inline IterT operator-(Size _i) const
         {
             Iter ret = *this;
-            for (Size i = 0; i <= _i; ++i)
+            for (Size i = 0; i < _i; ++i)
                 ret.decrement();
             return ret;
         }
@@ -235,15 +291,12 @@ class Map
         }
 
         NodeType * current;
-        NodeType * last;
+        NodeType * prev;
     };
 
     typedef IterT<Map, Node, KeyValuePair> Iter;
-
     typedef const IterT<const Map, const Node, const KeyValuePair> ConstIter;
-
     typedef ReverseIterator<Iter> ReverseIter;
-
     typedef ReverseIterator<ConstIter> ReverseConstIter;
 
     struct InsertResult
@@ -345,44 +398,42 @@ class Map
 
     inline Iter begin()
     {
-        return Iter(m_tree.root(), m_tree.rightMost());
+        return Iter(m_tree.root(), nullptr);
     }
 
     inline ConstIter begin() const
     {
-        return ConstIter(m_tree.root(), m_tree.rightMost());
+        return ConstIter(m_tree.root(), nullptr);
     }
 
     inline ReverseIter rbegin()
     {
-        Node * rm = m_tree.rightMost();
-        return ReverseIter(Iter(rm, rm));
+        return ReverseIter(end());
     }
 
     inline ReverseConstIter rbegin() const
     {
-        Node * rm = m_tree.rightMost();
-        return ReverseConstIter(ConstIter(rm, rm));
+        return ReverseConstIter(end());
     }
 
     inline Iter end()
     {
-        return Iter();
+        return Iter(nullptr, m_tree.rightMost());
     }
 
     inline ConstIter end() const
     {
-        return ConstIter();
+        return ConstIter(nullptr, m_tree.rightMost());
     }
 
     inline ReverseIter rend()
     {
-        return ReverseIter(Iter());
+        return ReverseIter(begin());
     }
 
     inline ReverseConstIter rend() const
     {
-        return ReverseConstIter(ConstIter());
+        return ReverseConstIter(begin());
     }
 
     inline Size count() const
