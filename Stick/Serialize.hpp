@@ -1,0 +1,250 @@
+#ifndef STICK_SERIALIZER_HPP
+#define STICK_SERIALIZER_HPP
+
+#include <Stick/DynamicArray.hpp>
+#include <Stick/Error.hpp>
+
+namespace stick
+{
+struct STICK_API NoSwap
+{
+    template <class T, Size B>
+    static T swap(T _val)
+    {
+        return _val;
+    }
+};
+
+struct STICK_API Swap
+{
+    static void swapBytes(UInt8 & _v1, UInt8 & _v2)
+    {
+        UInt8 tmp = _v1;
+        _v1 = _v2;
+        _v2 = tmp;
+    }
+
+    template<class T, Size B>
+    static T swap(T _val)
+    {
+        static_assert(B <= 8 && B > 1, "Attempting to swap a POD type with a strange byte size");
+        union { T val; uint8_t c[B]; };
+        val = _val;
+
+        for(Size i = 0; i < B; ++i)
+            swapBytes(c[i], c[B - 1 - i]);
+        return val;
+    }
+};
+
+//@TODO: Replace this macro BS with c++ compile time stuff as soon as available (c++20 :)
+// store in little endian
+struct STICK_API LittleEndianPolicy
+{
+#ifdef STICK_LITTLE_ENDIAN
+    using Swapper = NoSwap;
+#else
+    using Swapper = Swap;
+#endif // STICK_LITTLE_ENDIAN
+
+    template<class T>
+    static T convert(T _value)
+    {
+        return Swapper::swap<T, sizeof(T)>(_value);
+    }
+};
+
+//@TODO: Big endian policy
+
+struct MemoryWriter
+{
+    MemoryWriter(Allocator & _alloc) :
+    data(_alloc)
+    {
+
+    }
+
+    void reserve(Size _count)
+    {
+        data.reserve(_count);
+    }
+
+    void write(const char * _data, Size _byteCount)
+    {
+        data.append(_data, _data + _byteCount);
+    }
+
+    const char * dataPtr() const
+    {
+        if(!data.count())
+            return nullptr;
+        return &data[0];
+    }
+
+    Size byteCount() const
+    {
+        return data.count();
+    }
+
+    DynamicArray<char> data;
+};
+
+struct MemoryReader
+{
+    MemoryReader(const char * _data, Size _byteCount) :
+    data(_data),
+    byteCount(_byteCount),
+    byteOff(0)
+    {
+
+    }
+
+    template<class T>
+    Error readInto(T * _output)
+    {
+        //@TODO: Better error code
+        if(byteCount - byteOff <= sizeof(T))
+            return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
+
+        *_output = (*(T*)(data + byteOff));
+        byteOff += sizeof(T);
+        return Error();
+    }
+
+    template<class T>
+    T read()
+    {
+        STICK_ASSERT(byteCount - byteOff <= sizeof(T));
+        T ret = (*(T*)(data + byteOff));
+        byteOff += sizeof(T);
+        return ret;
+    }
+
+    const char * data;
+    Size byteCount;
+    Size byteOff;
+};
+
+template <class EP, class SP>
+class STICK_API SerializerT
+{
+public:
+
+    using EndianPolicy = EP;
+    using Storage = SP;
+
+    SerializerT(Allocator & _alloc = defaultAllocator()) :
+    m_storage(_alloc)
+    {
+
+    }
+
+    template<class T>
+    void write(T _value)
+    {
+        T val = EndianPolicy::convert(_value);
+        m_storage.write((const char*)&val, sizeof(T));
+    }
+
+    template<class T>
+    void writeComplex(T & _obj)
+    {
+        _obj.serialize(*this);
+    }
+
+    void reserve(Size _byteCount)
+    {
+        m_storage.reserve(_byteCount);
+    }
+
+    const Storage & storage() const
+    {
+        return m_storage;
+    }
+
+private:
+
+    Storage m_storage;
+};
+
+template <class EP, class SP>
+class STICK_API DeserializerT
+{
+public:
+
+    using EndianPolicy = EP;
+    using Source = SP;
+
+    DeserializerT(const Source & _source) :
+    m_source(_source)
+    {
+    }
+
+    DeserializerT(Source && _source) :
+    m_source(std::move(_source))
+    {
+    }
+
+    template<class T>
+    Error readInto(T * _out)
+    {
+        T tmp;
+        Error err = m_source.readInto(&tmp);
+        if(err)
+            return err;
+
+        *_out = EndianPolicy::convert(tmp);
+        return Error();
+    }
+
+    Int8 readInt8()
+    {
+        return m_source.template read<Int8>();
+    }
+
+    UInt8 readUInt8()
+    {
+        return m_source.template read<UInt8>();
+    }
+
+    Int16 readInt16()
+    {
+        return m_source.template read<Int16>();
+    }
+
+    UInt16 readUInt16()
+    {
+        return m_source.template read<UInt16>();
+    }
+
+    Int32 readInt32()
+    {
+        return m_source.template read<Int32>();
+    }
+
+    UInt32 readUInt32()
+    {
+        return m_source.template read<UInt32>();
+    }
+
+    Int64 readInt64()
+    {
+        return m_source.template read<Int64>();
+    }
+
+    UInt64 readUInt64()
+    {
+        return m_source.template read<UInt64>();
+    }
+
+private:
+
+    Source m_source;
+};
+
+using MemorySerializerLE = SerializerT<LittleEndianPolicy, MemoryWriter>;
+using MemoryDeserializerLE = DeserializerT<LittleEndianPolicy, MemoryReader>;
+
+} // namespace stick
+
+#endif // STICK_SERIALIZER_HPP

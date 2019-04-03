@@ -21,6 +21,7 @@
 #include <Stick/Maybe.hpp>
 #include <Stick/FileSystem.hpp>
 #include <Stick/Variant.hpp>
+#include <Stick/Serialize.hpp>
 #include <Stick/StaticArray.hpp>
 #include <Stick/SharedPtr.hpp>
 
@@ -2389,6 +2390,56 @@ const Suite spec[] =
 
             // Variant<SharedPtr<DestructorTester>, SharedPtr<B>, SharedPtr<A>, int> bla = makeShared<A>();
         }
+    },
+    SUITE("Serialize Tests")
+    {
+        MemorySerializerLE serializer;
+
+        char a = 'a';
+        int b = -15;
+        UInt32 c = 99;
+        Float32 d = -103.123;
+        Float64 e = 10986.03;
+        UInt64 f = 9817461;
+
+        serializer.write(a);
+        serializer.write(b);
+        serializer.write(c);
+        serializer.write(d);
+        serializer.write(e);
+        serializer.write(f);
+
+        printf("BYTE COUNT %lu\n", serializer.storage().byteCount());
+        EXPECT(serializer.storage().byteCount() == 29);
+
+        MemoryDeserializerLE deserializer(
+            MemoryReader(serializer.storage().dataPtr(), 
+            serializer.storage().byteCount()));
+
+        char ra;
+        int rb;
+        UInt32 rc;
+        Float32 rd;
+        Float64 re;
+        UInt64 rf;
+
+        EXPECT(!deserializer.readInto(&ra));
+        EXPECT(!deserializer.readInto(&rb));
+        EXPECT(!deserializer.readInto(&rc));
+        EXPECT(!deserializer.readInto(&rd));
+        EXPECT(!deserializer.readInto(&re));
+        rf = deserializer.readUInt64();
+
+        EXPECT(deserializer.readInto(&re)); //needs to error, reading past the end of the data
+
+        // printf("RD %f\n", rd);
+
+        EXPECT(ra == a);
+        EXPECT(rb == b);
+        EXPECT(rc == c);
+        EXPECT(rd == d);
+        EXPECT(re == e);
+        EXPECT(rf == f);
     }
 };
 
