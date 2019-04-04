@@ -2403,14 +2403,16 @@ const Suite spec[] =
         UInt64 f = 9817461;
 
         serializer.write(a);
+        EXPECT(serializer.storage().byteCount() == 1);
         serializer.write(b);
+        EXPECT(serializer.storage().byteCount() == 8); //due to 4 byte alignment
         serializer.write(c);
         serializer.write(d);
         serializer.write(e);
         serializer.write(f);
 
         printf("BYTE COUNT %lu\n", serializer.storage().byteCount());
-        EXPECT(serializer.storage().byteCount() == 29);
+        EXPECT(serializer.storage().byteCount() == 32);
 
         MemoryDeserializerLE deserializer(
             MemoryReader(serializer.storage().dataPtr(), 

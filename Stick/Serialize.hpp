@@ -3,9 +3,11 @@
 
 #include <Stick/DynamicArray.hpp>
 #include <Stick/Error.hpp>
+#include <Stick/Utility.hpp>
 
 namespace stick
 {
+
 struct STICK_API NoSwap
 {
     template <class T, Size B>
@@ -69,8 +71,10 @@ struct MemoryWriter
         data.reserve(_count);
     }
 
-    void write(const char * _data, Size _byteCount)
+    void write(const char * _data, Size _byteCount, UInt32 _align)
     {
+        auto padding = (-data.count() & (_align - 1));
+        data.resize(data.count() + padding);
         data.append(_data, _data + _byteCount);
     }
 
@@ -100,23 +104,23 @@ struct MemoryReader
     }
 
     template<class T>
-    Error readInto(T * _output)
+    Error readInto(T * _output, UInt32 _align)
     {
         //@TODO: Better error code
         if(byteCount - byteOff <= sizeof(T))
             return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
 
-        *_output = (*(T*)(data + byteOff));
-        byteOff += sizeof(T);
+        *_output = *((T*)(data + byteOff));
+        byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
         return Error();
     }
 
     template<class T>
-    T read()
+    T read(UInt32 _align)
     {
         STICK_ASSERT(byteCount - byteOff <= sizeof(T));
-        T ret = (*(T*)(data + byteOff));
-        byteOff += sizeof(T);
+        T ret = *((T*)(data + byteOff));
+        byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
         return ret;
     }
 
@@ -125,13 +129,16 @@ struct MemoryReader
     Size byteOff;
 };
 
-template <class EP, class SP>
+//@TODO: Add support for alignment to the de-/serializer
+
+template <class EP, class SP, UInt32 Align = 4>
 class STICK_API SerializerT
 {
 public:
 
     using EndianPolicy = EP;
     using Storage = SP;
+    static constexpr UInt32 Alignment = Align;
 
     SerializerT(Allocator & _alloc = defaultAllocator()) :
     m_storage(_alloc)
@@ -143,7 +150,7 @@ public:
     void write(T _value)
     {
         T val = EndianPolicy::convert(_value);
-        m_storage.write((const char*)&val, sizeof(T));
+        m_storage.write((const char*)&val, sizeof(T), Alignment);
     }
 
     template<class T>
@@ -167,13 +174,14 @@ private:
     Storage m_storage;
 };
 
-template <class EP, class SP>
+template <class EP, class SP, UInt32 Align = 4>
 class STICK_API DeserializerT
 {
 public:
 
     using EndianPolicy = EP;
     using Source = SP;
+    static constexpr UInt32 Alignment = Align;
 
     DeserializerT(const Source & _source) :
     m_source(_source)
@@ -189,7 +197,7 @@ public:
     Error readInto(T * _out)
     {
         T tmp;
-        Error err = m_source.readInto(&tmp);
+        Error err = m_source.readInto(&tmp, Alignment);
         if(err)
             return err;
 
@@ -199,42 +207,42 @@ public:
 
     Int8 readInt8()
     {
-        return m_source.template read<Int8>();
+        return m_source.template read<Int8>(Alignment);
     }
 
     UInt8 readUInt8()
     {
-        return m_source.template read<UInt8>();
+        return m_source.template read<UInt8>(Alignment);
     }
 
     Int16 readInt16()
     {
-        return m_source.template read<Int16>();
+        return m_source.template read<Int16>(Alignment);
     }
 
     UInt16 readUInt16()
     {
-        return m_source.template read<UInt16>();
+        return m_source.template read<UInt16>(Alignment);
     }
 
     Int32 readInt32()
     {
-        return m_source.template read<Int32>();
+        return m_source.template read<Int32>(Alignment);
     }
 
     UInt32 readUInt32()
     {
-        return m_source.template read<UInt32>();
+        return m_source.template read<UInt32>(Alignment);
     }
 
     Int64 readInt64()
     {
-        return m_source.template read<Int64>();
+        return m_source.template read<Int64>(Alignment);
     }
 
     UInt64 readUInt64()
     {
-        return m_source.template read<UInt64>();
+        return m_source.template read<UInt64>(Alignment);
     }
 
 private:
