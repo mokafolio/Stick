@@ -182,6 +182,11 @@ class STICK_API SerializerT
         m_storage.write((const UInt8*)_data, _byteCount, Alignment);
     }
 
+    void write(void * _data, Size _byteCount)
+    {
+        m_storage.write(_data, _byteCount, Alignment);
+    }
+
     void write(const String & _data)
     {
         write(_data.cString(), _data.length() + 1);
