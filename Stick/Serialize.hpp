@@ -118,9 +118,16 @@ struct MemoryReader
     template<class T>
     T read(UInt32 _align)
     {
-        STICK_ASSERT(byteCount - byteOff <= sizeof(T));
+        STICK_ASSERT(byteCount - byteOff >= sizeof(T));
         T ret = *((T*)(data + byteOff));
         byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
+        return ret;
+    }
+
+    const char * readCString()
+    {
+        const char * ret = data + byteOff;
+        byteOff += std::strlen(ret) + 1;
         return ret;
     }
 
@@ -151,6 +158,21 @@ public:
     {
         T val = EndianPolicy::convert(_value);
         m_storage.write((const char*)&val, sizeof(T), Alignment);
+    }
+
+    void write(const char * _data)
+    {
+        write(_data, std::strlen(_data) + 1);
+    }
+
+    void write(const char * _data, Size _byteCount)
+    {
+        m_storage.write(_data, _byteCount, Alignment);
+    }
+
+    void write(const String & _data)
+    {
+        write(_data.cString(), _data.length() + 1);
     }
 
     template<class T>
@@ -243,6 +265,11 @@ public:
     UInt64 readUInt64()
     {
         return m_source.template read<UInt64>(Alignment);
+    }
+
+    const char * readCString()
+    {
+        return m_source.readCString();
     }
 
 private:
