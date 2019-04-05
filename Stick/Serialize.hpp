@@ -220,7 +220,8 @@ class STICK_API DeserializerT
     using Source = SP;
     static constexpr UInt32 Alignment = Align;
 
-    DeserializerT(const Source & _source) : m_source(_source)
+    template<class...Args>
+    DeserializerT(Args&&... _args) : m_source(std::forward<Args>(_args)...)
     {
     }
 
