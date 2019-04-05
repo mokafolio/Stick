@@ -62,42 +62,55 @@ struct STICK_API LittleEndianPolicy
 
 //@TODO: Big endian policy
 
-struct MemoryWriter
+template<class T>
+struct ContainerWriter
 {
-    MemoryWriter(Allocator & _alloc) : data(_alloc)
+    ContainerWriter(T & _target) : target(_target)
     {
     }
 
     void reserve(Size _count)
     {
-        data.reserve(_count);
+        target.reserve(_count);
     }
 
-    void write(const char * _data, Size _byteCount, UInt32 _align)
+    void write(const UInt8 * _data, Size _byteCount, UInt32 _align)
     {
-        auto padding = (-data.count() & (_align - 1));
-        data.resize(data.count() + padding);
-        data.append(_data, _data + _byteCount);
+        auto padding = (-target.count() & (_align - 1));
+        target.resize(target.count() + padding);
+        target.append(_data, _data + _byteCount);
     }
 
-    const char * dataPtr() const
+    const UInt8 * dataPtr() const
     {
-        if (!data.count())
+        if (!target.count())
             return nullptr;
-        return &data[0];
+        return &target[0];
     }
 
     Size byteCount() const
     {
-        return data.count();
+        return target.count();
     }
 
-    DynamicArray<char> data;
+    T & target;
 };
+
+struct MemoryWriter : public ContainerWriter<DynamicArray<UInt8>>
+{
+    MemoryWriter(Allocator & _alloc = defaultAllocator()) :
+    ContainerWriter(data),
+    data(_alloc)
+    {
+    }
+
+    DynamicArray<UInt8> data;
+};
+
 
 struct MemoryReader
 {
-    MemoryReader(const char * _data, Size _byteCount) :
+    MemoryReader(const UInt8 * _data, Size _byteCount) :
         data(_data),
         byteCount(_byteCount),
         byteOff(0)
@@ -107,14 +120,12 @@ struct MemoryReader
     template <class T>
     Error readInto(T * _output, UInt32 _align)
     {
-        printf("B %lu %lu %lu\n", sizeof(T), byteCount, byteOff);
         //@TODO: Better error code
         if (byteCount - byteOff < sizeof(T))
             return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
 
         *_output = *((T *)(data + byteOff));
         byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
-        printf("C\n");
         return Error();
     }
 
@@ -129,12 +140,12 @@ struct MemoryReader
 
     const char * readCString()
     {
-        const char * ret = data + byteOff;
+        const char * ret = reinterpret_cast<const char*>(data + byteOff);
         byteOff += std::strlen(ret) + 1;
         return ret;
     }
 
-    const char * data;
+    const UInt8 * data;
     Size byteCount;
     Size byteOff;
 };
@@ -149,7 +160,8 @@ class STICK_API SerializerT
     using Storage = SP;
     static constexpr UInt32 Alignment = Align;
 
-    SerializerT(Allocator & _alloc = defaultAllocator()) : m_storage(_alloc)
+    template<class...Args>
+    SerializerT(Args&&... _args) : m_storage(std::forward<Args>(_args)...)
     {
     }
 
@@ -157,7 +169,7 @@ class STICK_API SerializerT
     void write(T _value)
     {
         T val = EndianPolicy::convert(_value);
-        m_storage.write((const char *)&val, sizeof(T), Alignment);
+        m_storage.write((const UInt8 *)&val, sizeof(T), Alignment);
     }
 
     void write(const char * _data)
@@ -167,7 +179,7 @@ class STICK_API SerializerT
 
     void write(const char * _data, Size _byteCount)
     {
-        m_storage.write(_data, _byteCount, Alignment);
+        m_storage.write((const UInt8*)_data, _byteCount, Alignment);
     }
 
     void write(const String & _data)
