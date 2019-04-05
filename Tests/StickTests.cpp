@@ -2444,7 +2444,7 @@ const Suite spec[] =
         rh = deserializer.readInt16();
         EXPECT(!deserializer.readInto(&ri));
 
-        // EXPECT(deserializer.readInto(&re)); //needs to error, reading past the end of the data
+        EXPECT(!deserializer.readCString()); //needs to return nullptr, reading past the end of the data
 
         // printf("RD %f\n", rd);
 

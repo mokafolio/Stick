@@ -111,9 +111,8 @@ struct MemoryWriter : public ContainerWriter<DynamicArray<UInt8>>
 struct MemoryReader
 {
     MemoryReader(const UInt8 * _data, Size _byteCount) :
-        data(_data),
-        byteCount(_byteCount),
-        byteOff(0)
+        end(_data + _byteCount),
+        pos(_data)
     {
     }
 
@@ -121,33 +120,54 @@ struct MemoryReader
     Error readInto(T * _output, UInt32 _align)
     {
         //@TODO: Better error code
-        if (byteCount - byteOff < sizeof(T))
-            return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
+        // if (byteCount - byteOff < sizeof(T))
+        //     return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
 
-        *_output = *((T *)(data + byteOff));
-        byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
+        // *_output = *((T *)(data + byteOff));
+        // byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
+
+        //@TODO: Better error code
+        if (end - pos < sizeof(T))
+            return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
+        *_output = *((T*)pos);
+        pos += sizeof(T) + (-sizeof(T) & (_align - 1));
         return Error();
     }
 
     template <class T>
     T read(UInt32 _align)
     {
-        STICK_ASSERT(byteCount - byteOff >= sizeof(T));
-        T ret = *((T *)(data + byteOff));
-        byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
+        // STICK_ASSERT(byteCount - byteOff >= sizeof(T));
+        // T ret = *((T *)(data + byteOff));
+        // byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
+
+        STICK_ASSERT(end - pos >= sizeof(T));
+        T ret = *((T*)pos);
+        pos += sizeof(T) + (-sizeof(T) & (_align - 1));
         return ret;
     }
 
     const char * readCString()
     {
-        const char * ret = reinterpret_cast<const char*>(data + byteOff);
-        byteOff += std::strlen(ret) + 1;
+        //at least one character + null terminator
+        //@TODO: sure this test could be more concise :/
+        // if(byteOff >= byteCount || byteCount - byteOff < 2)
+        //     return nullptr;
+
+        // const char * ret = reinterpret_cast<const char*>(data + byteOff);
+        // byteOff += std::strlen(ret) + 1;
+        // return ret;
+
+        if(end - pos < 2)
+            return nullptr;
+
+        const char * ret = reinterpret_cast<const char*>(pos);
+        pos += std::strlen(ret) + 1;
         return ret;
     }
 
-    const UInt8 * data;
-    Size byteCount;
-    Size byteOff;
+    const UInt8 * end;
+    const UInt8 * pos;
 };
 
 //@TODO: Add support for alignment to the de-/serializer
