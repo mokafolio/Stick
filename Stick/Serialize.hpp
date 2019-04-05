@@ -26,14 +26,18 @@ struct STICK_API Swap
         _v2 = tmp;
     }
 
-    template<class T, Size B>
+    template <class T, Size B>
     static T swap(T _val)
     {
         static_assert(B <= 8 && B > 1, "Attempting to swap a POD type with a strange byte size");
-        union { T val; uint8_t c[B]; };
+        union
+        {
+            T val;
+            uint8_t c[B];
+        };
         val = _val;
 
-        for(Size i = 0; i < B; ++i)
+        for (Size i = 0; i < B; ++i)
             swapBytes(c[i], c[B - 1 - i]);
         return val;
     }
@@ -49,7 +53,7 @@ struct STICK_API LittleEndianPolicy
     using Swapper = Swap;
 #endif // STICK_LITTLE_ENDIAN
 
-    template<class T>
+    template <class T>
     static T convert(T _value)
     {
         return Swapper::swap<T, sizeof(T)>(_value);
@@ -60,10 +64,8 @@ struct STICK_API LittleEndianPolicy
 
 struct MemoryWriter
 {
-    MemoryWriter(Allocator & _alloc) :
-    data(_alloc)
+    MemoryWriter(Allocator & _alloc) : data(_alloc)
     {
-
     }
 
     void reserve(Size _count)
@@ -80,7 +82,7 @@ struct MemoryWriter
 
     const char * dataPtr() const
     {
-        if(!data.count())
+        if (!data.count())
             return nullptr;
         return &data[0];
     }
@@ -96,30 +98,31 @@ struct MemoryWriter
 struct MemoryReader
 {
     MemoryReader(const char * _data, Size _byteCount) :
-    data(_data),
-    byteCount(_byteCount),
-    byteOff(0)
+        data(_data),
+        byteCount(_byteCount),
+        byteOff(0)
     {
-
     }
 
-    template<class T>
+    template <class T>
     Error readInto(T * _output, UInt32 _align)
     {
+        printf("B %lu %lu %lu\n", sizeof(T), byteCount, byteOff);
         //@TODO: Better error code
-        if(byteCount - byteOff <= sizeof(T))
+        if (byteCount - byteOff < sizeof(T))
             return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
 
-        *_output = *((T*)(data + byteOff));
+        *_output = *((T *)(data + byteOff));
         byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
+        printf("C\n");
         return Error();
     }
 
-    template<class T>
+    template <class T>
     T read(UInt32 _align)
     {
         STICK_ASSERT(byteCount - byteOff >= sizeof(T));
-        T ret = *((T*)(data + byteOff));
+        T ret = *((T *)(data + byteOff));
         byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
         return ret;
     }
@@ -141,23 +144,20 @@ struct MemoryReader
 template <class EP, class SP, UInt32 Align = 4>
 class STICK_API SerializerT
 {
-public:
-
+  public:
     using EndianPolicy = EP;
     using Storage = SP;
     static constexpr UInt32 Alignment = Align;
 
-    SerializerT(Allocator & _alloc = defaultAllocator()) :
-    m_storage(_alloc)
+    SerializerT(Allocator & _alloc = defaultAllocator()) : m_storage(_alloc)
     {
-
     }
 
-    template<class T>
+    template <class T>
     void write(T _value)
     {
         T val = EndianPolicy::convert(_value);
-        m_storage.write((const char*)&val, sizeof(T), Alignment);
+        m_storage.write((const char *)&val, sizeof(T), Alignment);
     }
 
     void write(const char * _data)
@@ -175,7 +175,7 @@ public:
         write(_data.cString(), _data.length() + 1);
     }
 
-    template<class T>
+    template <class T>
     void writeComplex(T & _obj)
     {
         _obj.serialize(*this);
@@ -191,36 +191,32 @@ public:
         return m_storage;
     }
 
-private:
-
+  private:
     Storage m_storage;
 };
 
 template <class EP, class SP, UInt32 Align = 4>
 class STICK_API DeserializerT
 {
-public:
-
+  public:
     using EndianPolicy = EP;
     using Source = SP;
     static constexpr UInt32 Alignment = Align;
 
-    DeserializerT(const Source & _source) :
-    m_source(_source)
+    DeserializerT(const Source & _source) : m_source(_source)
     {
     }
 
-    DeserializerT(Source && _source) :
-    m_source(std::move(_source))
+    DeserializerT(Source && _source) : m_source(std::move(_source))
     {
     }
 
-    template<class T>
+    template <class T>
     Error readInto(T * _out)
     {
         T tmp;
         Error err = m_source.readInto(&tmp, Alignment);
-        if(err)
+        if (err)
             return err;
 
         *_out = EndianPolicy::convert(tmp);
@@ -272,8 +268,7 @@ public:
         return m_source.readCString();
     }
 
-private:
-
+  private:
     Source m_source;
 };
 

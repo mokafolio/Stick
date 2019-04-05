@@ -2403,6 +2403,7 @@ const Suite spec[] =
         UInt64 f = 9817461;
         const char * g = "Hello Wurld";
         Int16 h = -1208;
+        bool i = false;
 
         serializer.write(a);
         EXPECT(serializer.storage().byteCount() == 1);
@@ -2413,10 +2414,11 @@ const Suite spec[] =
         serializer.write(e);
         serializer.write(f);
         serializer.write(g);
-        serializer.write(h);
+        serializer.write(h); // 3 bytes padding after this
+        serializer.write(i);
 
         printf("BYTE COUNT %lu\n", serializer.storage().byteCount());
-        EXPECT(serializer.storage().byteCount() == 46);
+        EXPECT(serializer.storage().byteCount() == 49);
 
         MemoryDeserializerLE deserializer(
             MemoryReader(serializer.storage().dataPtr(), 
@@ -2430,6 +2432,7 @@ const Suite spec[] =
         UInt64 rf;
         const char * rg;
         Int16 rh;
+        bool ri;
 
         EXPECT(!deserializer.readInto(&ra));
         EXPECT(!deserializer.readInto(&rb));
@@ -2439,7 +2442,7 @@ const Suite spec[] =
         rf = deserializer.readUInt64();
         rg = deserializer.readCString();
         rh = deserializer.readInt16();
-        printf("RG BRUH %s\n", rg);
+        EXPECT(!deserializer.readInto(&ri));
 
         // EXPECT(deserializer.readInto(&re)); //needs to error, reading past the end of the data
 
@@ -2453,6 +2456,7 @@ const Suite spec[] =
         EXPECT(rf == f);
         EXPECT(std::strcmp(rg, g) == 0);
         EXPECT(rh == h);
+        EXPECT(ri == i);
     }
 };
 
