@@ -304,6 +304,16 @@ class STICK_API DeserializerT
         return m_source.template read<UInt64>(Alignment);
     }
 
+    Float32 readFloat32()
+    {
+        return m_source.template read<Float32>(Alignment);
+    }
+
+    Float64 readFloat64()
+    {
+        return m_source.template read<Float64>(Alignment);
+    }
+
     const char * readCString()
     {
         return m_source.readCString();
