@@ -1,6 +1,7 @@
 #ifndef STICK_ALLOCATORS_POOLALLOCATOR_HPP
 #define STICK_ALLOCATORS_POOLALLOCATOR_HPP
 
+#include <limits>
 #include <Stick/Allocators/MemoryChunk.hpp>
 
 namespace stick

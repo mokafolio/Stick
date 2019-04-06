@@ -2121,9 +2121,10 @@ const Suite spec[] =
     //     mem::Block blocks[1000];
     //     auto start = clock.now();
     //     for (int j = 0; j < 1000; j++)
-    //     {
+    //     {   
     //         for (int i = 0; i < 1000; ++i)
     //         {
+
     //             blocks[i] = alloc.allocate(32, 4);
     //         }
 
@@ -2134,7 +2135,7 @@ const Suite spec[] =
 
     //         for (int i = 0; i < 500; ++i)
     //         {
-    //             blocks[i] = alloc.allocate(i, 4);
+    //             blocks[i] = alloc.allocate(i + 1, 4);
     //         }
 
     //         for (int i = 0; i < 1000; ++i)
@@ -2164,7 +2165,7 @@ const Suite spec[] =
 
     //         for (int i = 0; i < 500; ++i)
     //         {
-    //             blocks[i] = alloc2.allocate(1024, 4);
+    //             blocks[i] = alloc2.allocate(i + 1, 4);
     //         }
 
     //         for (int i = 0; i < 1000; ++i)
@@ -2174,7 +2175,7 @@ const Suite spec[] =
     //     }
     //     auto duration2 = clock.now() - start2;
     //     printf("MS: %f\n", duration2.milliseconds());
-    // }
+    // },
     SUITE("Callback Tests")
     {
         //@Note: This is not really testing much but rather checking if
