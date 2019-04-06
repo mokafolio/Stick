@@ -93,6 +93,11 @@ struct ContainerWriter
         return target.count();
     }
 
+    Size byteCount() const
+    {
+        return position();
+    }
+
     T & target;
 };
 
@@ -173,6 +178,13 @@ class STICK_API SerializerT
     template <class... Args>
     SerializerT(Args &&... _args) : m_storage(std::forward<Args>(_args)...)
     {
+    }
+
+    template<class T>
+    Size positionAfterWritingType()
+    {
+        //@TODO: should this sit in the storage?
+        return m_storage.position() + sizeof(T) + (-sizeof(T) & (Alignment - 1));
     }
 
     template <class T>
