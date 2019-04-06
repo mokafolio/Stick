@@ -153,6 +153,11 @@ struct MemoryReader
         STICK_ASSERT(pos <= end);
     }
 
+    Size position() const
+    {
+        return pos - start;
+    }
+
     const UInt8 * start;
     const UInt8 * end;
     const UInt8 * pos;
@@ -247,6 +252,11 @@ class STICK_API DeserializerT
 
         *_out = EndianPolicy::convert(tmp);
         return Error();
+    }
+
+    Size position() const
+    {
+        return m_source.position();
     }
 
     void setPosition(Size _byteOffset)
