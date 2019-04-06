@@ -2411,7 +2411,6 @@ const Suite spec[] =
         EXPECT(serializer.storage().byteCount() == 4); //due to 4 byte alignment
         serializer.write(b);
         EXPECT(serializer.storage().byteCount() == 8);
-        printf("WRITE PAPER\n");
         serializer.write(paper);
         serializer.write(c);
         serializer.write(d);
@@ -2442,6 +2441,7 @@ const Suite spec[] =
         EXPECT(!deserializer.readInto(&rb));
         rpaper = deserializer.readCString();
         EXPECT(rpaper);
+        Size postPaperOff = deserializer.position();
         EXPECT(!deserializer.readInto(&rc));
         EXPECT(!deserializer.readInto(&rd));
         EXPECT(!deserializer.readInto(&re));
@@ -2451,7 +2451,6 @@ const Suite spec[] =
         EXPECT(!deserializer.readInto(&ri));
 
         EXPECT(!deserializer.readCString()); //needs to return nullptr, reading past the end of the data
-
         // printf("RD %f\n", rd);
 
         EXPECT(ra == a);
@@ -2464,6 +2463,11 @@ const Suite spec[] =
         EXPECT(std::strcmp(rg, g) == 0);
         EXPECT(rh == h);
         EXPECT(ri == i);
+
+        deserializer.setPosition(postPaperOff);
+        EXPECT(!deserializer.readInto(&rc));
+        printf("RPAPER %u %lu\n", rc, postPaperOff);
+        EXPECT(rc == c);
     }
 };
 

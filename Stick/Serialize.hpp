@@ -88,7 +88,7 @@ struct ContainerWriter
         return &target[0];
     }
 
-    Size byteCount() const
+    Size position() const
     {
         return target.count();
     }
@@ -216,6 +216,11 @@ class STICK_API SerializerT
     const Storage & storage() const
     {
         return m_storage;
+    }
+
+    Size position() const
+    {
+        return m_storage.position();
     }
 
   private:
