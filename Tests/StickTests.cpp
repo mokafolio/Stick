@@ -2408,9 +2408,9 @@ const Suite spec[] =
         bool i = false;
 
         serializer.write(a);
-        EXPECT(serializer.storage().byteCount() == 1);
+        EXPECT(serializer.storage().byteCount() == 4); //due to 4 byte alignment
         serializer.write(b);
-        EXPECT(serializer.storage().byteCount() == 8); //due to 4 byte alignment
+        EXPECT(serializer.storage().byteCount() == 8);
         printf("WRITE PAPER\n");
         serializer.write(paper);
         serializer.write(c);
@@ -2422,7 +2422,7 @@ const Suite spec[] =
         serializer.write(i);
 
         printf("BYTE COUNT %lu\n", serializer.storage().byteCount());
-        EXPECT(serializer.storage().byteCount() == 57);
+        EXPECT(serializer.storage().byteCount() == 60);
 
         MemoryDeserializerLE deserializer(serializer.storage().dataPtr(), 
             serializer.storage().byteCount());

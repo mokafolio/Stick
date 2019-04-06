@@ -76,10 +76,9 @@ struct ContainerWriter
 
     void write(const UInt8 * _data, Size _byteCount, UInt32 _align)
     {
-        auto padding = (-target.count() & (_align - 1));
-        printf("PADDING %u\n", padding);
-        target.resize(target.count() + padding);
         target.append(_data, _data + _byteCount);
+        auto padding = (-_byteCount & (_align - 1));
+        target.resize(target.count() + padding);
     }
 
     const UInt8 * dataPtr() const
@@ -143,6 +142,7 @@ struct MemoryReader
         return ret;
     }
 
+    //@TODO: should there be a version that takes alignment into account?
     void setPosition(Size _byteOffset)
     {
         //@TODO: should this function return an Error instead of asserting?
