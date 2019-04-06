@@ -107,7 +107,7 @@ struct MemoryWriter : public ContainerWriter<DynamicArray<UInt8>>
 
 struct MemoryReader
 {
-    MemoryReader(const UInt8 * _data, Size _byteCount) : end(_data + _byteCount), pos(_data)
+    MemoryReader(const UInt8 * _data, Size _byteCount) : start(_data), end(_data + _byteCount), pos(_data)
     {
     }
 
