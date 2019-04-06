@@ -120,13 +120,6 @@ struct MemoryReader
     Error readInto(T * _output, UInt32 _align)
     {
         //@TODO: Better error code
-        // if (byteCount - byteOff < sizeof(T))
-        //     return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
-
-        // *_output = *((T *)(data + byteOff));
-        // byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
-
-        //@TODO: Better error code
         if (end - pos < sizeof(T))
             return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
         *_output = *((T*)pos);
@@ -137,10 +130,6 @@ struct MemoryReader
     template <class T>
     T read(UInt32 _align)
     {
-        // STICK_ASSERT(byteCount - byteOff >= sizeof(T));
-        // T ret = *((T *)(data + byteOff));
-        // byteOff += sizeof(T) + (-sizeof(T) & (_align - 1));
-
         STICK_ASSERT(end - pos >= sizeof(T));
         T ret = *((T*)pos);
         pos += sizeof(T) + (-sizeof(T) & (_align - 1));
@@ -149,15 +138,6 @@ struct MemoryReader
 
     const char * readCString()
     {
-        //at least one character + null terminator
-        //@TODO: sure this test could be more concise :/
-        // if(byteOff >= byteCount || byteCount - byteOff < 2)
-        //     return nullptr;
-
-        // const char * ret = reinterpret_cast<const char*>(data + byteOff);
-        // byteOff += std::strlen(ret) + 1;
-        // return ret;
-
         if(end - pos < 2)
             return nullptr;
 
@@ -166,6 +146,14 @@ struct MemoryReader
         return ret;
     }
 
+    void setPosition(Size _byteOffset)
+    {
+        //@TODO: should this function return an Error instead of asserting?
+        pos = start + _byteOffset;
+        STICK_ASSERT(pos <= end);
+    }
+
+    const UInt8 * start;
     const UInt8 * end;
     const UInt8 * pos;
 };
@@ -259,6 +247,11 @@ class STICK_API DeserializerT
 
         *_out = EndianPolicy::convert(tmp);
         return Error();
+    }
+
+    void setPosition(Size _byteOffset)
+    {
+        m_source.setPosition(_byteOffset);
     }
 
     Int8 readInt8()
