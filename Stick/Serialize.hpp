@@ -62,7 +62,7 @@ struct STICK_API LittleEndianPolicy
 
 //@TODO: Big endian policy
 
-template<class T>
+template <class T>
 struct ContainerWriter
 {
     ContainerWriter(T & _target) : target(_target)
@@ -98,21 +98,16 @@ struct ContainerWriter
 
 struct MemoryWriter : public ContainerWriter<DynamicArray<UInt8>>
 {
-    MemoryWriter(Allocator & _alloc = defaultAllocator()) :
-    ContainerWriter(data),
-    data(_alloc)
+    MemoryWriter(Allocator & _alloc = defaultAllocator()) : ContainerWriter(data), data(_alloc)
     {
     }
 
     DynamicArray<UInt8> data;
 };
 
-
 struct MemoryReader
 {
-    MemoryReader(const UInt8 * _data, Size _byteCount) :
-        end(_data + _byteCount),
-        pos(_data)
+    MemoryReader(const UInt8 * _data, Size _byteCount) : end(_data + _byteCount), pos(_data)
     {
     }
 
@@ -122,7 +117,7 @@ struct MemoryReader
         //@TODO: Better error code
         if (end - pos < sizeof(T))
             return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
-        *_output = *((T*)pos);
+        *_output = *((T *)pos);
         pos += sizeof(T) + (-sizeof(T) & (_align - 1));
         return Error();
     }
@@ -131,17 +126,17 @@ struct MemoryReader
     T read(UInt32 _align)
     {
         STICK_ASSERT(end - pos >= sizeof(T));
-        T ret = *((T*)pos);
+        T ret = *((T *)pos);
         pos += sizeof(T) + (-sizeof(T) & (_align - 1));
         return ret;
     }
 
     const char * readCString()
     {
-        if(end - pos < 2)
+        if (end - pos < 2)
             return nullptr;
 
-        const char * ret = reinterpret_cast<const char*>(pos);
+        const char * ret = reinterpret_cast<const char *>(pos);
         pos += std::strlen(ret) + 1;
         return ret;
     }
@@ -173,8 +168,8 @@ class STICK_API SerializerT
     using Storage = SP;
     static constexpr UInt32 Alignment = Align;
 
-    template<class...Args>
-    SerializerT(Args&&... _args) : m_storage(std::forward<Args>(_args)...)
+    template <class... Args>
+    SerializerT(Args &&... _args) : m_storage(std::forward<Args>(_args)...)
     {
     }
 
@@ -192,7 +187,7 @@ class STICK_API SerializerT
 
     void write(const char * _data, Size _byteCount)
     {
-        m_storage.write((const UInt8*)_data, _byteCount, Alignment);
+        m_storage.write((const UInt8 *)_data, _byteCount, Alignment);
     }
 
     void write(const UInt8 * _data, Size _byteCount)
@@ -233,8 +228,8 @@ class STICK_API DeserializerT
     using Source = SP;
     static constexpr UInt32 Alignment = Align;
 
-    template<class...Args>
-    DeserializerT(Args&&... _args) : m_source(std::forward<Args>(_args)...)
+    template <class... Args>
+    DeserializerT(Args &&... _args) : m_source(std::forward<Args>(_args)...)
     {
     }
 
@@ -262,6 +257,11 @@ class STICK_API DeserializerT
     void setPosition(Size _byteOffset)
     {
         m_source.setPosition(_byteOffset);
+    }
+
+    bool readBool()
+    {
+        return m_source.template read<bool>(Alignment);
     }
 
     Int8 readInt8()
