@@ -77,6 +77,7 @@ struct ContainerWriter
     void write(const UInt8 * _data, Size _byteCount, UInt32 _align)
     {
         auto padding = (-target.count() & (_align - 1));
+        printf("PADDING %u\n", padding);
         target.resize(target.count() + padding);
         target.append(_data, _data + _byteCount);
     }
@@ -131,13 +132,14 @@ struct MemoryReader
         return ret;
     }
 
-    const char * readCString()
+    const char * readCString(UInt32 _align)
     {
         if (end - pos < 2)
             return nullptr;
 
         const char * ret = reinterpret_cast<const char *>(pos);
-        pos += std::strlen(ret) + 1;
+        auto len = std::strlen(ret) + 1;
+        pos += len + (-len & (_align - 1));
         return ret;
     }
 
@@ -316,7 +318,7 @@ class STICK_API DeserializerT
 
     const char * readCString()
     {
-        return m_source.readCString();
+        return m_source.readCString(Alignment);
     }
 
   private:

@@ -2398,6 +2398,7 @@ const Suite spec[] =
 
         char a = 'a';
         int b = -15;
+        const char * paper = "paper";
         UInt32 c = 99;
         Float32 d = -103.123;
         Float64 e = 10986.03;
@@ -2410,6 +2411,8 @@ const Suite spec[] =
         EXPECT(serializer.storage().byteCount() == 1);
         serializer.write(b);
         EXPECT(serializer.storage().byteCount() == 8); //due to 4 byte alignment
+        printf("WRITE PAPER\n");
+        serializer.write(paper);
         serializer.write(c);
         serializer.write(d);
         serializer.write(e);
@@ -2419,14 +2422,14 @@ const Suite spec[] =
         serializer.write(i);
 
         printf("BYTE COUNT %lu\n", serializer.storage().byteCount());
-        EXPECT(serializer.storage().byteCount() == 49);
+        EXPECT(serializer.storage().byteCount() == 57);
 
-        MemoryDeserializerLE deserializer(
-            MemoryReader(serializer.storage().dataPtr(), 
-            serializer.storage().byteCount()));
+        MemoryDeserializerLE deserializer(serializer.storage().dataPtr(), 
+            serializer.storage().byteCount());
 
         char ra;
         int rb;
+        const char * rpaper;
         UInt32 rc;
         Float32 rd;
         Float64 re;
@@ -2437,6 +2440,8 @@ const Suite spec[] =
 
         EXPECT(!deserializer.readInto(&ra));
         EXPECT(!deserializer.readInto(&rb));
+        rpaper = deserializer.readCString();
+        EXPECT(rpaper);
         EXPECT(!deserializer.readInto(&rc));
         EXPECT(!deserializer.readInto(&rd));
         EXPECT(!deserializer.readInto(&re));
@@ -2451,6 +2456,7 @@ const Suite spec[] =
 
         EXPECT(ra == a);
         EXPECT(rb == b);
+        EXPECT(std::strcmp(rpaper, paper) == 0);
         EXPECT(rc == c);
         EXPECT(rd == d);
         EXPECT(re == e);
