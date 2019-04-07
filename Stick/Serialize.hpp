@@ -211,7 +211,10 @@ class STICK_API SerializerT
 
     void write(const String & _data)
     {
-        write(_data.cString(), _data.length() + 1);
+        if(_data.isEmpty())
+            write("");
+        else
+            write(_data.cString(), _data.length() + 1);
     }
 
     template <class T>
