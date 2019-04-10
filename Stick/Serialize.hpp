@@ -180,11 +180,10 @@ class STICK_API SerializerT
     {
     }
 
-    template<class T>
-    Size positionAfterWritingType()
+    Size positionAfterWritingBytes(Size _byteCount)
     {
         //@TODO: should this sit in the storage?
-        return m_storage.position() + sizeof(T) + (-sizeof(T) & (Alignment - 1));
+        return m_storage.position() + _byteCount + (_byteCount & (Alignment - 1));
     }
 
     template <class T>
