@@ -99,6 +99,15 @@ class STICK_API SharedPtr
     }
 
     template <class U>
+    SharedPtr(const SharedPtr<U> & _other, ValueType * _ptr) :
+        m_controlBlock(_other.m_controlBlock),
+        m_ptr(_ptr)
+    {
+        if (m_controlBlock)
+            m_controlBlock->increment();
+    }
+
+    template <class U>
     SharedPtr(SharedPtr<U> && _other) :
         m_controlBlock(std::move(_other.m_controlBlock)),
         m_ptr(std::move(_other.m_ptr))
@@ -210,6 +219,7 @@ SharedPtr<T> makeShared(Allocator & _alloc, Args &&... _args)
 {
     return SharedPtr<T>(_alloc.create<T>(std::forward<Args>(_args)...), DefaultCleanup<T>(_alloc));
 }
+
 } // namespace stick
 
 #endif // STICK_SHAREDPTR_HPP
