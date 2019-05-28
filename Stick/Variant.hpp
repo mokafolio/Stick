@@ -357,6 +357,11 @@ class Variant
         return StorageSize;
     }
 
+    inline TypeID typeID() const
+    {
+        return m_typeID;
+    }
+
   private:
     TypeID m_typeID;
     StorageType m_storage;
