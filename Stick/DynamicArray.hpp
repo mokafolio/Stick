@@ -21,10 +21,8 @@ class DynamicArray
     using ReverseIter = ReverseIterator<Iter>;
     using ReverseConstIter = ReverseIterator<ConstIter>;
 
-    //@NOTE: We only put this here temporarily to easily allow DynamicArray to work with sol2 for
-    //lua bindings In a future version of sol this will most likely not be needed anymore. That
-    // said, maybe we should put all the standard container typedefs in here to maximize the Stick
-    // containers compatibility with standard algorithms that rely on them?
+    //@NOTE: these are only here to make DynamicArray work with a bunch of the helpers
+    //from the standard library, (i.e. thins in <algorithm>, std::priority_queue etc.)
     using iterator = Iter;
     using const_iterator = ConstIter;
     using value_type = ValueType;
@@ -33,6 +31,7 @@ class DynamicArray
     using const_reference = const value_type &;
     using pointer = value_type *;
     using const_pointer = const value_type *;
+    using size_type = Size;
 
     DynamicArray(Allocator & _alloc = defaultAllocator()) : m_count(0), m_allocator(&_alloc)
     {
