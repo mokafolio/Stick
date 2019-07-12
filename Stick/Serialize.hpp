@@ -112,7 +112,8 @@ struct MemoryWriter : public ContainerWriter<DynamicArray<UInt8>>
 
 struct MemoryReader
 {
-    MemoryReader(const UInt8 * _data, Size _byteCount) : start(_data), end(_data + _byteCount), pos(_data)
+    MemoryReader(const UInt8 * _data, Size _byteCount)
+        : start(_data), end(_data + _byteCount), pos(_data)
     {
     }
 
@@ -210,7 +211,7 @@ class STICK_API SerializerT
 
     void write(const String & _data)
     {
-        if(_data.isEmpty())
+        if (_data.isEmpty())
             write("");
         else
             write(_data.cString(), _data.length() + 1);
