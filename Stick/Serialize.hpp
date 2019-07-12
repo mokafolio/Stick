@@ -120,7 +120,7 @@ struct MemoryReader
     Error readInto(T * _output, UInt32 _align)
     {
         //@TODO: Better error code
-        if (end - pos < sizeof(T))
+        if (end - pos < static_cast<std::ptrdiff_t>(sizeof(T)))
             return Error(ec::InvalidOperation, "Not enough data left", STICK_FILE, STICK_LINE);
         *_output = *((T *)pos);
         pos += sizeof(T) + (-sizeof(T) & (_align - 1));
@@ -130,7 +130,7 @@ struct MemoryReader
     template <class T>
     T read(UInt32 _align)
     {
-        STICK_ASSERT(end - pos >= sizeof(T));
+        STICK_ASSERT(end - pos >= static_cast<std::ptrdiff_t>(sizeof(T)));
         T ret = *((T *)pos);
         pos += sizeof(T) + (-sizeof(T) & (_align - 1));
         return ret;
