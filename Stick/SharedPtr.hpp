@@ -38,10 +38,8 @@ struct STICK_API ControlBlock
 template <class T, class C>
 struct STICK_API ControlBlockT : public ControlBlock
 {
-    ControlBlockT(Allocator & _alloc, T * _ptr, C _cleanup) :
-        ControlBlock(_alloc),
-        cleanup(_alloc),
-        ptr(_ptr)
+    ControlBlockT(Allocator & _alloc, T * _ptr, C _cleanup)
+        : ControlBlock(_alloc), cleanup(_alloc), ptr(_ptr)
     {
     }
 
@@ -75,10 +73,10 @@ class STICK_API SharedPtr
 
     template <class U,
               class Enable = typename std::enable_if<std::is_convertible<U *, T *>::value>::type>
-    explicit SharedPtr(U * _ptr, Cleanup _cleanup = Cleanup(defaultAllocator())) :
-        m_controlBlock(
-            defaultAllocator().create<ControlBlockType>(defaultAllocator(), _ptr, _cleanup)),
-        m_ptr(static_cast<T *>(_ptr))
+    explicit SharedPtr(U * _ptr, Cleanup _cleanup = Cleanup(defaultAllocator()))
+        : m_controlBlock(
+              defaultAllocator().create<ControlBlockType>(defaultAllocator(), _ptr, _cleanup))
+        , m_ptr(static_cast<T *>(_ptr))
     {
     }
 
@@ -90,27 +88,24 @@ class STICK_API SharedPtr
 
     template <class U,
               class Enable = typename std::enable_if<std::is_convertible<U *, T *>::value>::type>
-    SharedPtr(const SharedPtr<U> & _other) :
-        m_controlBlock(_other.m_controlBlock),
-        m_ptr(static_cast<T *>(_other.m_ptr))
+    SharedPtr(const SharedPtr<U> & _other)
+        : m_controlBlock(_other.m_controlBlock), m_ptr(static_cast<T *>(_other.m_ptr))
     {
         if (m_controlBlock)
             m_controlBlock->increment();
     }
 
     template <class U>
-    SharedPtr(const SharedPtr<U> & _other, ValueType * _ptr) :
-        m_controlBlock(_other.m_controlBlock),
-        m_ptr(_ptr)
+    SharedPtr(const SharedPtr<U> & _other, ValueType * _ptr)
+        : m_controlBlock(_other.m_controlBlock), m_ptr(_ptr)
     {
         if (m_controlBlock)
             m_controlBlock->increment();
     }
 
     template <class U>
-    SharedPtr(SharedPtr<U> && _other) :
-        m_controlBlock(std::move(_other.m_controlBlock)),
-        m_ptr(std::move(_other.m_ptr))
+    SharedPtr(SharedPtr<U> && _other)
+        : m_controlBlock(std::move(_other.m_controlBlock)), m_ptr(std::move(_other.m_ptr))
     {
         _other.m_controlBlock = nullptr;
         _other.m_ptr = nullptr;
@@ -145,6 +140,7 @@ class STICK_API SharedPtr
 
     SharedPtr & operator=(const SharedPtr & _other)
     {
+        reset();
         m_ptr = _other.m_ptr;
         m_controlBlock = _other.m_controlBlock;
         if (m_controlBlock)
@@ -154,6 +150,7 @@ class STICK_API SharedPtr
 
     SharedPtr & operator=(SharedPtr && _other)
     {
+        reset();
         m_ptr = std::move(_other.m_ptr);
         m_controlBlock = std::move(_other.m_controlBlock);
         _other.m_controlBlock = nullptr;
