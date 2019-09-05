@@ -158,6 +158,16 @@ class STICK_API SharedPtr
         return *this;
     }
 
+    bool operator == (const SharedPtr & _o) const
+    {
+        return _o.get() == m_ptr;
+    }
+
+    bool operator != (const SharedPtr & _o) const
+    {
+        return !(*this == _o);
+    }
+
     void swap(SharedPtr & _other)
     {
         std::swap(m_controlBlock, _other.m_controlBlock);
