@@ -2,6 +2,7 @@
 #define STICK_ITERATOR_HPP
 
 #include <Stick/Platform.hpp>
+#include <iterator>
 
 namespace stick
 {
@@ -120,6 +121,60 @@ struct ReverseIterator
 
     Iter m_it;
 };
+
+template <class Container>
+struct BackInsertIterator
+{
+    using ContainerType = Container;
+
+    // to satisfy std::iterator
+    using iterator_category = std::output_iterator_tag;
+    using value_type = void;
+    using difference_type = void;
+    using pointer = void;
+    using reference = void;
+    using container_type = Container;
+
+    explicit BackInsertIterator(Container & _c) : m_container(_c)
+    {
+    }
+
+    inline BackInsertIterator & operator++()
+    {
+        return *this;
+    }
+
+    inline BackInsertIterator & operator++(int)
+    {
+        return *this;
+    }
+
+    inline BackInsertIterator & operator*()
+    {
+        return *this;
+    }
+
+    inline BackInsertIterator & operator=(const typename ContainerType::ValueType & _val)
+    {
+        m_container->append(_val);
+        return *this;
+    }
+
+    inline BackInsertIterator & operator=(typename ContainerType::ValueType && _val)
+    {
+        m_container->append(std::move(_val));
+        return *this;
+    }
+
+    Container & m_container;
+};
+
+template<class Container>
+BackInsertIterator<Container> backInserter(Container & _c)
+{
+    return BackInsertIterator<Container>(_c);
+}
+
 } // namespace stick
 
 #endif // STICK_ITERATOR_HPP
