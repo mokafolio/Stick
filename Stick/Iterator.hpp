@@ -156,13 +156,13 @@ struct BackInsertIterator
 
     inline BackInsertIterator & operator=(const typename ContainerType::ValueType & _val)
     {
-        m_container->append(_val);
+        m_container.append(_val);
         return *this;
     }
 
     inline BackInsertIterator & operator=(typename ContainerType::ValueType && _val)
     {
-        m_container->append(std::move(_val));
+        m_container.append(std::move(_val));
         return *this;
     }
 
