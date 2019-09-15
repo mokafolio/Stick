@@ -169,7 +169,7 @@ struct BackInsertIterator
     Container & m_container;
 };
 
-template<class Container>
+template <class Container>
 BackInsertIterator<Container> backInserter(Container & _c)
 {
     return BackInsertIterator<Container>(_c);
